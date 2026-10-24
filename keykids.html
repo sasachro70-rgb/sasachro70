@@ -1,0 +1,2464 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>KeyKids</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Mali:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: keycaps on a desk. Every button is a chunky keycap; the play screen stacks stage → finger helper → full keyboard. */
+:root {
+  --bg: #EAF3EF; --surface: #FFFFFF; --ink: #1C2A35; --muted: #566874; --line: #CFDDD7;
+  --accent: #2463D1; --accent-ink: #FFFFFF; --sun: #F2B111; --good: #17945A; --oops: #E06A40;
+  --cap: #FFFFFF; --cap-side: #BFD0C9; --shade: rgba(28, 42, 53, .10);
+  --f-p: #F39BB2; --f-r: #F7B56E; --f-m: #EDD45A; --f-i: #7FCF9C; --f-t: #AE9CEB;
+  --display: "Fredoka", "Mali", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+  --body: "Mali", "Leelawadee UI", Tahoma, "Noto Sans Thai", system-ui, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111920; --surface: #1A252E; --ink: #E6EFF1; --muted: #9DB0B9; --line: #2A3A45;
+  --accent: #74A6FF; --accent-ink: #0D1828; --sun: #FFCB45; --good: #4AC888; --oops: #FF8B63;
+  --cap: #23313B; --cap-side: #0A1116; --shade: rgba(0, 0, 0, .35);
+  --f-p: #C76A85; --f-r: #C98A47; --f-m: #B9A63A; --f-i: #4F9F6E; --f-t: #8270C2; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111920; --surface: #1A252E; --ink: #E6EFF1; --muted: #9DB0B9; --line: #2A3A45;
+  --accent: #74A6FF; --accent-ink: #0D1828; --sun: #FFCB45; --good: #4AC888; --oops: #FF8B63;
+  --cap: #23313B; --cap-side: #0A1116; --shade: rgba(0, 0, 0, .35);
+  --f-p: #C76A85; --f-r: #C98A47; --f-m: #B9A63A; --f-i: #4F9F6E; --f-t: #8270C2; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+#app { max-width: 1040px; margin: 0 auto; padding-block: 12px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; text-wrap: balance; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* keycap buttons */
+.cap { background: var(--cap); border: 1px solid var(--line); border-radius: var(--r); box-shadow: 0 4px 0 var(--cap-side); padding: .55rem .9rem; transition: transform .08s, box-shadow .08s; }
+.cap:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--cap-side); }
+.cap.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 700; box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 55%, #000); }
+.cap.on { outline: 3px solid var(--accent); outline-offset: 1px; }
+.cap.small { padding: .3rem .6rem; font-size: .9rem; border-radius: 10px; box-shadow: 0 3px 0 var(--cap-side); }
+.ghost { background: transparent; border: none; padding: .4rem .6rem; border-radius: 10px; }
+a.cap { color: inherit; text-decoration: none; display: inline-block; }
+.ghost:hover { background: var(--shade); }
+
+/* top bar */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin-bottom: 18px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.6rem; letter-spacing: .5px; display: flex; align-items: center; gap: .4rem; }
+.brand .k { display: inline-grid; place-items: center; width: 2rem; height: 2rem; background: var(--accent); color: var(--accent-ink); border-radius: 8px; box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 55%, #000); font-size: 1.1rem; }
+.top .grow { flex: 1; }
+.seg { display: inline-flex; gap: 4px; background: var(--shade); padding: 3px; border-radius: 12px; align-items: center; }
+.seg .lbl { font-size: .75rem; color: var(--muted); padding: 0 .4rem; letter-spacing: .4px; text-transform: uppercase; }
+.seg button { border: none; background: transparent; padding: .25rem .6rem; border-radius: 9px; font-size: .9rem; }
+.seg button.on { background: var(--surface); box-shadow: 0 2px 0 var(--cap-side); font-weight: 700; }
+.pill { display: inline-flex; align-items: center; gap: .3rem; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* buddy speech bubble */
+.buddy { display: flex; align-items: flex-end; gap: .6rem; margin: 0 0 16px; min-height: 64px; }
+.buddy .face { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 3px 0 var(--shade)); }
+.buddy .face.talk { animation: bob .5s ease-in-out 3; }
+.bubble { position: relative; background: var(--surface); border: 2px solid var(--line); border-radius: 18px 18px 18px 4px; padding: .5rem .9rem; max-width: 46ch; min-width: 0; }
+.bubble b { font-family: var(--display); font-size: .78rem; color: var(--muted); display: block; letter-spacing: .4px; text-transform: uppercase; }
+.bubble .replay { margin-left: .3rem; font-size: .9rem; }
+@keyframes bob { 50% { transform: translateY(-6px) rotate(-4deg); } }
+
+/* home / map */
+.hello { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 1rem 1.2rem; margin-bottom: 22px; }
+.hello .av { font-size: 3rem; }
+.hello h1 { font-size: 1.7rem; }
+.hello p { margin: .1rem 0 0; color: var(--muted); }
+@media (max-width: 560px) { .hello { grid-template-columns: auto 1fr; } .hello .go { grid-column: 1 / -1; } }
+.level { margin-bottom: 26px; }
+.lvhead { display: flex; align-items: center; gap: .8rem; margin-bottom: 10px; flex-wrap: wrap; }
+.lvnum { width: 2.6rem; height: 2.6rem; display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 1.4rem; border-radius: 10px; background: var(--cap); border: 1px solid var(--line); box-shadow: 0 4px 0 var(--cap-side); }
+.lvhead h2 { font-size: 1.35rem; }
+.lvhead .ages { color: var(--muted); font-size: .95rem; }
+.chip { font-size: .8rem; font-weight: 700; background: var(--sun); color: #3A2A00; padding: .1rem .6rem; border-radius: 999px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.tile { text-align: left; display: flex; flex-direction: column; gap: .2rem; min-height: 118px; padding: .8rem .9rem; }
+.tile .ic { font-size: 1.8rem; line-height: 1; }
+.tile .nm { font-weight: 600; line-height: 1.25; flex: 1; }
+.stars { color: var(--line); letter-spacing: 2px; font-size: 1.05rem; }
+.stars .s { color: var(--sun); }
+.level.rec .lvnum { background: var(--sun); color: #3A2A00; border-color: transparent; }
+
+/* play */
+.playbar { display: flex; align-items: center; gap: .8rem; margin-bottom: 10px; flex-wrap: wrap; }
+.playbar .ttl { font-family: var(--display); font-weight: 600; font-size: 1.15rem; }
+.meter { flex: 1; min-width: 120px; height: 12px; background: var(--shade); border-radius: 999px; overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--good); border-radius: 999px; transition: width .25s; }
+.timer { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.stage { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; min-height: 230px; display: grid; place-items: center; padding: 1rem; overflow: hidden; text-align: center; }
+.prompt { color: var(--muted); font-size: 1.05rem; margin-bottom: .4rem; }
+.glyph { font-family: var(--display); font-size: clamp(5rem, 18vw, 9rem); line-height: 1; font-weight: 700; color: var(--accent); }
+.emoji { font-size: clamp(4rem, 14vw, 6.5rem); line-height: 1.1; }
+.word { font-size: 2rem; font-family: var(--display); }
+.word .tg { color: var(--accent); text-decoration: underline; text-decoration-thickness: 4px; text-underline-offset: 6px; }
+.line { font-family: var(--display); font-size: clamp(1.8rem, 5.5vw, 3rem); line-height: 1.6; word-break: break-word; max-width: 100%; }
+.line .g { color: var(--muted); opacity: .55; border-radius: 8px; padding: 0 .02em; }
+.line .g.done { color: var(--good); opacity: 1; }
+.line .g.cur { color: var(--ink); opacity: 1; background: color-mix(in srgb, var(--sun) 45%, transparent); box-shadow: 0 4px 0 var(--sun); }
+.line .sp { display: inline-block; min-width: .45em; }
+.nextitem { color: var(--muted); font-size: 1rem; margin-top: .3rem; }
+.substep { display: inline-block; margin-top: .4rem; font-size: 1rem; background: var(--shade); padding: .1rem .7rem; border-radius: 999px; }
+.strip { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+.strip .c { font-family: var(--display); font-size: 2rem; width: 3.2rem; height: 3.6rem; display: grid; place-items: center; border-radius: 12px; background: var(--cap); border: 1px solid var(--line); box-shadow: 0 4px 0 var(--cap-side); }
+.strip .c.cur { font-size: 3rem; width: 4.6rem; height: 5rem; border: 3px solid var(--accent); }
+.strip .c.done { opacity: .35; }
+.shake { animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.pop { animation: popin .35s; }
+@keyframes popin { 0% { transform: scale(.4); } 70% { transform: scale(1.12); } 100% { transform: scale(1); } }
+.capswarn { color: var(--oops); font-weight: 700; }
+
+/* frog game */
+.pond { width: 100%; max-width: 640px; }
+.pads { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-top: 1rem; }
+.pad { aspect-ratio: 1; max-width: 100%; border-radius: 50%; background: color-mix(in srgb, var(--good) 35%, var(--surface)); border: 2px solid color-mix(in srgb, var(--good) 60%, var(--surface)); }
+.pad:last-child { background: var(--sun); border-color: var(--sun); }
+.frog { position: absolute; top: -.9em; left: 0; width: calc(100% / 9); text-align: center; font-size: clamp(1.8rem, 6vw, 3rem); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+.spacecap { display: inline-block; margin-top: 1.4rem; padding: .5rem 4rem; border-radius: 12px; background: var(--cap); border: 1px solid var(--line); box-shadow: 0 4px 0 var(--cap-side); color: var(--muted); }
+
+/* balloons */
+.sky { position: absolute; inset: 0; }
+.balloon { position: absolute; bottom: 0; width: 64px; height: 78px; margin-left: -32px; border-radius: 50% 50% 46% 46%; display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 1.9rem; color: #1C2A35; will-change: transform; }
+.balloon::after { content: ""; position: absolute; bottom: -22px; left: 50%; width: 1px; height: 22px; background: var(--muted); }
+.balloon.boom { animation: boom .25s forwards; }
+@keyframes boom { to { transform: var(--t) scale(1.6); opacity: 0; } }
+.skyhint { position: absolute; top: .6rem; left: 0; right: 0; color: var(--muted); }
+.stage.game { min-height: 300px; }
+
+/* finger helper */
+.helper { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; min-height: 72px; margin: 10px 0; color: var(--muted); }
+.hands { width: 200px; max-width: 60vw; height: auto; }
+.hands .palm { fill: var(--cap); stroke: var(--line); stroke-width: 2; }
+.hands .fg { stroke: var(--line); stroke-width: 2; opacity: .45; }
+.hands .fg.on { opacity: 1; stroke: var(--ink); stroke-width: 3; }
+.hands .fp { fill: var(--f-p); } .hands .fr { fill: var(--f-r); } .hands .fm { fill: var(--f-m); } .hands .fi { fill: var(--f-i); } .hands .ft { fill: var(--f-t); }
+.helper strong { color: var(--ink); }
+
+/* keyboard */
+.kb { display: flex; flex-direction: column; gap: .32rem; max-width: 880px; margin: 0 auto; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.kr { display: flex; gap: .32rem; }
+.key { position: relative; flex: 1 1 0; min-width: 0; height: clamp(2.1rem, 6.4vw, 3.4rem); border-radius: 9px; border: 1px solid var(--line); background: color-mix(in srgb, var(--fc, var(--cap)) 30%, var(--cap)); box-shadow: 0 3px 0 var(--cap-side); font-family: var(--display); font-size: clamp(.75rem, 2.4vw, 1.25rem); display: grid; place-items: center; padding: 0; line-height: 1; transition: transform .06s, background .1s; }
+.key .alt { position: absolute; top: 3px; left: 5px; font-size: .62em; color: var(--muted); }
+.key.w15 { flex-grow: 1.5; } .key.w18 { flex-grow: 1.8; } .key.w22 { flex-grow: 2.3; } .key.space { flex-grow: 7; }
+.key.mod { background: var(--shade); color: var(--muted); font-size: clamp(.65rem, 1.9vw, .95rem); cursor: default; }
+.key.shift { cursor: pointer; }
+.key.bump::after { content: ""; position: absolute; bottom: 5px; left: 50%; width: 30%; margin-left: -15%; height: 3px; border-radius: 2px; background: var(--muted); }
+.key[data-f="lp"], .key[data-f="rp"] { --fc: var(--f-p); }
+.key[data-f="lr"], .key[data-f="rr"] { --fc: var(--f-r); }
+.key[data-f="lm"], .key[data-f="rm"] { --fc: var(--f-m); }
+.key[data-f="li"], .key[data-f="ri"] { --fc: var(--f-i); }
+.key[data-f="th"] { --fc: var(--f-t); }
+.key.target { background: var(--accent); color: var(--accent-ink); border-color: transparent; animation: pulse 1.1s infinite; }
+.key.target .alt { color: var(--accent-ink); }
+.key.latched { outline: 3px solid var(--accent); }
+.key.hit { background: var(--good); color: #fff; transform: translateY(3px); box-shadow: none; }
+.key.miss { background: var(--oops); color: #fff; transform: translateY(3px); box-shadow: none; }
+@keyframes pulse { 50% { box-shadow: 0 3px 0 var(--cap-side), 0 0 0 6px color-mix(in srgb, var(--accent) 30%, transparent); } }
+.kbnote { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 8px; }
+
+/* result */
+.result { text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 1.6rem 1rem; }
+.bigstars { font-size: clamp(3rem, 12vw, 4.8rem); letter-spacing: .1em; color: var(--line); }
+.bigstars .s { color: var(--sun); display: inline-block; animation: popin .45s backwards; }
+.bigstars .s:nth-child(2) { animation-delay: .25s; } .bigstars .s:nth-child(3) { animation-delay: .5s; }
+.result h1 { font-size: 2.2rem; margin: .3rem 0 1rem; }
+.stats { display: flex; justify-content: center; gap: .8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.stat { background: var(--bg); border-radius: 14px; padding: .6rem 1rem; min-width: 120px; }
+.stat .v { font-family: var(--display); font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat .l { font-size: .8rem; color: var(--muted); letter-spacing: .3px; text-transform: uppercase; }
+.weak { margin: 0 0 1rem; color: var(--muted); }
+.weak .kc { display: inline-grid; place-items: center; min-width: 2.2rem; height: 2.2rem; margin: 0 .15rem; border-radius: 8px; background: var(--cap); border: 1px solid var(--line); box-shadow: 0 3px 0 var(--cap-side); color: var(--ink); font-family: var(--display); font-size: 1.2rem; }
+.suggest { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .6rem; background: color-mix(in srgb, var(--sun) 22%, var(--surface)); border-radius: 14px; padding: .6rem 1rem; margin-bottom: 1.2rem; }
+.actions { display: flex; gap: .7rem; justify-content: center; flex-wrap: wrap; }
+
+/* rewards & parents */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 1.1rem 1.2rem; margin-bottom: 18px; }
+.panel h2 { font-size: 1.3rem; margin-bottom: .7rem; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.badge { text-align: center; padding: .7rem .4rem; border-radius: 14px; background: var(--bg); }
+.badge .bi { font-size: 2.2rem; }
+.badge.off { opacity: .35; filter: grayscale(1); }
+.badge .bn { font-size: .85rem; line-height: 1.25; }
+.stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+.sticker { aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; font-size: 2.2rem; border-radius: 14px; background: var(--bg); }
+.sticker.off { font-size: 1.2rem; color: var(--muted); border: 2px dashed var(--line); background: transparent; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: .8rem; color: var(--muted); font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+.row { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; padding: .45rem 0; }
+.row label { min-width: 12rem; }
+.row input[type="range"] { width: 12rem; max-width: 100%; }
+input[type="text"], input[type="number"], select { background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: .45rem .7rem; }
+.muted { color: var(--muted); }
+.warn { color: var(--oops); font-weight: 600; }
+.plan li { margin-bottom: .3rem; }
+
+/* setup */
+.setup { max-width: 640px; margin: 0 auto; }
+.setup .panel { display: grid; gap: 1rem; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choices .cap { min-width: 3rem; }
+.avatars .cap { font-size: 1.8rem; padding: .3rem .6rem; }
+.field label { display: block; font-weight: 600; margin-bottom: .3rem; }
+
+/* profiles */
+.profiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.pcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: 1.2rem .8rem 1rem; text-align: center; min-height: 190px; justify-content: center; }
+.pcard .av { font-size: 3.6rem; line-height: 1.1; }
+.pcard .nm { font-family: var(--display); font-weight: 700; font-size: 1.35rem; overflow-wrap: anywhere; }
+.pcard .meta { color: var(--muted); font-size: .9rem; }
+.pcard.add { border-style: dashed; color: var(--muted); }
+.pwrap { position: relative; }
+.pwrap .edit { position: absolute; top: 8px; right: 8px; z-index: 1; }
+.savewarn { background: color-mix(in srgb, var(--oops) 18%, var(--surface)); border: 2px solid var(--oops); border-radius: 14px; padding: .6rem .9rem; margin-bottom: 14px; font-weight: 600; }
+.avpill { display: inline-flex; align-items: center; gap: .35rem; }
+
+/* spelling */
+.banner { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; background: color-mix(in srgb, var(--f-t) 28%, var(--surface)); border: 1px solid var(--line); border-radius: 20px; padding: 1rem 1.2rem; margin-bottom: 24px; }
+.banner .bi { font-size: 2.6rem; }
+.banner h2 { font-size: 1.35rem; }
+.banner p { margin: .1rem 0 0; color: var(--muted); }
+@media (max-width: 560px) { .banner { grid-template-columns: auto 1fr; } .banner .go { grid-column: 1 / -1; } }
+.dlv { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.dlv .cap { text-align: left; display: flex; flex-direction: column; gap: .15rem; }
+.dlv .cap b { font-family: var(--display); font-size: 1.1rem; }
+.dlv .cap span { color: var(--muted); font-size: .88rem; line-height: 1.3; }
+.tile.on { outline: 3px solid var(--accent); outline-offset: 1px; }
+.tile .cnt { color: var(--muted); font-size: .85rem; }
+.sphead { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 4px 0 18px; }
+.spsec { margin-bottom: 22px; }
+.spsec h2 { font-size: 1.2rem; margin-bottom: 10px; }
+.spgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 1.2rem; align-items: center; width: 100%; }
+@media (max-width: 640px) { .spgrid { grid-template-columns: 1fr; } }
+.sppic { display: grid; justify-items: center; gap: .4rem; }
+.flag { width: min(240px, 62vw); height: auto; border-radius: 6px; box-shadow: 0 4px 0 var(--cap-side); border: 1px solid var(--line); }
+.picsvg { width: min(170px, 46vw); height: auto; }
+.info { color: var(--muted); font-size: .95rem; }
+.spans { display: grid; gap: .8rem; justify-items: center; min-width: 0; }
+.boxes { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; }
+.box { min-width: 2.5rem; height: 3.3rem; padding: 0 .25rem; display: grid; place-items: center; font-family: var(--display); font-size: 2rem; background: var(--bg); border-bottom: 4px solid var(--line); border-radius: 10px 10px 4px 4px; }
+.box.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.box.ok { color: var(--good); }
+.box.bad { color: var(--oops); border-color: var(--oops); }
+.box.ghost { color: var(--muted); opacity: .5; }
+.box.gap { min-width: 1.1rem; background: transparent; border-color: transparent; }
+.ansline { font-family: var(--display); font-size: clamp(1.8rem, 5.5vw, 2.8rem); min-height: 1.6em; min-width: 8ch; border-bottom: 4px solid var(--accent); text-align: center; max-width: 100%; overflow-wrap: anywhere; }
+.ansline .ok { color: var(--good); } .ansline .bad { color: var(--oops); }
+.caret { display: inline-block; width: 3px; height: 1em; background: var(--accent); vertical-align: -0.1em; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.peekword { font-family: var(--display); font-size: 1.6rem; color: var(--muted); }
+.tools { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.tools .cap[disabled] { opacity: .45; cursor: not-allowed; }
+.doneword { font-family: var(--display); font-size: clamp(2rem, 6vw, 3rem); color: var(--good); }
+.score { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
+.wordlist { list-style: none; padding: 0; margin: 0 auto 1.2rem; display: grid; gap: .35rem; max-width: 420px; text-align: left; }
+.wordlist li { display: flex; align-items: center; gap: .6rem; background: var(--bg); border-radius: 10px; padding: .35rem .7rem; }
+.wordlist .w { font-family: var(--display); font-size: 1.15rem; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.wordlist .mini { width: 34px; display: grid; place-items: center; font-size: 1.4rem; }
+.wordlist .mini svg { width: 32px; height: auto; }
+
+/* flag quiz */
+.flag.big { width: min(400px, 80vw); }
+.flag.tiny { width: 30px; box-shadow: none; border-radius: 3px; vertical-align: middle; }
+.flag.small { width: 64px; box-shadow: none; border-radius: 4px; vertical-align: middle; }
+.fq { display: grid; gap: 1rem; justify-items: center; width: 100%; }
+.fq h2 { font-size: clamp(1.2rem, 3.6vw, 1.6rem); text-align: center; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 10px; width: 100%; max-width: 760px; }
+.opt { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
+.opt .pickbtn { flex: 1; min-width: 0; display: flex; align-items: center; gap: .6rem; font-family: var(--display); font-size: clamp(1.15rem, 3.2vw, 1.5rem); font-weight: 600; text-align: left; padding: .7rem .9rem; overflow-wrap: anywhere; }
+.opt .num { flex: none; display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 7px; font-size: 1rem; background: var(--shade); color: var(--muted); }
+.opt .saybtn { flex: none; }
+.opt.bad .pickbtn { background: color-mix(in srgb, var(--oops) 22%, var(--cap)); color: var(--muted); text-decoration: line-through; }
+.opt.gone { visibility: hidden; }
+.opt.good .pickbtn { background: var(--good); color: #fff; border-color: transparent; }
+.opt.reveal .pickbtn { outline: 4px solid var(--good); outline-offset: 2px; animation: pulse 1.1s infinite; }
+.fmsg { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; justify-content: center; font-weight: 600; text-align: center; }
+.fmsg.ok { color: var(--good); } .fmsg.no { color: var(--oops); }
+.after { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.langnames { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; }
+.langnames .pill { font-size: 1.05rem; }
+.tbar { width: 100%; max-width: 400px; height: 10px; border-radius: 999px; background: var(--shade); overflow: hidden; }
+.tbar span { display: block; height: 100%; background: var(--sun); transition: width .2s linear; }
+.toggles { display: grid; gap: .2rem; margin: 6px 0 14px; }
+
+/* overlay & toast */
+#ov { position: fixed; inset: 0; background: rgba(10, 20, 28, .55); display: grid; place-items: center; z-index: 50; padding: 16px; }
+#ov .box { background: var(--surface); border-radius: 22px; padding: 1.4rem; max-width: 420px; text-align: center; display: grid; gap: .8rem; }
+#ov .box .bi { font-size: 3.4rem; }
+#toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60; display: grid; gap: 8px; pointer-events: none; }
+#toast .t { background: var(--ink); color: var(--bg); padding: .55rem 1rem; border-radius: 999px; font-weight: 600; animation: popin .3s; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+
+<div id="app"></div>
+<div id="ov" hidden></div>
+<div id="toast" aria-live="polite"></div>
+
+<script id="kk-core">
+/* KeyKids core: layouts, text handling, curriculum, translations, voice lines. No DOM access, so it can be tested in Node. */
+(function (G) {
+  'use strict';
+
+  /* ---------- keyboard layouts (physical key code → character) ---------- */
+  const FINGER_OF = {};
+  [['lp', 'Backquote Digit1 KeyQ KeyA KeyZ IntlBackslash ShiftLeft'], ['lr', 'Digit2 KeyW KeyS KeyX'], ['lm', 'Digit3 KeyE KeyD KeyC'],
+   ['li', 'Digit4 Digit5 KeyR KeyT KeyF KeyG KeyV KeyB'], ['ri', 'Digit6 Digit7 KeyY KeyU KeyH KeyJ KeyN KeyM'], ['rm', 'Digit8 KeyI KeyK Comma'],
+   ['rr', 'Digit9 KeyO KeyL Period'], ['rp', 'Digit0 Minus Equal KeyP BracketLeft BracketRight Backslash Semicolon Quote Slash ShiftRight'], ['th', 'Space']]
+    .forEach(([f, s]) => s.split(' ').forEach(c => { FINGER_OF[c] = f; }));
+
+  const R0 = 'Backquote Digit1 Digit2 Digit3 Digit4 Digit5 Digit6 Digit7 Digit8 Digit9 Digit0 Minus Equal'.split(' ');
+  const Q = 'KeyQ KeyW KeyE KeyR KeyT KeyY KeyU KeyI KeyO KeyP'.split(' ');
+  const A = 'KeyA KeyS KeyD KeyF KeyG KeyH KeyJ KeyK KeyL'.split(' ');
+  const Z = 'KeyZ KeyX KeyC KeyV KeyB KeyN KeyM'.split(' ');
+  const LAYOUT_DEFS = {
+    en: [
+      [R0, '`1234567890-=', '~!@#$%^&*()_+'],
+      [Q.concat(['BracketLeft', 'BracketRight', 'Backslash']), 'qwertyuiop[]\\', 'QWERTYUIOP{}|'],
+      [A.concat(['Semicolon', 'Quote']), "asdfghjkl;'", 'ASDFGHJKL:"'],
+      [Z.concat(['Comma', 'Period', 'Slash']), 'zxcvbnm,./', 'ZXCVBNM<>?']
+    ],
+    sv: [
+      [R0, '§1234567890+´', '½!"#¤%&/()=?`'],
+      [Q.concat(['BracketLeft', 'BracketRight']), 'qwertyuiopå¨', 'QWERTYUIOPÅ^'],
+      [A.concat(['Semicolon', 'Quote', 'Backslash']), "asdfghjklöä'", 'ASDFGHJKLÖÄ*'],
+      [['IntlBackslash'].concat(Z, ['Comma', 'Period', 'Slash']), '<zxcvbnm,.-', '>ZXCVBNM;:_']
+    ],
+    th: [ /* Thai Kedmanee */
+      [R0, '_ๅ/-ภถุึคตจขช', '%+๑๒๓๔ู฿๕๖๗๘๙'],
+      [Q.concat(['BracketLeft', 'BracketRight', 'Backslash']), 'ๆไำพะัีรนยบลฃ', '๐"ฎฑธํ๊ณฯญฐ,ฅ'],
+      [A.concat(['Semicolon', 'Quote']), 'ฟหกดเ้่าสวง', 'ฤฆฏโฌ็๋ษศซ.'],
+      [Z.concat(['Comma', 'Period', 'Slash']), 'ผปแอิืทมใฝ', '()ฉฮฺ์?ฒฬฦ']
+    ]
+  };
+  const LAYOUTS = {};
+  for (const lang of Object.keys(LAYOUT_DEFS)) {
+    const rows = LAYOUT_DEFS[lang].map(([codes, n, s]) => {
+      const N = Array.from(n), S = Array.from(s);
+      if (N.length !== codes.length || S.length !== codes.length) throw new Error('Layout row length mismatch: ' + lang + ' ' + n);
+      return codes.map((code, i) => ({ code, n: N[i], s: S[i], finger: FINGER_OF[code] }));
+    });
+    const byCode = {}, byChar = {};
+    rows.flat().concat([{ code: 'Space', n: ' ', s: ' ', finger: 'th' }]).forEach(k => {
+      byCode[k.code] = k;
+      if (!(k.n in byChar)) byChar[k.n] = { code: k.code, shift: false, finger: k.finger };
+      if (!(k.s in byChar)) byChar[k.s] = { code: k.code, shift: k.s !== k.n, finger: k.finger };
+    });
+    LAYOUTS[lang] = { lang, rows, byCode, byChar };
+  }
+
+  /* ---------- Unicode text handling ---------- */
+  const COMBINING_RE = /[ัิ-ฺ็-๎]/;
+  const TONE_RE = /[่-๋]/;
+  const ABOVE_BELOW_RE = /[ัิ-ฺ็ํ]/;
+  const isCombining = ch => COMBINING_RE.test(ch);
+
+  /* NFC (so Å/Ä/Ö are one key press), Thai tone mark after the vowel it sits on, and ํ+า written as ำ. */
+  function normalizeText(s) {
+    const cps = Array.from(String(s).normalize('NFC'));
+    for (let i = 0; i < cps.length - 1; i++) {
+      if (TONE_RE.test(cps[i]) && ABOVE_BELOW_RE.test(cps[i + 1])) { const t = cps[i]; cps[i] = cps[i + 1]; cps[i + 1] = t; i++; }
+    }
+    return cps.join('').replace(/ํ([่-๋]?)า/g, '$1ำ');
+  }
+
+  /* Split into what a child sees as one letter; start/end are code point positions, which is what gets typed. */
+  function graphemes(s) {
+    let segs;
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) segs = Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s), x => x.segment);
+    else segs = s.match(/[^ัิ-ฺ็-๎][ัิ-ฺ็-๎]*|[\s\S]/gu) || [];
+    const out = []; let idx = 0;
+    for (const g of segs) { const n = Array.from(g).length; out.push({ text: g, start: idx, end: idx + n }); idx += n; }
+    return out;
+  }
+
+  const displayChar = ch => ch === ' ' ? '␣' : (isCombining(ch) ? '◌' + ch : ch);
+
+  /* What a key press could mean: the character of the practice layout for that physical key, plus what the OS layout produced. */
+  function candidates(layout, code, key, shift, caps) {
+    const out = [];
+    const k = layout.byCode[code];
+    if (k) {
+      let sh = !!shift;
+      if (caps && k.n.toLowerCase() !== k.n.toUpperCase()) sh = !sh;
+      out.push(sh ? k.s : k.n);
+    }
+    if (key && Array.from(key).length === 1) out.push(key.normalize('NFC'));
+    return out;
+  }
+
+  function matches(expected, cands, lenientCase) {
+    for (const c of cands) {
+      if (!c) continue;
+      if (c === expected) return true;
+      if (lenientCase && c.toLowerCase() === expected.toLowerCase()) return true;
+    }
+    return false;
+  }
+
+  const starsFor = acc => acc >= 95 ? 3 : acc >= 80 ? 2 : 1;
+  const wpm = (correct, ms) => ms > 0 ? Math.round((correct / 5) / (ms / 60000)) : 0;
+  const accuracy = (correct, keys) => keys > 0 ? Math.round(100 * correct / keys) : 100;
+
+  /* ---------- practice content ---------- */
+  const CONTENT = {
+    en: {
+      find: 'asdfjklgh', homeL: 'asdfg', homeR: 'hjkl;', homeAll: 'asdfghjkl;', top: 'qwertyuiop', bottom: 'zxcvbnm,.',
+      letters: 'abcdefghijklmnopqrstuvwxyz',
+      pictures: [['🍎', 'apple', 'a'], ['🐱', 'cat', 'c'], ['🐶', 'dog', 'd'], ['☀️', 'sun', 's'], ['🐟', 'fish', 'f'], ['🏠', 'house', 'h'],
+        ['🐸', 'frog', 'f'], ['🦁', 'lion', 'l'], ['🌙', 'moon', 'm'], ['🦉', 'owl', 'o'], ['🐷', 'pig', 'p'], ['🌈', 'rainbow', 'r'],
+        ['🐢', 'turtle', 't'], ['🦓', 'zebra', 'z'], ['🥚', 'egg', 'e'], ['🐝', 'bee', 'b']],
+      words1: ['cat', 'dog', 'sun', 'hat', 'red', 'big', 'fun', 'run', 'sit', 'cup', 'bus', 'egg', 'pen', 'box', 'map'],
+      words2: ['apple', 'happy', 'green', 'water', 'friend', 'school', 'monkey', 'pizza', 'garden', 'yellow', 'rocket', 'banana'],
+      words3: ['Anna', 'Tom', 'London', 'Monday', 'Hello', 'Max', 'Sara', 'Paris', 'Friday', 'Leo', 'Mia', 'Zoo'],
+      sent1: ['I like cats.', 'The sun is hot.', 'We can run fast.', 'My dog is big.', 'I love my mom.', 'Look at the moon.', 'Fish can swim.', 'It is fun to play.'],
+      sent2: ['I am 7 years old.', 'We have 3 cats!', 'Can you see 10 birds?', 'My room is number 12.', "Wow, it is 5 o'clock!", 'Is it hot? Yes, it is.']
+    },
+    sv: {
+      find: 'asdfjklöä', homeL: 'asdfg', homeR: 'hjklö', homeAll: 'asdfghjklöä', top: 'qwertyuiopå', bottom: 'zxcvbnm,.',
+      letters: 'abcdefghijklmnopqrstuvwxyzåäö',
+      pictures: [['🍎', 'äpple', 'ä'], ['🐱', 'katt', 'k'], ['🐶', 'hund', 'h'], ['☀️', 'sol', 's'], ['⛵', 'båt', 'b'], ['👁️', 'öga', 'ö'],
+        ['🦆', 'anka', 'a'], ['🐟', 'fisk', 'f'], ['🍦', 'glass', 'g'], ['🌙', 'måne', 'm'], ['🐻', 'björn', 'b'], ['🦉', 'uggla', 'u'],
+        ['🐍', 'orm', 'o'], ['🐷', 'gris', 'g'], ['🌳', 'träd', 't'], ['🐭', 'mus', 'm']],
+      words1: ['katt', 'hund', 'sol', 'båt', 'hus', 'mus', 'öga', 'fisk', 'bil', 'boll', 'glass', 'ko', 'is', 'ost'],
+      words2: ['mamma', 'pappa', 'banan', 'skola', 'blomma', 'vatten', 'kompis', 'äpple', 'fjäril', 'jordgubbe', 'snögubbe', 'bröd'],
+      words3: ['Anna', 'Sverige', 'Stockholm', 'Måndag', 'Hej', 'Elsa', 'Örebro', 'Åsa', 'Malmö', 'Öland', 'Leo', 'Ella'],
+      sent1: ['Jag har en katt.', 'Solen är varm.', 'Vi äter glass.', 'Hunden springer fort.', 'Min båt är röd.', 'Jag gillar äpplen.', 'Fisken simmar.', 'Det är kul att leka.'],
+      sent2: ['Jag är 7 år.', 'Vi har 3 katter!', 'Ser du 10 fåglar?', 'Klockan är 5.', 'Är det varmt? Ja!', 'Jag har 2 bröder och 1 syster.']
+    },
+    th: {
+      find: 'ฟหกดเาสว', homeL: 'ฟหกดเ', homeR: '้่าสว', homeAll: 'ฟหกดเ้่าสวง', top: 'ๆไำพะัีรนยบล', bottom: 'ผปแอิืทมใฝ',
+      letters: 'ฟหกดเาสวงๆไำพะรนยบลผปแอทมใฝ',
+      pictures: [['🐔', 'ไก่', 'ก'], ['🥚', 'ไข่', 'ข'], ['🐃', 'ควาย', 'ค'], ['🐍', 'งู', 'ง'], ['🍽️', 'จาน', 'จ'], ['🐘', 'ช้าง', 'ช'],
+        ['🐢', 'เต่า', 'ต'], ['🐟', 'ปลา', 'ป'], ['🐴', 'ม้า', 'ม'], ['🦁', 'สิงโต', 'ส'], ['🏠', 'บ้าน', 'บ'], ['🐭', 'หนู', 'ห'],
+        ['🐸', 'กบ', 'ก'], ['🍌', 'กล้วย', 'ก'], ['🐶', 'หมา', 'ห'], ['🌳', 'ต้นไม้', 'ต']],
+      words1: ['แม่', 'พ่อ', 'ไก่', 'ปลา', 'แมว', 'หมา', 'น้ำ', 'บ้าน', 'ดี', 'รัก', 'กิน', 'นอน', 'ตา', 'มือ', 'ไป', 'ยิ้ม', 'ช้าง'],
+      words2: ['ดอกไม้', 'ผีเสื้อ', 'ทะเล', 'ครอบครัว', 'หนังสือ', 'เพื่อน', 'ขอบคุณ', 'สวัสดี', 'กระต่าย', 'ไอศกรีม', 'ดวงดาว', 'ต้นไม้'],
+      words3: ['เด็ก', 'โรงเรียน', 'ภูเขา', 'ฉลาม', 'ธง', 'ฤดู', 'ศาลา', 'ซุป', 'โต๊ะ', 'ญาติ', 'เมฆ', 'ฉัน'],
+      sent1: ['แมวกินปลา', 'ฉันรักแม่', 'วันนี้อากาศดี', 'พ่อกับแม่ไปตลาด', 'หมานอนหลับ', 'ไก่กินข้าว', 'น้องยิ้มเก่ง', 'ฝนตกหนัก'],
+      sent2: ['เด็กๆ ชอบเล่นฟุตบอล', 'ภูเขาสูงมาก', 'โรงเรียนของฉันใหญ่', 'ฉันชอบกินข้าวผัด', 'ช้างตัวใหญ่มาก', 'ขอบคุณครับ คุณครู']
+    }
+  };
+  for (const lang in CONTENT) {
+    const C = CONTENT[lang];
+    for (const k in C) {
+      if (typeof C[k] === 'string') C[k] = normalizeText(C[k]);
+      else C[k] = C[k].map(x => Array.isArray(x) ? x.map(normalizeText) : normalizeText(x));
+    }
+  }
+
+  /* ---------- curriculum ---------- */
+  const LESSONS = [
+    { id: 'explore', level: 1, type: 'explore', icon: '✨' },
+    { id: 'findkey', level: 1, type: 'findkey', icon: '🔎', set: 'find' },
+    { id: 'picture', level: 1, type: 'picture', icon: '🖼️' },
+    { id: 'space', level: 1, type: 'space', icon: '🐸' },
+    { id: 'balloon1', level: 1, type: 'balloon', icon: '🎈', set: 'find', count: 10, speed: 26, every: 2800 },
+    { id: 'homeL', level: 2, type: 'keys', icon: '🤚', set: 'homeL' },
+    { id: 'homeR', level: 2, type: 'keys', icon: '✋', set: 'homeR' },
+    { id: 'homeAll', level: 2, type: 'keys', icon: '🙌', set: 'homeAll' },
+    { id: 'top', level: 2, type: 'keys', icon: '⬆️', set: 'top' },
+    { id: 'bottom', level: 2, type: 'keys', icon: '⬇️', set: 'bottom' },
+    { id: 'balloon2', level: 2, type: 'balloon', icon: '🎈', set: 'homeAll', count: 14, speed: 38, every: 2100 },
+    { id: 'words1', level: 3, type: 'words', icon: '🐱', set: 'words1' },
+    { id: 'words2', level: 3, type: 'words', icon: '🌻', set: 'words2' },
+    { id: 'words3', level: 3, type: 'words', icon: '🔠', set: 'words3' },
+    { id: 'balloon3', level: 3, type: 'balloon', icon: '🚀', set: 'letters', count: 18, speed: 52, every: 1500 },
+    { id: 'sent1', level: 4, type: 'sentences', icon: '📖', set: 'sent1' },
+    { id: 'sent2', level: 4, type: 'sentences', icon: '🔢', set: 'sent2' },
+    { id: 'speed', level: 4, type: 'speed', icon: '⏱️', seconds: 60 }
+  ];
+  const LESSON_BY_ID = {}; LESSONS.forEach((l, i) => { l.index = i; LESSON_BY_ID[l.id] = l; });
+
+  function shuffle(arr, rnd) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function pickN(pool, n, rnd) { const out = []; for (let i = 0; i < n; i++) { let c; do { c = pool[Math.floor(rnd() * pool.length)]; } while (pool.length > 1 && c === out[out.length - 1]); out.push(c); } return out; }
+
+  function makeItems(lesson, lang, rnd) {
+    rnd = rnd || Math.random;
+    const C = CONTENT[lang];
+    const chars = s => Array.from(s);
+    switch (lesson.type) {
+      case 'explore': return [];
+      case 'findkey': return pickN(chars(C.find), 10, rnd).map(text => ({ text }));
+      case 'picture': return shuffle(C.pictures, rnd).slice(0, 8).map(([emoji, word, text]) => ({ text, emoji, word }));
+      case 'space': return Array.from({ length: 8 }, () => ({ text: ' ' }));
+      case 'keys': {
+        const cs = chars(C[lesson.set]); const intro = [];
+        cs.forEach(c => intro.push(c, c));
+        return intro.concat(pickN(cs, Math.max(10, 26 - intro.length), rnd)).map(text => ({ text }));
+      }
+      case 'words': return shuffle(C[lesson.set], rnd).slice(0, 10).map(text => ({ text }));
+      case 'sentences': return shuffle(C[lesson.set], rnd).slice(0, 6).map(text => ({ text }));
+      case 'speed': return shuffle(C.sent1.concat(C.sent2), rnd).map(text => ({ text }));
+      case 'balloon': return pickN(chars(C[lesson.set]), lesson.count, rnd).map(text => ({ text }));
+    }
+    return [];
+  }
+
+  /* ---------- adaptive level & plan (prog = { lessonId: { stars, bestAcc, plays } } for one language) ---------- */
+  const ageLevel = age => age <= 4 ? 1 : age <= 6 ? 2 : age <= 8 ? 3 : 4;
+  function effectiveLevel(prog, age) {
+    let lv = ageLevel(age);
+    const played = LESSONS.filter(l => l.level === lv && prog[l.id]);
+    if (lv > 1 && played.length >= 2 && played.every(l => prog[l.id].bestAcc < 60)) lv--;
+    while (lv < 4 && LESSONS.filter(l => l.level === lv).every(l => prog[l.id] && prog[l.id].stars >= 2)) lv++;
+    return lv;
+  }
+  function plan(prog, age) {
+    const lv = effectiveLevel(prog, age);
+    const order = LESSONS.filter(l => l.level >= lv).concat(LESSONS.filter(l => l.level < lv));
+    const open = order.filter(l => !(prog[l.id] && prog[l.id].stars >= 3));
+    return (open.length ? open : order).slice(0, 3).map(l => l.id);
+  }
+  function suggestAfter(lessonId, acc, stars) {
+    const i = LESSON_BY_ID[lessonId].index;
+    if (acc < 60 && i > 0 && LESSONS[i - 1].type !== 'explore') return { kind: 'down', id: LESSONS[i - 1].id };
+    if (stars >= 2 && i < LESSONS.length - 1) return { kind: 'up', id: LESSONS[i + 1].id };
+    return { kind: 'again', id: lessonId };
+  }
+
+  /* ---------- interface translations ---------- */
+  const T = {
+    en: {
+      tagline: 'Learn to type', uiLang: 'Menu', practiceLang: 'Type in',
+      lang_th: 'Thai', lang_sv: 'Swedish', lang_en: 'English',
+      whoPlays: 'Who is playing?', yourName: 'Your name', namePh: 'Type your name', age: 'Age', pickAvatar: 'Pick a buddy',
+      start: "Let's go!", nameMissing: 'Please type a name first.',
+      hello: 'Hi {name}!', nextUp: 'Next up for you:', play: 'Play', streak: '{n}-day streak', ages: 'Ages {a}', level: 'Level',
+      recommended: 'Just right for you',
+      lv1: 'Keyboard Explorer', lv2: 'Letter Hunter', lv3: 'Word Builder', lv4: 'Sentence Typist',
+      l_explore: 'Explore the keys', l_findkey: 'Find the letter', l_picture: 'Picture letters', l_space: 'Hop the frog (Spacebar)',
+      l_balloon1: 'Letter balloons', l_homeL: 'Home row: left hand', l_homeR: 'Home row: right hand', l_homeAll: 'Whole home row',
+      l_top: 'Top row', l_bottom: 'Bottom row', l_balloon2: 'Home row balloons', l_words1: 'Short words', l_words2: 'Longer words',
+      l_words3: 'Capital letters', l_words3_th: 'Words with Shift', l_balloon3: 'Space balloon mission', l_sent1: 'Short sentences',
+      l_sent2: 'Numbers & punctuation', l_sent2_th: 'Longer sentences', l_speed: '1-minute speed test',
+      pressAny: 'Press any key and see what happens!', pressKey: 'Find this key and press it', whichLetter: 'What letter does “{word}” start with?',
+      pressSpace: 'Press the Spacebar to make the frog hop!', popBalloons: 'Press the letter to pop the balloon!',
+      typeThis: 'Type this', nextLabel: 'Next:', thenType: 'then type', useFinger: 'Use your {finger}', holdShift: 'Hold Shift with the other hand',
+      f_lp: 'left pinky', f_lr: 'left ring finger', f_lm: 'left middle finger', f_li: 'left index finger', f_th: 'thumb',
+      f_ri: 'right index finger', f_rm: 'right middle finger', f_rr: 'right ring finger', f_rp: 'right pinky',
+      quit: 'Stop', done: 'Done', back: 'Back', timeLeft: 'Time left', capsOn: 'Caps Lock is on',
+      noKeyboard: 'No keyboard? Tap the keys on the screen.',
+      great: 'Great job!|Awesome!|Super typing!', tryMore: 'Nice try! Practise makes perfect.',
+      accuracy: 'Accuracy', speed: 'Speed', wpm: 'WPM', time: 'Time', popped: 'Balloons popped', keysPressed: 'Keys pressed',
+      weakKeys: 'Keys to practise:', again: 'Play again', next: 'Next lesson', map: 'All lessons',
+      suggestUp: "You're ready for:", suggestDown: "Let's practise:", suggestAgain: 'Try once more:',
+      rewards: 'Rewards', badges: 'Badges', stickers: 'Stickers', stickerHint: 'Every 5 stars unlocks a new sticker.', totalStars: 'Stars',
+      b_first: 'First lesson', b_ten: '10 lessons', b_perfect: '100% accurate', b_three5: '3 stars five times', b_streak3: '3 days in a row',
+      b_poly: 'Three languages', b_speed20: '20 words per minute', b_lv: 'Level {n} complete',
+      newBadge: 'New badge: {name}', newSticker: 'New sticker!',
+      parents: 'Parents', gateQ: 'Grown-ups only: what is {a} × {b}?', gateWrong: 'Not quite. Try again.', ok: 'OK',
+      progress: 'Progress', lessonsDone: 'Lessons done', avgAcc: 'Avg. accuracy', bestWpm: 'Best speed', practiceTime: 'Practice time', min: 'min',
+      plan: 'Learning plan', weakAll: 'Keys with the most mistakes', none: 'None yet',
+      settings: 'Settings', sfxLbl: 'Sound effects', voiceLbl: 'Buddy voices', musicLbl: 'Background music', volume: 'Volume',
+      hintsLbl: 'Show finger hints', breakLbl: 'Break reminder', off: 'Off', everyMin: 'every {n} min',
+      profile: 'Profile', save: 'Save', saved: 'Saved',
+      reset: 'Reset all progress', resetConfirm: 'Are you sure? Stars, badges and stickers will be erased.', yesReset: 'Yes, reset', cancel: 'Cancel',
+      privacy: 'Everything is stored only in this browser. No ads, no accounts, nothing is sent anywhere.',
+      voiceMissing: 'No {lang} voice is installed on this device, so the buddies show their words in a speech bubble instead.',
+      breakTitle: 'Time for a break!', breakText: 'Stand up, stretch your arms and look far away for a moment.', breakBtn: 'I took a break',
+      replay: 'Hear it again', buddyBear: 'Bear', buddyBunny: 'Bunny', buddyCat: 'Kitty', buddyAstro: 'Astronaut',
+      spellTitle: 'Spelling Challenge', spellDesc: 'Look at the picture, listen, and spell the word.', chooseCat: 'Choose a topic', chooseLevel: 'Choose a level',
+      c_countries: 'Countries & flags', c_objects: 'Everyday things', c_animals: 'Animals', c_food: 'Food & fruit', c_colors: 'Colours & shapes',
+      c_nature: 'Nature', c_school: 'School', c_body: 'Body & actions', c_vehicles: 'Vehicles', c_space: 'Space', c_jobs: 'Jobs',
+      d1: 'Very easy', d2: 'Easy', d3: 'Medium', d4: 'Hard',
+      d1x: 'See the word and copy it', d2x: 'A box for every letter, first letter shown', d3x: 'Spell it yourself from picture and sound', d4x: 'No boxes and only one hint',
+      words: '{n} words', listen: 'Listen', hint: 'Hint', check: 'Check', erase: 'Erase', capital: 'Capital: {c}',
+      spellWhat: 'What is this? Type the word.', answerWas: 'The right spelling is', typeItNow: 'Now type it once.', capitalTip: 'Remember the capital letter: {w}',
+      points: 'Points', continueGame: 'Continue where you stopped', reviewMissed: 'Practise missed words ({n})', reviewTitle: 'Missed words',
+      playOther: 'Pick another topic', firstTry: 'Right first time', secondTry: 'Right on 2nd try', shown: 'Practised', spelled: 'Words spelled', missedCount: 'Words to practise',
+      noVoiceWord: 'No voice on this device. Use a hint instead.', hintsLeft: '{n} left', switchPlayer: 'Switch player', addChild: 'Add a child',
+      b_speller: 'Speller', b_words50: '50 words spelled', b_flags: 'World traveller',
+      whoLearns: 'Who is learning today?', addLearner: 'Add a new learner', practisingLevel: 'Practising level {n}', editProfile: 'Edit profile',
+      newProfile: 'New learner', nickname: 'Nickname', menuLang: 'Menu language', deleteProfile: 'Delete profile',
+      deleteConfirm: 'Delete {name}? All stars, badges and progress for {name} will be erased. This cannot be undone.', yesDelete: 'Yes, delete',
+      savedProgress: 'Progress saved', saveFailed: "Progress can't be saved in this browser because storage is blocked. You can keep playing, but progress disappears when the page closes.",
+      continueBtn: 'Continue', lastTime: 'Last time: {what}', notFinished: 'not finished', lastSeen: 'Last played {d}', createdOn: 'Created {d}', today: 'today',
+      currentLevel: 'Current level', maxLevel: 'Highest level reached', correctLbl: 'Correct', attempts: 'Attempts', topicProgress: 'Spelling topics',
+      spellingShort: 'Spelling', profileHint: 'Only a nickname is needed. No birthday, address or contact details.',
+      flagTitle: 'Guess the Country by Flag', flagDesc: 'Look at the flag and pick the right country.', flagQ: 'Which country does this flag belong to?',
+      fd1x: '2 choices, names read aloud, with a hint', fd2x: '3 choices with clearly different flags', fd3x: '4 choices, some flags look alike, then spell the name', fd4x: '4 look-alike flags, then type the country name',
+      timed: 'Challenge: 15 seconds per question', hideChoices: 'Think first: hide the choices until I am ready', showChoices: 'Show the choices', optional: 'optional',
+      fiftyHint: 'Hint: remove a wrong answer', flagRight: 'Right! This is the flag of {c}.', flagWrong: 'Nearly! The flag of {c} looks like this. Try again!',
+      correctIs: 'The right answer is {c}. Tap it to go on.', timeUp: "Time's up!", afterSpell: 'Practise spelling the name', afterListen: 'Hear how it is said',
+      afterLangs: 'See the name in 2 other languages', nextQ: 'Next question', typeCountry: 'Type the country name', questionN: 'Question {i}/{n}',
+      b_flagspot: 'Flag spotter', trickyFlags: 'Tricky flags', played: 'Games', spelledOk: 'Spelled ✓', keysHint: 'Tip: you can also press 1–4 on the keyboard.'
+    },
+    sv: {
+      tagline: 'Lär dig skriva på tangentbordet', uiLang: 'Meny', practiceLang: 'Skriv på',
+      lang_th: 'Thai', lang_sv: 'Svenska', lang_en: 'Engelska',
+      whoPlays: 'Vem spelar?', yourName: 'Ditt namn', namePh: 'Skriv ditt namn', age: 'Ålder', pickAvatar: 'Välj en kompis',
+      start: 'Nu kör vi!', nameMissing: 'Skriv ett namn först.',
+      hello: 'Hej {name}!', nextUp: 'Nästa för dig:', play: 'Spela', streak: '{n} dagar i rad', ages: '{a} år', level: 'Nivå',
+      recommended: 'Lagom för dig',
+      lv1: 'Tangentupptäckare', lv2: 'Bokstavsjägare', lv3: 'Ordbyggare', lv4: 'Meningsskrivare',
+      l_explore: 'Utforska tangenterna', l_findkey: 'Hitta bokstaven', l_picture: 'Bild och bokstav', l_space: 'Hoppande grodan (mellanslag)',
+      l_balloon1: 'Bokstavsballonger', l_homeL: 'Hemraden: vänster hand', l_homeR: 'Hemraden: höger hand', l_homeAll: 'Hela hemraden',
+      l_top: 'Översta raden', l_bottom: 'Nedersta raden', l_balloon2: 'Ballonger på hemraden', l_words1: 'Korta ord', l_words2: 'Längre ord',
+      l_words3: 'Stora bokstäver', l_words3_th: 'Ord med Shift', l_balloon3: 'Ballonger i rymden', l_sent1: 'Korta meningar',
+      l_sent2: 'Siffror och tecken', l_sent2_th: 'Längre meningar', l_speed: 'Fartprov 1 minut',
+      pressAny: 'Tryck på en tangent och se vad som händer!', pressKey: 'Hitta tangenten och tryck på den', whichLetter: 'Vilken bokstav börjar ”{word}” med?',
+      pressSpace: 'Tryck på mellanslag så hoppar grodan!', popBalloons: 'Tryck på bokstaven så spricker ballongen!',
+      typeThis: 'Skriv det här', nextLabel: 'Nästa:', thenType: 'skriv sedan', useFinger: 'Använd {finger}', holdShift: 'Håll in Shift med andra handen',
+      f_lp: 'vänster lillfinger', f_lr: 'vänster ringfinger', f_lm: 'vänster långfinger', f_li: 'vänster pekfinger', f_th: 'tummen',
+      f_ri: 'höger pekfinger', f_rm: 'höger långfinger', f_rr: 'höger ringfinger', f_rp: 'höger lillfinger',
+      quit: 'Sluta', done: 'Klar', back: 'Tillbaka', timeLeft: 'Tid kvar', capsOn: 'Caps Lock är på',
+      noKeyboard: 'Inget tangentbord? Tryck på tangenterna på skärmen.',
+      great: 'Bra jobbat!|Toppen!|Superbra!', tryMore: 'Bra kämpat! Övning ger färdighet.',
+      accuracy: 'Träffsäkerhet', speed: 'Fart', wpm: 'ord/min', time: 'Tid', popped: 'Spräckta ballonger', keysPressed: 'Tangenttryck',
+      weakKeys: 'Tangenter att öva på:', again: 'Spela igen', next: 'Nästa lektion', map: 'Alla lektioner',
+      suggestUp: 'Du är redo för:', suggestDown: 'Öva lite på:', suggestAgain: 'Försök en gång till:',
+      rewards: 'Belöningar', badges: 'Medaljer', stickers: 'Klistermärken', stickerHint: 'Var femte stjärna ger ett nytt klistermärke.', totalStars: 'Stjärnor',
+      b_first: 'Första lektionen', b_ten: '10 lektioner', b_perfect: '100 % rätt', b_three5: 'Tre stjärnor fem gånger', b_streak3: '3 dagar i rad',
+      b_poly: 'Tre språk', b_speed20: '20 ord per minut', b_lv: 'Nivå {n} klar',
+      newBadge: 'Ny medalj: {name}', newSticker: 'Nytt klistermärke!',
+      parents: 'Föräldrar', gateQ: 'För vuxna: vad är {a} × {b}?', gateWrong: 'Inte riktigt. Försök igen.', ok: 'OK',
+      progress: 'Framsteg', lessonsDone: 'Klara lektioner', avgAcc: 'Snitt träffsäkerhet', bestWpm: 'Bästa fart', practiceTime: 'Övningstid', min: 'min',
+      plan: 'Nästa steg', weakAll: 'Tangenter med flest fel', none: 'Inga än',
+      settings: 'Inställningar', sfxLbl: 'Ljudeffekter', voiceLbl: 'Kompisarnas röster', musicLbl: 'Bakgrundsmusik', volume: 'Volym',
+      hintsLbl: 'Visa vilket finger', breakLbl: 'Pauspåminnelse', off: 'Av', everyMin: 'var {n}:e minut',
+      profile: 'Profil', save: 'Spara', saved: 'Sparat',
+      reset: 'Nollställ alla framsteg', resetConfirm: 'Är du säker? Stjärnor, medaljer och klistermärken raderas.', yesReset: 'Ja, nollställ', cancel: 'Avbryt',
+      privacy: 'Allt sparas bara i den här webbläsaren. Ingen reklam, inga konton, inget skickas någonstans.',
+      voiceMissing: 'Det finns ingen röst för {lang} på den här enheten, så kompisarna visar orden i en pratbubbla i stället.',
+      breakTitle: 'Dags för en paus!', breakText: 'Res dig, sträck på armarna och titta långt bort en stund.', breakBtn: 'Jag har vilat',
+      replay: 'Lyssna igen', buddyBear: 'Björnen', buddyBunny: 'Kaninen', buddyCat: 'Katten', buddyAstro: 'Astronauten',
+      spellTitle: 'Stavningsutmaning', spellDesc: 'Titta på bilden, lyssna och stava ordet.', chooseCat: 'Välj ett ämne', chooseLevel: 'Välj nivå',
+      c_countries: 'Länder och flaggor', c_objects: 'Saker omkring oss', c_animals: 'Djur', c_food: 'Mat och frukt', c_colors: 'Färger och former',
+      c_nature: 'Naturen', c_school: 'Skolan', c_body: 'Kroppen och rörelser', c_vehicles: 'Fordon', c_space: 'Rymden', c_jobs: 'Yrken',
+      d1: 'Mycket lätt', d2: 'Lätt', d3: 'Medel', d4: 'Svår',
+      d1x: 'Se ordet och skriv av det', d2x: 'En ruta för varje bokstav, första bokstaven visas', d3x: 'Stava själv från bild och ljud', d4x: 'Inga rutor och bara en ledtråd',
+      words: '{n} ord', listen: 'Lyssna', hint: 'Ledtråd', check: 'Kolla', erase: 'Sudda', capital: 'Huvudstad: {c}',
+      spellWhat: 'Vad är det här? Skriv ordet.', answerWas: 'Rätt stavning är', typeItNow: 'Skriv av det en gång.', capitalTip: 'Kom ihåg stor bokstav: {w}',
+      points: 'Poäng', continueGame: 'Fortsätt där du slutade', reviewMissed: 'Öva på missade ord ({n})', reviewTitle: 'Missade ord',
+      playOther: 'Välj ett annat ämne', firstTry: 'Rätt direkt', secondTry: 'Rätt andra gången', shown: 'Övat', spelled: 'Stavade ord', missedCount: 'Ord att öva på',
+      noVoiceWord: 'Ingen röst på enheten. Använd en ledtråd i stället.', hintsLeft: '{n} kvar', switchPlayer: 'Byt spelare', addChild: 'Lägg till ett barn',
+      b_speller: 'Stavare', b_words50: '50 stavade ord', b_flags: 'Världsresenär',
+      whoLearns: 'Vem ska lära sig idag?', addLearner: 'Lägg till en ny spelare', practisingLevel: 'Övar på nivå {n}', editProfile: 'Ändra profil',
+      newProfile: 'Ny spelare', nickname: 'Smeknamn', menuLang: 'Menyspråk', deleteProfile: 'Ta bort profilen',
+      deleteConfirm: 'Ta bort {name}? Alla stjärnor, medaljer och framsteg för {name} raderas. Det går inte att ångra.', yesDelete: 'Ja, ta bort',
+      savedProgress: 'Framstegen är sparade', saveFailed: 'Framstegen kan inte sparas i den här webbläsaren eftersom lagring är blockerad. Du kan spela vidare, men framstegen försvinner när sidan stängs.',
+      continueBtn: 'Fortsätt', lastTime: 'Senast: {what}', notFinished: 'inte klar', lastSeen: 'Spelade senast {d}', createdOn: 'Skapad {d}', today: 'idag',
+      currentLevel: 'Nuvarande nivå', maxLevel: 'Högsta nivå hittills', correctLbl: 'Rätt', attempts: 'Försök', topicProgress: 'Stavningsämnen',
+      spellingShort: 'Stavning', profileHint: 'Bara ett smeknamn behövs. Ingen födelsedag, adress eller kontaktuppgift.',
+      flagTitle: 'Gissa landet från flaggan', flagDesc: 'Titta på flaggan och välj rätt land.', flagQ: 'Vilket land har den här flaggan?',
+      fd1x: '2 val, namnen läses upp, med ledtråd', fd2x: '3 val med tydligt olika flaggor', fd3x: '4 val, några flaggor liknar varandra, sedan stava namnet', fd4x: '4 liknande flaggor, sedan skriva landets namn',
+      timed: 'Utmaning: 15 sekunder per fråga', hideChoices: 'Tänk först: göm svaren tills jag är redo', showChoices: 'Visa svaren', optional: 'valfritt',
+      fiftyHint: 'Ledtråd: ta bort ett fel svar', flagRight: 'Rätt! Det här är flaggan för {c}.', flagWrong: 'Nästan! Flaggan för {c} ser ut så här. Försök igen!',
+      correctIs: 'Rätt svar är {c}. Tryck på det för att gå vidare.', timeUp: 'Tiden är slut!', afterSpell: 'Öva på att stava namnet', afterListen: 'Lyssna på uttalet',
+      afterLangs: 'Se namnet på 2 andra språk', nextQ: 'Nästa fråga', typeCountry: 'Skriv landets namn', questionN: 'Fråga {i}/{n}',
+      b_flagspot: 'Flaggspanare', trickyFlags: 'Svåra flaggor', played: 'Spel', spelledOk: 'Stavat ✓', keysHint: 'Tips: du kan också trycka 1–4 på tangentbordet.'
+    },
+    th: {
+      tagline: 'ฝึกพิมพ์สนุก ๆ', uiLang: 'เมนู', practiceLang: 'ฝึกพิมพ์',
+      lang_th: 'ไทย', lang_sv: 'สวีเดน', lang_en: 'อังกฤษ',
+      whoPlays: 'ใครจะเล่นวันนี้?', yourName: 'ชื่อของหนู', namePh: 'พิมพ์ชื่อ', age: 'อายุ', pickAvatar: 'เลือกเพื่อนคู่ใจ',
+      start: 'เริ่มเลย!', nameMissing: 'พิมพ์ชื่อก่อนนะ',
+      hello: 'สวัสดี {name}!', nextUp: 'บทต่อไปของหนู:', play: 'เล่นเลย', streak: 'ฝึกติดกัน {n} วัน', ages: 'อายุ {a} ปี', level: 'ด่าน',
+      recommended: 'เหมาะกับหนู',
+      lv1: 'นักสำรวจแป้นพิมพ์', lv2: 'นักล่าตัวอักษร', lv3: 'นักสร้างคำ', lv4: 'นักพิมพ์ประโยค',
+      l_explore: 'สำรวจแป้นพิมพ์', l_findkey: 'หาตัวอักษร', l_picture: 'รูปกับตัวอักษร', l_space: 'กบกระโดด (Spacebar)',
+      l_balloon1: 'ลูกโป่งตัวอักษร', l_homeL: 'แถวกลาง มือซ้าย', l_homeR: 'แถวกลาง มือขวา', l_homeAll: 'แถวกลางทั้งแถว',
+      l_top: 'แถวบน', l_bottom: 'แถวล่าง', l_balloon2: 'ลูกโป่งแถวกลาง', l_words1: 'คำสั้น ๆ', l_words2: 'คำยาวขึ้น',
+      l_words3: 'ตัวพิมพ์ใหญ่', l_words3_th: 'คำที่ใช้ Shift', l_balloon3: 'ภารกิจลูกโป่งอวกาศ', l_sent1: 'ประโยคสั้น',
+      l_sent2: 'ตัวเลขและเครื่องหมาย', l_sent2_th: 'ประโยคยาวขึ้น', l_speed: 'ทดสอบความเร็ว 1 นาที',
+      pressAny: 'กดปุ่มไหนก็ได้ แล้วดูว่าเกิดอะไรขึ้น!', pressKey: 'หาปุ่มนี้แล้วกดเลย', whichLetter: '“{word}” ขึ้นต้นด้วยตัวอะไร?',
+      pressSpace: 'กด Spacebar ให้กบกระโดด!', popBalloons: 'กดตัวอักษรบนลูกโป่งให้แตก!',
+      typeThis: 'พิมพ์ตามนี้', nextLabel: 'ต่อไป:', thenType: 'แล้วพิมพ์', useFinger: 'ใช้{finger}', holdShift: 'กด Shift ค้างไว้ด้วยมืออีกข้าง',
+      f_lp: 'นิ้วก้อยซ้าย', f_lr: 'นิ้วนางซ้าย', f_lm: 'นิ้วกลางซ้าย', f_li: 'นิ้วชี้ซ้าย', f_th: 'นิ้วโป้ง',
+      f_ri: 'นิ้วชี้ขวา', f_rm: 'นิ้วกลางขวา', f_rr: 'นิ้วนางขวา', f_rp: 'นิ้วก้อยขวา',
+      quit: 'หยุด', done: 'เสร็จแล้ว', back: 'กลับ', timeLeft: 'เวลาที่เหลือ', capsOn: 'Caps Lock เปิดอยู่',
+      noKeyboard: 'ไม่มีแป้นพิมพ์? แตะปุ่มบนจอได้เลย',
+      great: 'เก่งมาก!|สุดยอด!|เยี่ยมไปเลย!', tryMore: 'พยายามได้ดีมาก! ฝึกอีกนิดจะเก่งขึ้นอีก',
+      accuracy: 'ความแม่นยำ', speed: 'ความเร็ว', wpm: 'คำ/นาที', time: 'เวลา', popped: 'ลูกโป่งที่แตก', keysPressed: 'จำนวนครั้งที่กด',
+      weakKeys: 'ปุ่มที่ควรฝึกเพิ่ม:', again: 'เล่นอีกครั้ง', next: 'บทต่อไป', map: 'บทเรียนทั้งหมด',
+      suggestUp: 'หนูพร้อมแล้วสำหรับ:', suggestDown: 'ลองฝึกบทนี้ก่อนนะ:', suggestAgain: 'ลองอีกสักครั้ง:',
+      rewards: 'รางวัล', badges: 'เหรียญรางวัล', stickers: 'สติกเกอร์', stickerHint: 'ทุก 5 ดาว ได้สติกเกอร์ใหม่ 1 แผ่น', totalStars: 'ดาว',
+      b_first: 'บทเรียนแรก', b_ten: 'ครบ 10 บทเรียน', b_perfect: 'แม่นยำ 100%', b_three5: 'ได้ 3 ดาว 5 ครั้ง', b_streak3: 'ฝึก 3 วันติด',
+      b_poly: 'นักพิมพ์ 3 ภาษา', b_speed20: '20 คำต่อนาที', b_lv: 'ผ่านด่าน {n}',
+      newBadge: 'ได้เหรียญใหม่: {name}', newSticker: 'ได้สติกเกอร์ใหม่!',
+      parents: 'ผู้ปกครอง', gateQ: 'สำหรับผู้ใหญ่: {a} × {b} เท่ากับเท่าไร?', gateWrong: 'ยังไม่ถูก ลองใหม่อีกครั้ง', ok: 'ตกลง',
+      progress: 'ความก้าวหน้า', lessonsDone: 'บทที่ทำแล้ว', avgAcc: 'ความแม่นยำเฉลี่ย', bestWpm: 'ความเร็วสูงสุด', practiceTime: 'เวลาฝึก', min: 'นาที',
+      plan: 'แผนการเรียนต่อไป', weakAll: 'ปุ่มที่กดผิดบ่อย', none: 'ยังไม่มี',
+      settings: 'ตั้งค่า', sfxLbl: 'เสียงเอฟเฟกต์', voiceLbl: 'เสียงพูดของเพื่อน ๆ', musicLbl: 'เพลงประกอบ', volume: 'ระดับเสียง',
+      hintsLbl: 'แสดงนิ้วที่ใช้', breakLbl: 'เตือนให้พัก', off: 'ปิด', everyMin: 'ทุก {n} นาที',
+      profile: 'ข้อมูลเด็ก', save: 'บันทึก', saved: 'บันทึกแล้ว',
+      reset: 'ล้างความก้าวหน้าทั้งหมด', resetConfirm: 'แน่ใจไหม? ดาว เหรียญ และสติกเกอร์จะถูกลบทั้งหมด', yesReset: 'ใช่ ล้างเลย', cancel: 'ยกเลิก',
+      privacy: 'ข้อมูลทั้งหมดเก็บไว้ในเบราว์เซอร์นี้เท่านั้น ไม่มีโฆษณา ไม่มีบัญชี และไม่ส่งข้อมูลออกไปที่ใด',
+      voiceMissing: 'เครื่องนี้ไม่มีเสียงพูดภาษา{lang} เพื่อน ๆ จะแสดงคำพูดในกรอบข้อความแทน',
+      breakTitle: 'พักสักครู่นะ!', breakText: 'ลุกขึ้นยืดแขนยืดขา แล้วมองไปไกล ๆ สักพัก', breakBtn: 'พักแล้ว!',
+      replay: 'ฟังอีกครั้ง', buddyBear: 'หมีน้อย', buddyBunny: 'กระต่ายน้อย', buddyCat: 'แมวน้อย', buddyAstro: 'นักบินอวกาศ',
+      spellTitle: 'เกมสะกดคำ', spellDesc: 'ดูภาพ ฟังเสียง แล้วสะกดคำให้ถูก', chooseCat: 'เลือกหมวดคำศัพท์', chooseLevel: 'เลือกระดับ',
+      c_countries: 'ประเทศและธงชาติ', c_objects: 'สิ่งของรอบตัว', c_animals: 'สัตว์', c_food: 'อาหารและผลไม้', c_colors: 'สีและรูปร่าง',
+      c_nature: 'ธรรมชาติ', c_school: 'โรงเรียน', c_body: 'ร่างกายและการเคลื่อนไหว', c_vehicles: 'ยานพาหนะ', c_space: 'อวกาศ', c_jobs: 'อาชีพ',
+      d1: 'ง่ายมาก', d2: 'ง่าย', d3: 'ปานกลาง', d4: 'ยาก',
+      d1x: 'ดูคำแล้วพิมพ์ตาม', d2x: 'มีช่องตามจำนวนตัวอักษร บอกตัวแรกให้', d3x: 'สะกดเองจากภาพและเสียง', d4x: 'ไม่มีช่องบอก คำใบ้ได้ครั้งเดียว',
+      words: '{n} คำ', listen: 'ฟัง', hint: 'คำใบ้', check: 'ตรวจคำตอบ', erase: 'ลบ', capital: 'เมืองหลวง: {c}',
+      spellWhat: 'นี่คืออะไร? พิมพ์ชื่อเลย', answerWas: 'คำที่ถูกคือ', typeItNow: 'พิมพ์ตามอีกครั้งนะ', capitalTip: 'อย่าลืมตัวพิมพ์ใหญ่: {w}',
+      points: 'คะแนน', continueGame: 'เล่นต่อจากที่ค้างไว้', reviewMissed: 'ทบทวนคำที่ผิด ({n})', reviewTitle: 'คำที่ต้องทบทวน',
+      playOther: 'เลือกหมวดอื่น', firstTry: 'ถูกตั้งแต่ครั้งแรก', secondTry: 'ถูกในครั้งที่ 2', shown: 'ฝึกตามแล้ว', spelled: 'คำที่สะกดแล้ว', missedCount: 'คำที่ต้องทบทวน',
+      noVoiceWord: 'เครื่องนี้ไม่มีเสียงพูด ใช้คำใบ้แทนได้', hintsLeft: 'เหลือ {n}', switchPlayer: 'เปลี่ยนผู้เล่น', addChild: 'เพิ่มเด็ก',
+      b_speller: 'นักสะกดคำ', b_words50: 'สะกดได้ 50 คำ', b_flags: 'นักเดินทางรอบโลก',
+      whoLearns: 'วันนี้ใครจะเรียน?', addLearner: 'เพิ่มผู้เรียนใหม่', practisingLevel: 'กำลังฝึกระดับ {n}', editProfile: 'แก้ไขโปรไฟล์',
+      newProfile: 'ผู้เรียนใหม่', nickname: 'ชื่อเล่น', menuLang: 'ภาษาเมนู', deleteProfile: 'ลบโปรไฟล์',
+      deleteConfirm: 'ลบ {name} ใช่ไหม? ดาว เหรียญ และความก้าวหน้าทั้งหมดของ {name} จะถูกลบและกู้คืนไม่ได้', yesDelete: 'ใช่ ลบเลย',
+      savedProgress: 'บันทึกความก้าวหน้าแล้ว', saveFailed: 'เบราว์เซอร์นี้บันทึกข้อมูลไม่ได้เพราะการจัดเก็บถูกปิดไว้ เล่นต่อได้ แต่ความก้าวหน้าจะหายเมื่อปิดหน้า',
+      continueBtn: 'เรียนต่อ', lastTime: 'ครั้งที่แล้ว: {what}', notFinished: 'ยังไม่จบ', lastSeen: 'เข้าเรียนล่าสุด {d}', createdOn: 'สร้างเมื่อ {d}', today: 'วันนี้',
+      currentLevel: 'ระดับปัจจุบัน', maxLevel: 'ระดับสูงสุดที่ปลดล็อก', correctLbl: 'ถูก', attempts: 'จำนวนครั้งที่ลอง', topicProgress: 'หมวดคำศัพท์',
+      spellingShort: 'สะกดคำ', profileHint: 'ใช้แค่ชื่อเล่นก็พอ ไม่ต้องใส่วันเกิด ที่อยู่ หรือข้อมูลติดต่อ',
+      flagTitle: 'ทายประเทศจากธงชาติ', flagDesc: 'ดูธงแล้วเลือกประเทศให้ถูก', flagQ: 'ธงนี้เป็นธงของประเทศอะไร?',
+      fd1x: '2 ตัวเลือก มีเสียงอ่านชื่อและคำใบ้', fd2x: '3 ตัวเลือก ธงต่างกันชัดเจน', fd3x: '4 ตัวเลือก มีธงคล้ายกันบ้าง แล้วลองสะกดชื่อ', fd4x: '4 ธงที่คล้ายกัน แล้วพิมพ์ชื่อประเทศ',
+      timed: 'โหมดท้าทาย: ข้อละ 15 วินาที', hideChoices: 'คิดก่อน: ซ่อนตัวเลือกจนกว่าจะพร้อม', showChoices: 'แสดงตัวเลือก', optional: 'ไม่บังคับ',
+      fiftyHint: 'คำใบ้: ตัดตัวเลือกผิดออก 1 ข้อ', flagRight: 'ถูกต้อง! นี่คือธงชาติ{c}', flagWrong: 'เกือบแล้ว! ธงชาติ{c}หน้าตาแบบนี้ ลองเลือกอีกครั้งนะ',
+      correctIs: 'คำตอบที่ถูกคือ {c} แตะเพื่อไปต่อ', timeUp: 'หมดเวลา!', afterSpell: 'ฝึกสะกดชื่อประเทศ', afterListen: 'ฟังการออกเสียง',
+      afterLangs: 'ดูชื่อประเทศอีก 2 ภาษา', nextQ: 'เล่นข้อถัดไป', typeCountry: 'พิมพ์ชื่อประเทศ', questionN: 'ข้อ {i}/{n}',
+      b_flagspot: 'นักสังเกตธง', trickyFlags: 'ธงที่มักตอบผิด', played: 'จำนวนเกม', spelledOk: 'สะกดแล้ว ✓', keysHint: 'กดเลข 1–4 บนแป้นพิมพ์เพื่อเลือกได้ด้วย'
+    }
+  };
+
+  /* ---------- voice characters and their lines (one list per language, | separates variants) ---------- */
+  const BUDDIES = {
+    bear: { face: '🐻', name: 'buddyBear', pitch: 0.8, rate: 0.88 },   /* explains lessons */
+    bunny: { face: '🐰', name: 'buddyBunny', pitch: 1.35, rate: 1.0 }, /* invites to play */
+    cat: { face: '🐱', name: 'buddyCat', pitch: 1.5, rate: 0.98 },     /* praises */
+    astro: { face: '🧑‍🚀', name: 'buddyAstro', pitch: 1.0, rate: 0.92 } /* guides the games */
+  };
+  const VOICE = {
+    th: {
+      welcome: ['bunny', 'สวัสดี! วันนี้เรามาเรียนรู้แป้นพิมพ์กันนะ'],
+      welcomeName: ['bunny', 'สวัสดี {name}! วันนี้เรามาเรียนรู้แป้นพิมพ์กันนะ'],
+      correct: ['cat', 'เยี่ยมมาก! หนูกดปุ่มถูกแล้ว|ถูกต้อง เก่งจัง!|ใช่แล้ว!'],
+      wrong: ['bear', 'ลองอีกครั้งนะ หนูทำได้แน่นอน|ไม่เป็นไร ค่อย ๆ หานะ'],
+      star: ['cat', 'เก่งมาก! ได้รับดาวเพิ่มอีกหนึ่งดวง'],
+      stars: ['cat', 'เก่งมาก! ได้ดาว {n} ดวง'],
+      ready: ['bunny', 'พร้อมไปด่านต่อไปหรือยัง?'],
+      tryMore: ['bear', 'พยายามได้ดีมาก ฝึกอีกนิดนะ'],
+      badge: ['cat', 'ว้าว! ได้เหรียญใหม่แล้ว'],
+      breakTime: ['bear', 'พักสายตาสักครู่นะ'],
+      intro_explore: ['bear', 'กดปุ่มไหนก็ได้เลย แล้วฟังเสียงนะ'],
+      intro_findkey: ['bear', 'ดูตัวอักษรตัวใหญ่ แล้วหาปุ่มนั้นบนแป้นพิมพ์'],
+      intro_picture: ['bear', 'ดูรูป แล้วกดตัวอักษรตัวแรกของคำ'],
+      intro_space: ['bear', 'ปุ่มยาว ๆ ข้างล่างคือ Spacebar กดเพื่อให้กบกระโดด'],
+      intro_keys: ['bear', 'วางนิ้วบนแถวกลาง แล้วพิมพ์ตัวอักษรทีละตัว'],
+      intro_words: ['bear', 'พิมพ์คำทีละตัวอักษรนะ'],
+      intro_sentences: ['bear', 'พิมพ์ประโยคให้ครบ อย่าลืมเว้นวรรค'],
+      intro_speed: ['astro', 'ภารกิจหนึ่งนาที! พิมพ์ให้แม่นที่สุดนะ'],
+      intro_balloon: ['astro', 'นักบินอวกาศพร้อม! กดตัวอักษรเพื่อแตกลูกโป่ง'],
+      gameCheer: ['astro', 'ยอดเยี่ยม นักบิน!|ไปต่อเลย!'],
+      intro_spell: ['bear', 'ดูภาพ ฟังเสียง แล้วพิมพ์ชื่อของมันนะ'],
+      almost: ['bear', 'เกือบถูกแล้ว! ลองอีกครั้งนะ'],
+      showAnswer: ['bear', 'มาดูคำที่ถูกกัน แล้วพิมพ์ตามนะ'],
+      intro_flags: ['astro', 'นักบินอวกาศพาเที่ยวรอบโลก! ดูธงแล้วทายประเทศนะ'],
+      flagAsk: ['bunny', 'ธงนี้เป็นธงของประเทศอะไร?'],
+      flagNearly: ['bear', 'ไม่เป็นไรนะ ลองดูธงอีกครั้ง'],
+      typeCountry: ['bear', 'เก่งมาก! ทีนี้ลองพิมพ์ชื่อประเทศกัน']
+    },
+    sv: {
+      welcome: ['bunny', 'Hej! Nu ska vi lära oss tangentbordet!'],
+      welcomeName: ['bunny', 'Hej {name}! Nu ska vi lära oss tangentbordet!'],
+      correct: ['cat', 'Jättebra! Du tryckte på rätt tangent!|Rätt! Snyggt!|Precis!'],
+      wrong: ['bear', 'Försök igen, du klarar det!|Ingen fara, leta lugnt.'],
+      star: ['cat', 'Bra jobbat! Du fick en ny stjärna!'],
+      stars: ['cat', 'Bra jobbat! Du fick {n} stjärnor!'],
+      ready: ['bunny', 'Är du redo för nästa nivå?'],
+      tryMore: ['bear', 'Bra kämpat! Vi övar lite till.'],
+      badge: ['cat', 'Wow! Du fick en ny medalj!'],
+      breakTime: ['bear', 'Nu vilar vi ögonen en stund.'],
+      intro_explore: ['bear', 'Tryck på vilken tangent du vill och lyssna!'],
+      intro_findkey: ['bear', 'Titta på den stora bokstaven och hitta tangenten.'],
+      intro_picture: ['bear', 'Titta på bilden och tryck på första bokstaven.'],
+      intro_space: ['bear', 'Den långa tangenten längst ner är mellanslag. Tryck så hoppar grodan.'],
+      intro_keys: ['bear', 'Lägg fingrarna på hemraden och skriv en bokstav i taget.'],
+      intro_words: ['bear', 'Skriv ordet en bokstav i taget.'],
+      intro_sentences: ['bear', 'Skriv hela meningen. Glöm inte mellanslagen.'],
+      intro_speed: ['astro', 'Uppdrag en minut! Skriv så rätt du kan.'],
+      intro_balloon: ['astro', 'Astronauten är redo! Tryck på bokstaven för att spräcka ballongen.'],
+      gameCheer: ['astro', 'Snyggt, pilot!|Fortsätt så!'],
+      intro_spell: ['bear', 'Titta på bilden, lyssna och skriv ordet.'],
+      almost: ['bear', 'Nästan rätt! Försök en gång till.'],
+      showAnswer: ['bear', 'Här är rätt stavning. Skriv av den.'],
+      intro_flags: ['astro', 'Vi flyger jorden runt! Titta på flaggan och gissa landet.'],
+      flagAsk: ['bunny', 'Vilket land har den här flaggan?'],
+      flagNearly: ['bear', 'Ingen fara, titta på flaggan en gång till.'],
+      typeCountry: ['bear', 'Bra! Nu skriver vi landets namn.']
+    },
+    en: {
+      welcome: ['bunny', "Hello! Let's learn the keyboard together!"],
+      welcomeName: ['bunny', "Hello {name}! Let's learn the keyboard together!"],
+      correct: ['cat', 'Great job! You pressed the right key!|Yes, that is right!|Well done!'],
+      wrong: ['bear', 'Try again. You can do it!|No problem, take your time.'],
+      star: ['cat', 'Amazing! You earned another star!'],
+      stars: ['cat', 'Amazing! You earned {n} stars!'],
+      ready: ['bunny', 'Are you ready for the next level?'],
+      tryMore: ['bear', "Nice try! Let's practise a little more."],
+      badge: ['cat', 'Wow! You got a new badge!'],
+      breakTime: ['bear', "Let's rest our eyes for a moment."],
+      intro_explore: ['bear', 'Press any key you like and listen!'],
+      intro_findkey: ['bear', 'Look at the big letter and find that key.'],
+      intro_picture: ['bear', 'Look at the picture and press the first letter.'],
+      intro_space: ['bear', 'The long key at the bottom is the Spacebar. Press it to make the frog hop.'],
+      intro_keys: ['bear', 'Put your fingers on the home row and type one letter at a time.'],
+      intro_words: ['bear', 'Type the word one letter at a time.'],
+      intro_sentences: ['bear', "Type the whole sentence. Don't forget the spaces."],
+      intro_speed: ['astro', 'One-minute mission! Type as carefully as you can.'],
+      intro_balloon: ['astro', 'Astronaut ready! Press the letter to pop the balloon.'],
+      gameCheer: ['astro', 'Nice flying, pilot!|Keep going!'],
+      intro_spell: ['bear', 'Look at the picture, listen, and type the word.'],
+      almost: ['bear', 'Almost! Try one more time.'],
+      showAnswer: ['bear', "Here's the right spelling. Type it once."],
+      intro_flags: ['astro', "Let's fly around the world! Look at the flag and guess the country."],
+      flagAsk: ['bunny', 'Which country does this flag belong to?'],
+      flagNearly: ['bear', 'No problem, look at the flag once more.'],
+      typeCountry: ['bear', "Well done! Now let's type the country name."]
+    }
+  };
+
+  /* ---------- Spelling Challenge vocabulary ----------
+     Each topic lists [key, picture, Thai, Swedish, English, optional info [th, sv, en]].
+     picture is an emoji, or flag:xx / color:#rrggbb / shape:name drawn by the app.
+     Add a topic or a word here and it shows up in the game; difficulty comes from word length per language. */
+  const VOCAB = {
+    countries: { icon: '🌍', items: [
+      ['th', 'flag:th', 'ไทย', 'Thailand', 'Thailand', ['กรุงเทพฯ', 'Bangkok', 'Bangkok']],
+      ['cn', 'flag:cn', 'จีน', 'Kina', 'China', ['ปักกิ่ง', 'Peking', 'Beijing']],
+      ['jp', 'flag:jp', 'ญี่ปุ่น', 'Japan', 'Japan', ['โตเกียว', 'Tokyo', 'Tokyo']],
+      ['se', 'flag:se', 'สวีเดน', 'Sverige', 'Sweden', ['สตอกโฮล์ม', 'Stockholm', 'Stockholm']],
+      ['no', 'flag:no', 'นอร์เวย์', 'Norge', 'Norway', ['ออสโล', 'Oslo', 'Oslo']],
+      ['de', 'flag:de', 'เยอรมนี', 'Tyskland', 'Germany', ['เบอร์ลิน', 'Berlin', 'Berlin']],
+      ['fr', 'flag:fr', 'ฝรั่งเศส', 'Frankrike', 'France', ['ปารีส', 'Paris', 'Paris']],
+      ['fi', 'flag:fi', 'ฟินแลนด์', 'Finland', 'Finland', ['เฮลซิงกิ', 'Helsingfors', 'Helsinki']],
+      ['dk', 'flag:dk', 'เดนมาร์ก', 'Danmark', 'Denmark', ['โคเปนเฮเกน', 'Köpenhamn', 'Copenhagen']],
+      ['is', 'flag:is', 'ไอซ์แลนด์', 'Island', 'Iceland', ['เรคยาวิก', 'Reykjavik', 'Reykjavik']],
+      ['it', 'flag:it', 'อิตาลี', 'Italien', 'Italy', ['โรม', 'Rom', 'Rome']],
+      ['es', 'flag:es', 'สเปน', 'Spanien', 'Spain', ['มาดริด', 'Madrid', 'Madrid']],
+      ['nl', 'flag:nl', 'เนเธอร์แลนด์', 'Nederländerna', 'Netherlands', ['อัมสเตอร์ดัม', 'Amsterdam', 'Amsterdam']],
+      ['be', 'flag:be', 'เบลเยียม', 'Belgien', 'Belgium', ['บรัสเซลส์', 'Bryssel', 'Brussels']],
+      ['at', 'flag:at', 'ออสเตรีย', 'Österrike', 'Austria', ['เวียนนา', 'Wien', 'Vienna']],
+      ['ch', 'flag:ch', 'สวิตเซอร์แลนด์', 'Schweiz', 'Switzerland', ['เบิร์น', 'Bern', 'Bern']],
+      ['pl', 'flag:pl', 'โปแลนด์', 'Polen', 'Poland', ['วอร์ซอ', 'Warszawa', 'Warsaw']],
+      ['ua', 'flag:ua', 'ยูเครน', 'Ukraina', 'Ukraine', ['เคียฟ', 'Kyiv', 'Kyiv']],
+      ['ie', 'flag:ie', 'ไอร์แลนด์', 'Irland', 'Ireland', ['ดับลิน', 'Dublin', 'Dublin']],
+      ['gr', 'flag:gr', 'กรีซ', 'Grekland', 'Greece', ['เอเธนส์', 'Aten', 'Athens']],
+      ['vn', 'flag:vn', 'เวียดนาม', 'Vietnam', 'Vietnam', ['ฮานอย', 'Hanoi', 'Hanoi']],
+      ['id', 'flag:id', 'อินโดนีเซีย', 'Indonesien', 'Indonesia', ['จาการ์ตา', 'Jakarta', 'Jakarta']]
+    ] },
+    objects: { icon: '🏠', items: [
+      ['house', '🏠', 'บ้าน', 'hus', 'house'], ['ball', '⚽', 'ลูกบอล', 'boll', 'ball'], ['car', '🚗', 'รถ', 'bil', 'car'],
+      ['cup', '☕', 'ถ้วย', 'kopp', 'cup'], ['bed', '🛏️', 'เตียง', 'säng', 'bed'], ['key', '🔑', 'กุญแจ', 'nyckel', 'key'],
+      ['chair', '🪑', 'เก้าอี้', 'stol', 'chair'], ['clock', '🕰️', 'นาฬิกา', 'klocka', 'clock'], ['phone', '📱', 'โทรศัพท์', 'telefon', 'phone'],
+      ['bag', '🎒', 'กระเป๋า', 'väska', 'bag'], ['shoe', '👟', 'รองเท้า', 'sko', 'shoe'], ['bike', '🚲', 'จักรยาน', 'cykel', 'bicycle'],
+      ['computer', '💻', 'คอมพิวเตอร์', 'dator', 'computer'], ['tv', '📺', 'โทรทัศน์', 'tv', 'television'], ['camera', '📷', 'กล้องถ่ายรูป', 'kamera', 'camera'],
+      ['teddy', '🧸', 'ตุ๊กตาหมี', 'nalle', 'teddy bear'], ['umbrella', '☂️', 'ร่ม', 'paraply', 'umbrella'], ['toothbrush', '🪥', 'แปรงสีฟัน', 'tandborste', 'toothbrush'],
+      ['bulb', '💡', 'หลอดไฟ', 'glödlampa', 'light bulb']
+    ] },
+    animals: { icon: '🐾', items: [
+      ['cat', '🐱', 'แมว', 'katt', 'cat'], ['dog', '🐶', 'หมา', 'hund', 'dog'], ['fish', '🐟', 'ปลา', 'fisk', 'fish'], ['bird', '🐦', 'นก', 'fågel', 'bird'],
+      ['cow', '🐄', 'วัว', 'ko', 'cow'], ['pig', '🐷', 'หมู', 'gris', 'pig'], ['rabbit', '🐰', 'กระต่าย', 'kanin', 'rabbit'], ['horse', '🐴', 'ม้า', 'häst', 'horse'],
+      ['elephant', '🐘', 'ช้าง', 'elefant', 'elephant'], ['monkey', '🐒', 'ลิง', 'apa', 'monkey'], ['giraffe', '🦒', 'ยีราฟ', 'giraff', 'giraffe'],
+      ['turtle', '🐢', 'เต่า', 'sköldpadda', 'turtle'], ['butterfly', '🦋', 'ผีเสื้อ', 'fjäril', 'butterfly'], ['penguin', '🐧', 'เพนกวิน', 'pingvin', 'penguin'],
+      ['crocodile', '🐊', 'จระเข้', 'krokodil', 'crocodile'], ['hedgehog', '🦔', 'เม่น', 'igelkott', 'hedgehog'],
+      ['hippo', '🦛', 'ฮิปโปโปเตมัส', 'flodhäst', 'hippopotamus'], ['orangutan', '🦧', 'อุรังอุตัง', 'orangutang', 'orangutan']
+    ] },
+    food: { icon: '🍎', items: [
+      ['rice', '🍚', 'ข้าว', 'ris', 'rice'], ['milk', '🥛', 'นม', 'mjölk', 'milk'], ['egg', '🥚', 'ไข่', 'ägg', 'egg'], ['apple', '🍎', 'แอปเปิล', 'äpple', 'apple'],
+      ['banana', '🍌', 'กล้วย', 'banan', 'banana'], ['orange', '🍊', 'ส้ม', 'apelsin', 'orange'], ['sandwich', '🥪', 'แซนด์วิช', 'smörgås', 'sandwich'],
+      ['watermelon', '🍉', 'แตงโม', 'vattenmelon', 'watermelon'], ['pineapple', '🍍', 'สับปะรด', 'ananas', 'pineapple'],
+      ['strawberry', '🍓', 'สตรอว์เบอร์รี', 'jordgubbe', 'strawberry'], ['bread', '🍞', 'ขนมปัง', 'bröd', 'bread'], ['cheese', '🧀', 'ชีส', 'ost', 'cheese'],
+      ['grapes', '🍇', 'องุ่น', 'vindruvor', 'grapes'], ['carrot', '🥕', 'แครอท', 'morot', 'carrot'], ['icecream', '🍦', 'ไอศกรีม', 'glass', 'ice cream'],
+      ['mango', '🥭', 'มะม่วง', 'mango', 'mango']
+    ] },
+    colors: { icon: '🎨', items: [
+      ['red', 'color:#D8343A', 'สีแดง', 'röd', 'red'], ['blue', 'color:#3E8EDE', 'สีฟ้า', 'blå', 'blue'], ['green', 'color:#2E9B4E', 'สีเขียว', 'grön', 'green'],
+      ['yellow', 'color:#F5CF1B', 'สีเหลือง', 'gul', 'yellow'], ['black', 'color:#1E1E1E', 'สีดำ', 'svart', 'black'], ['white', 'color:#FFFFFF', 'สีขาว', 'vit', 'white'],
+      ['pink', 'color:#F28DB8', 'สีชมพู', 'rosa', 'pink'], ['orangec', 'color:#F2832B', 'สีส้ม', 'orange', 'orange'], ['purple', 'color:#8A4FC7', 'สีม่วง', 'lila', 'purple'],
+      ['brown', 'color:#8B5A2B', 'สีน้ำตาล', 'brun', 'brown'],
+      ['circle', 'shape:circle', 'วงกลม', 'cirkel', 'circle'], ['triangle', 'shape:triangle', 'สามเหลี่ยม', 'triangel', 'triangle'],
+      ['square', 'shape:square', 'สี่เหลี่ยม', 'kvadrat', 'square'], ['star', 'shape:star', 'ดาว', 'stjärna', 'star'], ['heart', 'shape:heart', 'หัวใจ', 'hjärta', 'heart'],
+      ['rectangle', 'shape:rectangle', 'สี่เหลี่ยมผืนผ้า', 'rektangel', 'rectangle'], ['oval', 'shape:oval', 'วงรี', 'oval', 'oval']
+    ] },
+    nature: { icon: '🌳', items: [
+      ['sun', '☀️', 'ดวงอาทิตย์', 'sol', 'sun'], ['moon', '🌙', 'ดวงจันทร์', 'måne', 'moon'], ['tree', '🌳', 'ต้นไม้', 'träd', 'tree'],
+      ['flower', '🌸', 'ดอกไม้', 'blomma', 'flower'], ['mountain', '⛰️', 'ภูเขา', 'berg', 'mountain'], ['sea', '🌊', 'ทะเล', 'hav', 'sea'],
+      ['rainbow', '🌈', 'สายรุ้ง', 'regnbåge', 'rainbow'], ['cloud', '☁️', 'เมฆ', 'moln', 'cloud'], ['rain', '🌧️', 'ฝน', 'regn', 'rain'],
+      ['snow', '❄️', 'หิมะ', 'snö', 'snow'], ['leaf', '🍂', 'ใบไม้', 'löv', 'leaf'], ['island', '🏝️', 'เกาะ', 'ö', 'island'],
+      ['volcano', '🌋', 'ภูเขาไฟ', 'vulkan', 'volcano'], ['forest', '🌲', 'ป่า', 'skog', 'forest'], ['summer', '🏖️', 'ฤดูร้อน', 'sommar', 'summer'],
+      ['winter', '⛄', 'ฤดูหนาว', 'vinter', 'winter']
+    ] },
+    school: { icon: '🏫', items: [
+      ['book', '📕', 'หนังสือ', 'bok', 'book'], ['pencil', '✏️', 'ดินสอ', 'blyertspenna', 'pencil'], ['pen', '🖊️', 'ปากกา', 'bläckpenna', 'pen'],
+      ['scissors', '✂️', 'กรรไกร', 'sax', 'scissors'], ['ruler', '📏', 'ไม้บรรทัด', 'linjal', 'ruler'], ['teacher', '🧑‍🏫', 'ครู', 'lärare', 'teacher'],
+      ['student', '🧑‍🎓', 'นักเรียน', 'elev', 'student'], ['school', '🏫', 'โรงเรียน', 'skola', 'school'], ['crayon', '🖍️', 'สีเทียน', 'krita', 'crayon'],
+      ['notebook', '📓', 'สมุด', 'skrivbok', 'notebook'], ['map', '🗺️', 'แผนที่', 'karta', 'map'], ['library', '📚', 'ห้องสมุด', 'bibliotek', 'library'],
+      ['abacus', '🧮', 'ลูกคิด', 'kulram', 'abacus'], ['backpack', '🎒', 'กระเป๋านักเรียน', 'skolväska', 'school bag']
+    ] },
+    body: { icon: '✋', items: [
+      ['hand', '✋', 'มือ', 'hand', 'hand'], ['eye', '👁️', 'ตา', 'öga', 'eye'], ['ear', '👂', 'หู', 'öra', 'ear'], ['nose', '👃', 'จมูก', 'näsa', 'nose'],
+      ['mouth', '👄', 'ปาก', 'mun', 'mouth'], ['foot', '🦶', 'เท้า', 'fot', 'foot'], ['leg', '🦵', 'ขา', 'ben', 'leg'], ['tooth', '🦷', 'ฟัน', 'tand', 'tooth'],
+      ['arm', '💪', 'แขน', 'arm', 'arm'], ['walk', '🚶', 'เดิน', 'gå', 'walk'], ['run', '🏃', 'วิ่ง', 'springa', 'run'], ['jump', '🤸', 'กระโดด', 'hoppa', 'jump'],
+      ['swim', '🏊', 'ว่ายน้ำ', 'simma', 'swim'], ['dance', '💃', 'เต้น', 'dansa', 'dance'], ['sleep', '😴', 'นอน', 'sova', 'sleep'],
+      ['eat', '🍽️', 'กิน', 'äta', 'eat'], ['sing', '🎤', 'ร้องเพลง', 'sjunga', 'sing']
+    ] },
+    vehicles: { icon: '🚌', items: [
+      ['bus', '🚌', 'รถบัส', 'buss', 'bus'], ['train', '🚂', 'รถไฟ', 'tåg', 'train'], ['plane', '✈️', 'เครื่องบิน', 'flygplan', 'airplane'],
+      ['boat', '🚢', 'เรือ', 'båt', 'boat'], ['taxi', '🚕', 'แท็กซี่', 'taxi', 'taxi'], ['helicopter', '🚁', 'เฮลิคอปเตอร์', 'helikopter', 'helicopter'],
+      ['firetruck', '🚒', 'รถดับเพลิง', 'brandbil', 'fire engine'], ['ambulance', '🚑', 'รถพยาบาล', 'ambulans', 'ambulance'],
+      ['motorbike', '🏍️', 'มอเตอร์ไซค์', 'motorcykel', 'motorbike'], ['tractor', '🚜', 'รถแทรกเตอร์', 'traktor', 'tractor'], ['rocket', '🚀', 'จรวด', 'raket', 'rocket']
+    ] },
+    space: { icon: '🪐', items: [
+      ['earth', '🌍', 'โลก', 'jorden', 'Earth'], ['star', '⭐', 'ดาว', 'stjärna', 'star'], ['saturn', '🪐', 'ดาวเสาร์', 'Saturnus', 'Saturn'],
+      ['astronaut', '🧑‍🚀', 'นักบินอวกาศ', 'astronaut', 'astronaut'], ['comet', '☄️', 'ดาวหาง', 'komet', 'comet'], ['telescope', '🔭', 'กล้องโทรทรรศน์', 'teleskop', 'telescope'],
+      ['satellite', '🛰️', 'ดาวเทียม', 'satellit', 'satellite'], ['galaxy', '🌌', 'กาแล็กซี', 'galax', 'galaxy'], ['moon', '🌕', 'ดวงจันทร์', 'måne', 'moon'],
+      ['rocket', '🚀', 'จรวด', 'raket', 'rocket']
+    ] },
+    jobs: { icon: '🧑‍🚒', items: [
+      ['doctor', '🧑‍⚕️', 'หมอ', 'läkare', 'doctor'], ['chef', '🧑‍🍳', 'เชฟ', 'kock', 'chef'], ['firefighter', '🧑‍🚒', 'นักดับเพลิง', 'brandman', 'firefighter'],
+      ['police', '👮', 'ตำรวจ', 'polis', 'police officer'], ['farmer', '🧑‍🌾', 'ชาวนา', 'bonde', 'farmer'], ['pilot', '🧑‍✈️', 'นักบิน', 'pilot', 'pilot'],
+      ['artist', '🧑‍🎨', 'จิตรกร', 'konstnär', 'artist'], ['mechanic', '🧑‍🔧', 'ช่างซ่อมรถ', 'mekaniker', 'mechanic'], ['scientist', '🧑‍🔬', 'นักวิทยาศาสตร์', 'forskare', 'scientist']
+    ] }
+  };
+  const LANG_COL = { th: 2, sv: 3, en: 4 };
+  const VOCAB_INDEX = {};
+  for (const cat in VOCAB) {
+    VOCAB[cat].items = VOCAB[cat].items.map(r => {
+      const it = { id: cat + ':' + r[0], cat, pic: r[1], word: {}, info: null };
+      for (const l in LANG_COL) it.word[l] = normalizeText(r[LANG_COL[l]]);
+      if (r[5]) it.info = { th: r[5][0], sv: r[5][1], en: r[5][2] };
+      VOCAB_INDEX[it.id] = it;
+      return it;
+    });
+  }
+  /* difficulty of a word in one language, from how many key presses it takes */
+  function wordLevel(word, lang) {
+    const n = Array.from(word).length, lim = lang === 'th' ? [4, 7, 9] : [4, 6, 8];
+    return n <= lim[0] ? 1 : n <= lim[1] ? 2 : n <= lim[2] ? 3 : 4;
+  }
+  /* up to n words for a topic and difficulty: exact level first, then the nearest levels */
+  function spellPool(cat, lang, d, n, rnd) {
+    rnd = rnd || Math.random;
+    const items = shuffle(VOCAB[cat].items, rnd);
+    items.sort((a, b) => Math.abs(wordLevel(a.word[lang], lang) - d) - Math.abs(wordLevel(b.word[lang], lang) - d));
+    return items.slice(0, n || 8).map(it => it.id);
+  }
+  /* result of a typed answer: exact, right except upper/lower case, or wrong (with per-letter marks) */
+  function checkSpelling(typed, target) {
+    typed = normalizeText(typed); target = normalizeText(target);
+    if (typed === target) return { kind: 'exact' };
+    if (typed.toLowerCase() === target.toLowerCase()) return { kind: 'case' };
+    const tg = graphemes(target), yg = graphemes(typed);
+    return { kind: 'wrong', marks: yg.map((g, i) => !!tg[i] && tg[i].text === g.text) };
+  }
+  const spellPoints = (d, how, hints) => {
+    const base = 10 * d;
+    const f = how === 'first' ? 1 : how === 'case' ? 0.8 : how === 'second' ? 0.5 : 0.1;
+    return Math.max(1, Math.round(base * f * Math.max(0.3, 1 - 0.2 * hints)));
+  };
+  const spellStars = (score, max) => { const r = max ? score / max : 0; return r >= 0.85 ? 3 : r >= 0.6 ? 2 : 1; };
+
+  /* ---------- Guess the Country by Flag ----------
+     Flags in one group look alike (Nordic crosses, tricolours, red with stars...).
+     Easy levels never mix look-alikes; hard levels use them on purpose. */
+  const FLAG_GROUPS = [['se', 'no', 'fi', 'dk', 'is'], ['fr', 'it', 'ie', 'be'], ['de', 'be', 'at', 'es'], ['nl', 'th', 'fr', 'at'],
+    ['pl', 'id', 'at', 'ua'], ['cn', 'vn'], ['ch', 'dk', 'at'], ['gr', 'fi', 'is', 'se']];
+  const FLAG_CODES = VOCAB.countries.items.map(it => it.id.split(':')[1]);
+  const FLAG_OPTIONS = { 1: 2, 2: 3, 3: 4, 4: 4 };
+  function similarFlags(code) {
+    const s = new Set();
+    FLAG_GROUPS.forEach(g => { if (g.includes(code)) g.forEach(c => { if (c !== code) s.add(c); }); });
+    return Array.from(s);
+  }
+  function flagQuestion(code, d, rnd) {
+    rnd = rnd || Math.random;
+    const n = FLAG_OPTIONS[d], sim = shuffle(similarFlags(code), rnd);
+    const other = shuffle(FLAG_CODES.filter(c => c !== code && !sim.includes(c)), rnd);
+    const opts = [code].concat(sim.slice(0, d <= 2 ? 0 : d === 3 ? 1 : n - 1));
+    for (const c of other.concat(sim)) { if (opts.length >= n) break; if (!opts.includes(c)) opts.push(c); }
+    return { code, opts: shuffle(opts, rnd) };
+  }
+  /* a round of n flags; up to half of them are flags the child got wrong before */
+  function flagRound(d, missed, n, rnd) {
+    rnd = rnd || Math.random; missed = missed || {}; n = n || 8;
+    const tricky = shuffle(FLAG_CODES.filter(c => missed[c] > 0), rnd).slice(0, Math.ceil(n / 2));
+    const rest = shuffle(FLAG_CODES.filter(c => !tricky.includes(c)), rnd);
+    return shuffle(tricky.concat(rest).slice(0, n), rnd).map(c => flagQuestion(c, d, rnd));
+  }
+  const flagPoints = (d, how) => how === 'first' ? 10 * d : how === 'second' ? 4 * d : 0;
+
+  G.KK = { LAYOUTS, FINGER_OF, CONTENT, LESSONS, LESSON_BY_ID, T, VOICE, BUDDIES, normalizeText, graphemes, displayChar, isCombining,
+    candidates, matches, starsFor, wpm, accuracy, makeItems, ageLevel, effectiveLevel, plan, suggestAfter, shuffle,
+    VOCAB, VOCAB_INDEX, wordLevel, spellPool, checkSpelling, spellPoints, spellStars,
+    FLAG_CODES, FLAG_OPTIONS, similarFlags, flagQuestion, flagRound, flagPoints };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<script id="kk-ui">
+(function () {
+  'use strict';
+  const K = window.KK;
+  const LANGS = ['th', 'sv', 'en'];
+  const NATIVE = { th: 'ไทย', sv: 'Svenska', en: 'English' };
+  const AVATARS = ['🦊', '🐼', '🐯', '🦄', '🐵', '🐧', '🐨', '🦖', '🐙', '🐞', '🦁', '🐸'];
+  const AGE_RANGES = [[3, '3–4'], [5, '5–6'], [7, '7–8'], [9, '9–10']];
+  const STICKERS = ['🌟', '🍓', '🚗', '🦋', '🌈', '🍩', '🚀', '🐳', '🎨', '🦕', '🍉', '⚽', '🎸', '🧁', '🐠', '🌻', '🛸', '🐝', '🎁', '🦜', '🍕', '🏰', '🐲', '👑'];
+  const BADGES = [
+    { id: 'first', icon: '🎉' }, { id: 'ten', icon: '🔟' }, { id: 'perfect', icon: '🎯' }, { id: 'three5', icon: '⭐' },
+    { id: 'streak3', icon: '🔥' }, { id: 'poly', icon: '🌍' }, { id: 'speed20', icon: '⚡' },
+    { id: 'speller', icon: '🔤' }, { id: 'words50', icon: '📚' }, { id: 'flags', icon: '🗺️' }, { id: 'flagspot', icon: '🚩' },
+    { id: 'lv1', icon: '🥉', n: 1 }, { id: 'lv2', icon: '🥈', n: 2 }, { id: 'lv3', icon: '🥇', n: 3 }, { id: 'lv4', icon: '🏆', n: 4 }
+  ];
+  const HINT_LIMIT = { 1: 0, 2: 3, 3: 3, 4: 1 };
+  const STORE = 'keykids.v1';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pick = s => { const a = String(s).split('|'); return a[Math.floor(Math.random() * a.length)]; };
+  function today(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+
+  /* ---------- storage: one record per child, everything about a child lives in its profile ---------- */
+  function navLang() { const l = (navigator.language || 'en').slice(0, 2); return LANGS.includes(l) ? l : 'en'; }
+  const spellDefaults = () => ({ best: {}, missed: [], practised: 0, correct: 0, attempts: 0, games: 0, cats: {}, session: null });
+  const flagDefaults = () => ({ best: {}, played: 0, correct: 0, answered: 0, attempts: 0, missed: {}, session: null });
+  function defaults() {
+    const l = navLang();
+    return { id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), created: today(), lastSeen: today(),
+      ui: l, lang: l, name: '', age: 5, avatar: '🦊', sfx: true, voice: true, music: false, volume: 70, hints: true, breakMin: 15,
+      prog: { th: {}, sv: {}, en: {} }, keyErr: { th: {}, sv: {}, en: {} }, timeMs: { th: 0, sv: 0, en: 0 },
+      level: { th: 0, sv: 0, en: 0 }, maxLevel: { th: 0, sv: 0, en: 0 },
+      spell: { th: spellDefaults(), sv: spellDefaults(), en: spellDefaults() }, spellD: 0, spellCat: 'animals', points: 0,
+      flags: { th: flagDefaults(), sv: flagDefaults(), en: flagDefaults() }, flagD: 0, flagTimed: false, flagHide: false,
+      badges: [], stickers: 0, three: 0, perfect: false, plays: 0, streak: { last: '', days: 0 }, langsUsed: [], last: null };
+  }
+  function fixProfile(o) {
+    const d = defaults();
+    const p = Object.assign(d, o);
+    for (const k of ['prog', 'keyErr', 'timeMs', 'level', 'maxLevel']) p[k] = Object.assign(defaults()[k], o[k]);
+    p.spell = {}; for (const l of LANGS) p.spell[l] = Object.assign(spellDefaults(), o.spell && o.spell[l]);
+    if (!p.spellD) p.spellD = Math.min(4, K.ageLevel(p.age));
+    p.flags = {}; for (const l of LANGS) p.flags[l] = Object.assign(flagDefaults(), o.flags && o.flags[l]);
+    if (!p.flagD) p.flagD = K.ageLevel(p.age);
+    return p;
+  }
+  function loadRoot() {
+    try {
+      const raw = localStorage.getItem(STORE);
+      if (raw) {
+        const o = JSON.parse(raw);
+        if (o && o.v === 2 && Array.isArray(o.profiles)) return { v: 2, ui: o.ui || navLang(), cur: o.cur, profiles: o.profiles.map(fixProfile) };
+        if (o && o.prog && o.name) return { v: 2, ui: o.ui || navLang(), cur: null, profiles: [fixProfile(o)] }; /* data from the single-child version */
+      }
+    } catch (e) { /* storage blocked or unreadable: start fresh in memory */ }
+    return { v: 2, ui: navLang(), cur: null, profiles: [] };
+  }
+  const ROOT = loadRoot();
+  let S = null;          // the active child's profile (an object inside ROOT.profiles)
+  let saveOk = true;
+  function save() {
+    if (S) { S.lastSeen = today(); ROOT.cur = S.id; ROOT.ui = S.ui; }
+    try { localStorage.setItem(STORE, JSON.stringify(ROOT)); if (!saveOk) { saveOk = true; paintSaveWarn(); } return true; }
+    catch (e) { if (saveOk) { saveOk = false; paintSaveWarn(); } return false; }
+  }
+  const saveNote = msgKey => { if (save()) toast('✓ ' + t(msgKey || 'savedProgress')); };
+
+  const DEV = { sfx: true, voice: true, music: false, volume: 70, ui: ROOT.ui };
+  const C = () => S || DEV;
+  let screen = 'profiles';
+  let P = null;          // current typing lesson
+  let SG = null;         // current spelling game
+  let FG = null;         // current flag game
+  let lastResult = null, lastSpell = null, lastFlag = null;
+  let ED = null;         // profile editor draft
+  let PG = { a: 0, b: 0, ok: false, wrong: false, confirmReset: false };
+  let oskShift = false;
+  let lastBreak = Date.now();
+
+  function uiLang() { return S ? S.ui : ROOT.ui; }
+  function t(key, vars) {
+    const ui = uiLang();
+    let s = (K.T[ui] && K.T[ui][key]) ?? K.T.en[key] ?? key;
+    if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+    return s;
+  }
+  const lessonName = l => (K.T[uiLang()]['l_' + l.id + '_' + S.lang] ? t('l_' + l.id + '_' + S.lang) : t('l_' + l.id));
+  const starStr = n => '<span class="stars" aria-label="' + n + '/3">' + [0, 1, 2].map(i => i < n ? '<span class="s">★</span>' : '★').join('') + '</span>';
+  const prog = () => S.prog[S.lang];
+  const spellStarsOf = p => LANGS.reduce((sum, l) => sum + Object.values(p.spell[l].best).reduce((a, n) => a + n, 0) + Object.values(p.flags[l].best).reduce((a, n) => a + n, 0), 0);
+  const starsOf = p => LANGS.reduce((sum, l) => sum + Object.values(p.prog[l]).reduce((a, r) => a + (r.stars || 0), 0), 0) + spellStarsOf(p);
+  const totalStars = () => starsOf(S);
+  const levelOf = p => K.effectiveLevel(p.prog[p.lang], p.age);
+  const ageLabel = age => AGE_RANGES[K.ageLevel(age) - 1][1];
+  function fmtDay(d) {
+    if (!d) return '–';
+    if (d === today()) return t('today');
+    try { return new Date(d + 'T12:00:00').toLocaleDateString(uiLang() === 'th' ? 'th-TH' : uiLang() === 'sv' ? 'sv-SE' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return d; }
+  }
+
+  /* ---------- audio: sound effects, music, voices ---------- */
+  const Audio = (function () {
+    let ac = null, master = null, sfxBus = null, musicBus = null, musicTimer = null;
+    function ctx() {
+      if (ac === false) return null;
+      if (!ac) {
+        try {
+          ac = new (window.AudioContext || window.webkitAudioContext)();
+          master = ac.createGain(); master.connect(ac.destination);
+          sfxBus = ac.createGain(); sfxBus.connect(master);
+          musicBus = ac.createGain(); musicBus.gain.value = 0.18; musicBus.connect(master);
+          setVolume();
+        } catch (e) { ac = false; return null; }
+      }
+      if (ac.state === 'suspended') ac.resume().catch(() => {});
+      return ac;
+    }
+    function setVolume() { if (master) master.gain.value = (C().volume / 100) * 0.9; }
+    function tone(freq, dur, type, vol, when, bus) {
+      const a = ctx(); if (!a) return;
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = type || 'sine'; o.frequency.value = freq;
+      const t0 = a.currentTime + (when || 0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol || 0.15, t0 + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(bus || sfxBus); o.start(t0); o.stop(t0 + dur + 0.03);
+    }
+    function slide(f1, f2, dur, type, vol) {
+      const a = ctx(); if (!a) return;
+      const o = a.createOscillator(), g = a.createGain(); const t0 = a.currentTime;
+      o.type = type; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+      g.gain.setValueAtTime(vol, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(sfxBus); o.start(t0); o.stop(t0 + dur + 0.03);
+    }
+    const SFX = {
+      click: () => tone(1400, 0.035, 'square', 0.03),
+      key: () => tone(900, 0.04, 'triangle', 0.05),
+      correct: n => { const f = 523 * Math.pow(2, (Math.min(n || 0, 12) % 8) / 12); tone(f, 0.12, 'triangle', 0.16); tone(f * 1.5, 0.14, 'sine', 0.07, 0.05); },
+      wrong: () => { tone(330, 0.16, 'sine', 0.07); tone(294, 0.2, 'sine', 0.06, 0.1); },
+      star: () => [784, 988, 1175].forEach((f, i) => tone(f, 0.22, 'triangle', 0.13, i * 0.09)),
+      win: () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.25, 'triangle', 0.14, i * 0.11)),
+      badge: () => [659, 784, 988, 1319].forEach((f, i) => { tone(f, 0.3, 'sine', 0.12, i * 0.08); tone(f * 2, 0.2, 'triangle', 0.04, i * 0.08); }),
+      pop: () => { slide(900, 200, 0.12, 'square', 0.06); tone(1800, 0.05, 'triangle', 0.05); },
+      hop: () => slide(300, 900, 0.18, 'sine', 0.12),
+      whoosh: () => slide(200, 60, 0.35, 'sawtooth', 0.025)
+    };
+    function sfx(name, arg) { if (!C().sfx) return; try { SFX[name] && SFX[name](arg); } catch (e) { /* audio unavailable */ } }
+
+    /* gentle pentatonic music box, generated so nothing has to load */
+    const MELODY = [0, 2, 4, 7, 4, 2, 9, 7, 0, 4, 7, 9, 7, 4, 2, 0];
+    function startMusic() {
+      if (musicTimer || !C().music) return;
+      if (!ctx()) return;
+      let step = 0;
+      musicTimer = setInterval(() => {
+        if (!C().music || document.hidden) return;
+        const semi = MELODY[step % MELODY.length];
+        tone(392 * Math.pow(2, semi / 12), 0.6, 'sine', 0.25, 0, musicBus);
+        if (step % 4 === 0) tone(196 * Math.pow(2, MELODY[(step / 4) % 4 * 2] / 12), 1.4, 'triangle', 0.18, 0, musicBus);
+        step++;
+      }, 520);
+    }
+    function stopMusic() { clearInterval(musicTimer); musicTimer = null; }
+    function duck(on) { if (musicBus && ac) musicBus.gain.setTargetAtTime(on ? 0.06 : 0.18, ac.currentTime, 0.1); }
+
+    /* voices */
+    const LOCALE = { th: 'th-TH', sv: 'sv-SE', en: 'en-GB' };
+    const hasTTS = 'speechSynthesis' in window;
+    function voiceFor(lang) {
+      if (!hasTTS) return null;
+      const vs = speechSynthesis.getVoices();
+      return vs.find(v => v.lang.replace('_', '-').toLowerCase() === LOCALE[lang].toLowerCase())
+        || vs.find(v => v.lang.toLowerCase().startsWith(lang)) || null;
+    }
+    function speak(text, lang, buddy) {
+      if (!C().voice || !hasTTS || !text) return false;
+      const v = voiceFor(lang); if (!v) return false;
+      try {
+        const u = new SpeechSynthesisUtterance(text);
+        const b = K.BUDDIES[buddy] || K.BUDDIES.bear;
+        u.voice = v; u.lang = v.lang; u.pitch = b.pitch; u.rate = b.rate; u.volume = Math.min(1, (C().volume / 100) * 0.85);
+        u.onstart = () => duck(true); u.onend = u.onerror = () => duck(false);
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
+        return true;
+      } catch (e) { return false; }
+    }
+    if (hasTTS) { try { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = () => { if (screen === 'parents' || screen === 'spellplay') render(); }; } catch (e) { /* ignore */ } }
+    return { ctx, sfx, speak, setVolume, startMusic, stopMusic, voiceFor, hasTTS };
+  })();
+
+  /* Buddy line: shows the speech bubble in the menu language and speaks it if a voice exists. */
+  let lastSaid = null; const lastSaidAt = {};
+  function say(key, vars, opts) {
+    opts = opts || {};
+    const lang = uiLang();
+    const entry = K.VOICE[lang][key] || K.VOICE.en[key]; if (!entry) return;
+    const now = Date.now();
+    if (opts.cooldown && lastSaidAt[key] && now - lastSaidAt[key] < opts.cooldown) return;
+    lastSaidAt[key] = now;
+    let text = pick(entry[1]);
+    if (vars) for (const k in vars) text = text.split('{' + k + '}').join(vars[k]);
+    lastSaid = { buddy: entry[0], text, lang };
+    paintBuddy();
+    Audio.speak(text, lang, entry[0]);
+  }
+  /* Read a letter or word aloud in the practice language (no bubble). */
+  function sayPractice(text, lang) { return Audio.speak(text, lang || S.lang, 'bear'); }
+  function buddyHTML() {
+    if (!lastSaid) return '<div class="buddy" id="buddy"></div>';
+    const b = K.BUDDIES[lastSaid.buddy];
+    return '<div class="buddy" id="buddy"><div class="face talk" aria-hidden="true">' + b.face + '</div><div class="bubble"><b>' + esc(t(b.name)) + '</b>' + esc(lastSaid.text) +
+      '<button class="ghost replay" data-act="replay" aria-label="' + esc(t('replay')) + '" title="' + esc(t('replay')) + '">🔊</button></div></div>';
+  }
+  function paintBuddy() { const el = $('buddy'); if (el) el.outerHTML = buddyHTML(); }
+
+  /* ---------- toasts, overlay, save warning ---------- */
+  function toast(msg) { const el = document.createElement('div'); el.className = 't'; el.textContent = msg; $('toast').appendChild(el); setTimeout(() => el.remove(), 2600); }
+  function overlay(html) { const ov = $('ov'); ov.innerHTML = '<div class="box" role="dialog" aria-modal="true">' + html + '</div>'; ov.hidden = false; const b = ov.querySelector('button'); if (b) b.focus(); }
+  function closeOverlay() { $('ov').hidden = true; $('ov').innerHTML = ''; }
+  const saveWarnHTML = () => saveOk ? '<div id="savewarn" hidden></div>' : '<div id="savewarn" class="savewarn" role="alert">⚠️ ' + esc(t('saveFailed')) + '</div>';
+  function paintSaveWarn() { const el = $('savewarn'); if (el) el.outerHTML = saveWarnHTML(); }
+
+  /* ---------- top bar ---------- */
+  function topHTML() {
+    const seg = (act, cur, lbl) => '<div class="seg" role="group" aria-label="' + esc(lbl) + '"><span class="lbl">' + esc(lbl) + '</span>' +
+      LANGS.map(l => '<button data-act="' + act + '" data-v="' + l + '" class="' + (cur === l ? 'on' : '') + '" aria-pressed="' + (cur === l) + '">' + (act === 'setUi' ? NATIVE[l] : esc(t('lang_' + l))) + '</button>').join('') + '</div>';
+    return '<header class="top"><button class="ghost brand" data-act="go" data-v="map"><span class="k">K</span>KeyKids</button><span class="grow"></span>' +
+      seg('setUi', S.ui, t('uiLang')) + seg('setLang', S.lang, t('practiceLang')) +
+      '<span class="pill" title="' + esc(t('totalStars')) + '">★ ' + totalStars() + '</span>' +
+      (S.streak.days > 1 ? '<span class="pill">🔥 ' + esc(t('streak', { n: S.streak.days })) + '</span>' : '') +
+      '<button class="cap small" data-act="go" data-v="spell">🔤 ' + esc(t('spellingShort')) + '</button>' +
+      '<button class="cap small" data-act="go" data-v="rewards">🏅 ' + esc(t('rewards')) + '</button>' +
+      '<button class="cap small" data-act="go" data-v="parents">🔒 ' + esc(t('parents')) + '</button>' +
+      '<button class="cap small avpill" data-act="go" data-v="profiles" title="' + esc(t('switchPlayer')) + '"><span aria-hidden="true">' + esc(S.avatar) + '</span>' + esc(S.name) + ' ⇄</button></header>' + saveWarnHTML();
+  }
+
+  /* ---------- screens ---------- */
+  function render() {
+    stopGameLoop();
+    document.documentElement.lang = uiLang();
+    const app = $('app');
+    if (!S && screen !== 'profileEdit') screen = 'profiles';
+    if (screen === 'profiles') app.innerHTML = profilesHTML();
+    else if (screen === 'profileEdit') app.innerHTML = profileEditHTML();
+    else if (screen === 'map') app.innerHTML = topHTML() + buddyHTML() + mapHTML();
+    else if (screen === 'play') { app.innerHTML = playHTML(); paintPlay(); }
+    else if (screen === 'result') app.innerHTML = topHTML() + buddyHTML() + resultHTML();
+    else if (screen === 'spell') app.innerHTML = topHTML() + buddyHTML() + spellHomeHTML();
+    else if (screen === 'spellplay') { app.innerHTML = spellPlayHTML(); paintSpell(); }
+    else if (screen === 'spellres') app.innerHTML = topHTML() + buddyHTML() + spellResultHTML();
+    else if (screen === 'flags') app.innerHTML = topHTML() + buddyHTML() + flagHomeHTML();
+    else if (screen === 'flagplay') { app.innerHTML = flagPlayHTML(); paintFlag(); }
+    else if (screen === 'flagres') app.innerHTML = topHTML() + buddyHTML() + flagResultHTML();
+    else if (screen === 'rewards') app.innerHTML = topHTML() + rewardsHTML();
+    else if (screen === 'parents') app.innerHTML = topHTML() + parentsHTML();
+  }
+
+  /* profile picker: shown every time the app opens */
+  function profilesHTML() {
+    const uiSeg = '<div class="seg"><span class="lbl">' + esc(t('menuLang')) + '</span>' + LANGS.map(l => '<button data-act="setUi" data-v="' + l + '" class="' + (uiLang() === l ? 'on' : '') + '">' + NATIVE[l] + '</button>').join('') + '</div>';
+    const cards = ROOT.profiles.map(p => '<div class="pwrap"><button class="cap pcard" data-act="pickProfile" data-v="' + p.id + '"><span class="av" aria-hidden="true">' + esc(p.avatar) + '</span><span class="nm">' + esc(p.name) + '</span>' +
+      '<span class="meta">' + esc(t('practisingLevel', { n: levelOf(p) })) + ' · ' + esc(t('lang_' + p.lang)) + '</span><span class="meta">★ ' + starsOf(p) + ' · ' + esc(t('lastSeen', { d: fmtDay(p.lastSeen) })) + '</span></button>' +
+      '<button class="cap small edit" data-act="editProfile" data-v="' + p.id + '" aria-label="' + esc(t('editProfile') + ': ' + p.name) + '" title="' + esc(t('editProfile')) + '">✏️</button></div>').join('');
+    return '<header class="top"><span class="brand"><span class="k">K</span>KeyKids</span><span class="grow"></span>' + uiSeg + '<a class="cap small" href="index.html">🏠 Family Game Hub</a></header>' + saveWarnHTML() + buddyHTML() +
+      '<h1 style="margin-bottom:16px">' + esc(t('whoLearns')) + '</h1><div class="profiles">' + cards +
+      '<button class="cap pcard add" data-act="newProfile"><span class="av" aria-hidden="true">＋</span><span class="nm">' + esc(t('addLearner')) + '</span></button></div>';
+  }
+
+  /* create / edit a profile */
+  function openEditor(p) {
+    ED = p ? { id: p.id, name: p.name, age: p.age, avatar: p.avatar, lang: p.lang, ui: p.ui, sfx: p.sfx, voice: p.voice, music: p.music, hints: p.hints, confirmDelete: false, err: false }
+      : { id: null, name: '', age: 5, avatar: AVATARS[ROOT.profiles.length % AVATARS.length], lang: uiLang(), ui: uiLang(), sfx: true, voice: true, music: false, hints: true, confirmDelete: false, err: false };
+    screen = 'profileEdit'; render();
+    const nm = $('nm'); if (nm && !ED.id) nm.focus();
+  }
+  function profileEditHTML() {
+    const choice = (act, list, cur, label) => '<div class="choices">' + list.map(([v, l]) => '<button class="cap ' + (String(cur) === String(v) ? 'on' : '') + '" data-act="' + act + '" data-v="' + v + '" aria-pressed="' + (String(cur) === String(v)) + '">' + l + '</button>').join('') + '</div>';
+    const tog = (k, lbl) => '<div class="row"><label for="ed-' + k + '">' + esc(t(lbl)) + '</label><input id="ed-' + k + '" type="checkbox" data-ed="' + k + '"' + (ED[k] ? ' checked' : '') + '></div>';
+    const p = ED.id && ROOT.profiles.find(x => x.id === ED.id);
+    return '<div class="setup"><header class="top"><span class="brand"><span class="k">K</span>KeyKids</span><span class="grow"></span>' +
+      (ROOT.profiles.length ? '<button class="cap small" data-act="go" data-v="profiles">← ' + esc(t('back')) + '</button>' : '<a class="cap small" href="index.html">🏠 Family Game Hub</a>') + '</header>' + saveWarnHTML() + buddyHTML() +
+      '<div class="panel"><h1>' + esc(ED.id ? t('editProfile') : t('newProfile')) + '</h1><p class="muted" style="margin:0">' + esc(t('profileHint')) + '</p>' +
+      '<div class="field"><label for="nm">' + esc(t('nickname')) + '</label><input id="nm" type="text" maxlength="20" autocomplete="off" placeholder="' + esc(t('namePh')) + '" value="' + esc(ED.name) + '"></div>' +
+      '<div class="field"><label>' + esc(t('age')) + '</label>' + choice('edAge', AGE_RANGES.map(([v, l]) => [v, esc(t('ages', { a: l }))]), K.ageLevel(ED.age) * 2 + 1, '') + '</div>' +
+      '<div class="field"><label>' + esc(t('pickAvatar')) + '</label><div class="choices avatars">' + AVATARS.map(a => '<button class="cap ' + (ED.avatar === a ? 'on' : '') + '" data-act="edAvatar" data-v="' + a + '">' + a + '</button>').join('') + '</div></div>' +
+      '<div class="field"><label>' + esc(t('practiceLang')) + '</label>' + choice('edLang', LANGS.map(l => [l, esc(t('lang_' + l))]), ED.lang) + '</div>' +
+      '<div class="field"><label>' + esc(t('menuLang')) + '</label>' + choice('edUi', LANGS.map(l => [l, NATIVE[l]]), ED.ui) + '</div>' +
+      '<div class="field">' + tog('sfx', 'sfxLbl') + tog('voice', 'voiceLbl') + tog('music', 'musicLbl') + tog('hints', 'hintsLbl') + '</div>' +
+      (ED.err ? '<p class="warn">' + esc(t('nameMissing')) + '</p>' : '') +
+      (p ? '<p class="muted" style="margin:0">' + esc(t('createdOn', { d: fmtDay(p.created) })) + ' · ' + esc(t('lastSeen', { d: fmtDay(p.lastSeen) })) + '</p>' : '') +
+      '<div class="actions" style="justify-content:flex-start"><button class="cap primary" data-act="saveProfile">' + esc(ED.id ? t('save') : t('start')) + '</button>' +
+      (ROOT.profiles.length ? '<button class="cap" data-act="go" data-v="profiles">' + esc(t('cancel')) + '</button>' : '') + '</div>' +
+      (p ? (ED.confirmDelete
+        ? '<div class="savewarn" role="alert"><p style="margin:0 0 .6rem">' + esc(t('deleteConfirm', { name: p.name })) + '</p><div class="actions" style="justify-content:flex-start"><button class="cap" data-act="deleteProfile">' + esc(t('yesDelete')) + '</button><button class="cap" data-act="cancelDelete">' + esc(t('cancel')) + '</button></div></div>'
+        : '<div><button class="cap small" data-act="askDelete">🗑 ' + esc(t('deleteProfile')) + '</button></div>') : '') +
+      '</div></div>';
+  }
+
+  function pickProfile(id) {
+    const p = ROOT.profiles.find(x => x.id === id); if (!p) return;
+    S = p; P = null; SG = null;
+    save();
+    screen = 'map'; render();
+    say('welcomeName', { name: S.name });
+    Audio.setVolume(); if (S.music) Audio.startMusic(); else Audio.stopMusic();
+  }
+
+  /* where "Continue" takes the child: an unfinished spelling game, an unfinished lesson, or the next planned lesson */
+  function continueTarget() {
+    const sess = S.spell[S.lang].session;
+    const fs = S.flags[S.lang].session;
+    const spellT = sess && { kind: 'spell', label: '🔤 ' + t('spellTitle') + ' · ' + (sess.review ? t('reviewTitle') : t('c_' + sess.cat)) + ' (' + (sess.i + 1) + '/' + sess.ids.length + ')' };
+    const flagT = fs && { kind: 'flags', label: '🚩 ' + t('flagTitle') + ' · ' + t('d' + fs.d) + ' (' + Math.min(fs.i + 1, fs.qs.length) + '/' + fs.qs.length + ')' };
+    /* the unfinished game played most recently comes first */
+    if (S.last && S.last.type === 'flags' && flagT) return flagT;
+    if (spellT || flagT) return spellT || flagT;
+    const la = S.last && S.last.lang === S.lang && S.last.type === 'lesson' && !S.last.done ? K.LESSON_BY_ID[S.last.id] : null;
+    const l = la || K.LESSON_BY_ID[K.plan(prog(), S.age)[0]];
+    return { kind: 'lesson', id: l.id, label: l.icon + ' ' + lessonName(l) };
+  }
+  function lastTimeText() {
+    const la = S.last; if (!la || la.lang !== S.lang) return '';
+    let what = la.type === 'lesson' ? K.LESSON_BY_ID[la.id].icon + ' ' + lessonName(K.LESSON_BY_ID[la.id])
+      : la.type === 'flags' ? '🚩 ' + t('flagTitle') : '🔤 ' + (la.review ? t('reviewTitle') : t('c_' + la.cat));
+    if (!la.done) what += ' (' + t('notFinished') + ')';
+    return t('lastTime', { what });
+  }
+
+  function mapHTML() {
+    const pr = prog();
+    const lv = K.effectiveLevel(pr, S.age);
+    const ct = continueTarget();
+    const missed = S.spell[S.lang].missed.length;
+    const lt = lastTimeText();
+    let h = '<section class="hello"><div class="av" aria-hidden="true">' + esc(S.avatar) + '</div><div><h1>' + esc(t('hello', { name: S.name })) + '</h1>' +
+      (lt ? '<p>' + esc(lt) + '</p>' : '') + '<p>' + esc(t('nextUp')) + ' <strong>' + esc(ct.label) + '</strong></p>' +
+      '<p>' + esc(t('currentLevel')) + ': <strong>' + lv + '</strong> · ' + esc(t('maxLevel')) + ': <strong>' + Math.max(lv, S.maxLevel[S.lang] || 0) + '</strong> · ★ ' + totalStars() + ' · ' + esc(t('points')) + ' ' + S.points + '</p></div>' +
+      '<button class="cap primary go" data-act="continue">▶ ' + esc(t('continueBtn')) + '</button></section>';
+    h += '<section class="banner"><div class="bi" aria-hidden="true">🔤</div><div><h2>' + esc(t('spellTitle')) + '</h2><p>' + esc(t('spellDesc')) + '</p>' +
+      (missed ? '<p><button class="cap small" data-act="spReview">🔁 ' + esc(t('reviewMissed', { n: missed })) + '</button></p>' : '') + '</div>' +
+      '<button class="cap primary go" data-act="go" data-v="spell">▶ ' + esc(t('play')) + '</button></section>' +
+      '<section class="banner"><div class="bi" aria-hidden="true">' + flagSVG('se', 'small') + '</div><div><h2>' + esc(t('flagTitle')) + '</h2><p>' + esc(t('flagDesc')) + '</p></div>' +
+      '<button class="cap primary go" data-act="go" data-v="flags">▶ ' + esc(t('play')) + '</button></section>';
+    const ages = { 1: '3–4', 2: '5–6', 3: '7–8', 4: '9–10' };
+    for (let n = 1; n <= 4; n++) {
+      h += '<section class="level ' + (n === lv ? 'rec' : '') + '"><div class="lvhead"><span class="lvnum">' + n + '</span><h2>' + esc(t('lv' + n)) + '</h2><span class="ages">' + esc(t('ages', { a: ages[n] })) + '</span>' +
+        (n === lv ? '<span class="chip">' + esc(t('recommended')) + '</span>' : '') + '</div><div class="tiles">';
+      K.LESSONS.filter(l => l.level === n).forEach(l => {
+        const r = pr[l.id];
+        h += '<button class="cap tile" data-act="startLesson" data-v="' + l.id + '"><span class="ic" aria-hidden="true">' + l.icon + '</span><span class="nm">' + esc(lessonName(l)) + '</span>' + starStr(r ? r.stars : 0) + '</button>';
+      });
+      h += '</div></section>';
+    }
+    return h;
+  }
+
+  /* ---------- typing lessons ---------- */
+  function startLesson(id) {
+    const L = K.LESSON_BY_ID[id];
+    P = { L, items: K.makeItems(L, S.lang), i: 0, pos: 0, keys: 0, correct: 0, wrongStreak: 0, streak: 0, t0: 0, tEnd: 0, errChars: {},
+      forceHint: false, hintTimer: null, ended: false, explored: 0, popped: 0, spawned: 0, balloons: [], escaped: 0, deadline: 0 };
+    SG = null; oskShift = false;
+    S.last = { type: 'lesson', id, lang: S.lang, done: false }; save();
+    screen = 'play';
+    render();
+    say('intro_' + (L.type === 'balloon' ? 'balloon' : L.type));
+    if (L.type === 'balloon') startBalloons();
+    if (L.type === 'speed') { P.deadline = Date.now() + L.seconds * 1000; P.t0 = Date.now(); tickTimer(); }
+    armItem();
+  }
+
+  function playHTML() {
+    return '<div class="play"><div class="playbar"><button class="cap small" data-act="quit">✕ ' + esc(t('quit')) + '</button>' +
+      '<span class="ttl">' + P.L.icon + ' ' + esc(lessonName(P.L)) + '</span><div class="meter" aria-hidden="true"><span id="meter" style="width:0%"></span></div>' +
+      '<span class="timer" id="timer"></span><span class="capswarn" id="caps" hidden>⇪ ' + esc(t('capsOn')) + '</span></div>' + saveWarnHTML() +
+      buddyHTML() +
+      '<div class="stage ' + (P.L.type === 'balloon' ? 'game' : '') + '" id="stage"></div><div class="helper" id="helper"></div><div class="kb" id="kb">' + kbHTML() + '</div>' +
+      '<p class="kbnote">' + esc(t('noKeyboard')) + '</p></div>';
+  }
+
+  function curItem() { return P.items[P.i]; }
+  function curCps() { const it = curItem(); return it ? Array.from(it.text) : []; }
+  function expectedChar() {
+    if (!P || P.ended) return null;
+    if (P.L.type === 'explore') return null;
+    if (P.L.type === 'balloon') { const b = topBalloon(); return b ? b.ch : null; }
+    const c = curCps(); return c[P.pos] ?? null;
+  }
+  const lenient = () => P.L.level <= 2;
+  function showHintNow() {
+    const ty = P.L.type;
+    if (ty === 'findkey' || ty === 'picture') return P.wrongStreak >= 1 || P.forceHint;
+    return S.hints || P.wrongStreak >= 2 || ty === 'space' || P.L.level === 1;
+  }
+  /* what the keyboard and the hands should point at right now */
+  function hintState() {
+    if (screen === 'spellplay') return spellHint();
+    if (!P) return { ch: null };
+    return { ch: expectedChar(), show: showHintNow(), lenient: lenient() };
+  }
+
+  function stageHTML() {
+    const L = P.L, it = curItem();
+    if (L.type === 'explore') return '<div id="tgt"><p class="prompt">' + esc(t('pressAny')) + '</p><div class="glyph" id="exg">⌨️</div><div class="word" id="exw"></div></div>';
+    if (L.type === 'balloon') return '<div class="sky" id="sky"></div><p class="skyhint">' + esc(t('popBalloons')) + '</p>';
+    if (!it) return '';
+    if (L.type === 'findkey') return '<div id="tgt"><p class="prompt">' + esc(t('pressKey')) + '</p><div class="glyph pop">' + esc(K.displayChar(it.text)) + '</div></div>';
+    if (L.type === 'picture') {
+      const gs = K.graphemes(it.word); const idx = Array.from(it.word).indexOf(it.text);
+      const w = gs.map(g => (idx >= g.start && idx < g.end) ? '<span class="tg">' + esc(g.text) + '</span>' : esc(g.text)).join('');
+      return '<div id="tgt"><div class="emoji pop" aria-hidden="true">' + it.emoji + '</div><div class="word">' + w + '</div><p class="prompt">' + esc(t('whichLetter', { word: it.word })) + '</p></div>';
+    }
+    if (L.type === 'space') {
+      return '<div class="pond" id="tgt"><p class="prompt">' + esc(t('pressSpace')) + '</p><div class="pads"><div class="frog" id="frog" style="transform:translateX(' + (P.i * 100) + '%)">🐸</div>' +
+        Array.from({ length: 9 }, () => '<div class="pad"></div>').join('') + '</div><span class="spacecap">space</span></div>';
+    }
+    if (L.type === 'keys') {
+      const from = Math.max(0, P.i - 2), list = P.items.slice(from, from + 8);
+      return '<div id="tgt"><p class="prompt">' + esc(t('typeThis')) + '</p><div class="strip">' + list.map((x, j) => {
+        const k = from + j; return '<span class="c ' + (k < P.i ? 'done' : k === P.i ? 'cur' : '') + '">' + esc(K.displayChar(x.text)) + '</span>';
+      }).join('') + '</div></div>';
+    }
+    const nx = P.items[P.i + 1];
+    return '<div id="tgt" style="max-width:100%"><p class="prompt">' + esc(t('typeThis')) + '</p>' + copyLineHTML(curCps(), P.pos) +
+      (nx && L.type !== 'speed' ? '<p class="nextitem">' + esc(t('nextLabel')) + ' ' + esc(nx.text) + '</p>' : '') + '</div>';
+  }
+  /* a line to copy, letter clusters marked done / current; inside a Thai cluster like น้ำ it names the exact next mark */
+  function copyLineHTML(cps, pos) {
+    const s = cps.join(''), gs = K.graphemes(s);
+    const line = gs.map(g => {
+      const cls = pos >= g.end ? 'done' : (pos >= g.start ? 'cur' : '');
+      const txt = g.text === ' ' ? '<span class="sp">' + (cls === 'cur' ? '␣' : ' ') + '</span>' : esc(g.text);
+      return '<span class="g ' + cls + '">' + txt + '</span>';
+    }).join('');
+    const g = gs.find(x => pos >= x.start && pos < x.end);
+    const sub = g && Array.from(g.text).length > 1 ? '<span class="substep">' + esc(t('nextLabel')) + ' ' + esc(K.displayChar(cps[pos])) + '</span>' : '';
+    return '<div class="line">' + line + '</div>' + sub;
+  }
+
+  function paintPlay() {
+    if (!P) return;
+    if (P.L.type !== 'balloon' || !$('sky')) $('stage').innerHTML = stageHTML();
+    paintHelper(); paintKb(); paintMeter();
+  }
+  function paintMeter() {
+    const m = $('meter'); if (!m) return;
+    let pct = 0;
+    if (screen === 'spellplay') pct = SG ? SG.i / SG.ids.length : 0;
+    else if (screen === 'flagplay') pct = FG ? (FG.i + (FG.q && FG.q.done ? 1 : 0)) / FG.qs.length : 0;
+    else if (P.L.type === 'explore') pct = P.explored / 20;
+    else if (P.L.type === 'balloon') pct = (P.popped + P.escaped) / P.L.count;
+    else if (P.L.type === 'speed') pct = 1 - Math.max(0, P.deadline - Date.now()) / (P.L.seconds * 1000);
+    else pct = P.i / P.items.length;
+    m.style.width = Math.min(100, Math.round(pct * 100)) + '%';
+  }
+
+  function paintHelper() {
+    const h = $('helper'); if (!h) return;
+    const hs = hintState();
+    if (hs.show && hs.code === 'Backspace') { h.innerHTML = handsSVG('rp', false) + '<div><strong>⌫ ' + esc(t('erase')) + '</strong></div>'; return; }
+    const info = hs.ch != null ? K.LAYOUTS[S.lang].byChar[hs.ch] : null;
+    if (!info || !hs.show) { h.innerHTML = handsSVG(null, false); return; }
+    const needShift = info.shift && !(hs.lenient && hs.ch.toLowerCase() !== hs.ch.toUpperCase());
+    h.innerHTML = handsSVG(info.finger, needShift) + '<div><strong>' + esc(t('useFinger', { finger: t('f_' + info.finger) })) + '</strong>' +
+      (needShift ? '<br>⇧ ' + esc(t('holdShift')) : '') + '</div>';
+  }
+
+  function handsSVG(f, shift) {
+    const shiftF = f && shift ? (f[0] === 'l' ? 'rp' : 'lp') : null;
+    const on = id => (id === f || id === shiftF || (f === 'th' && id === 'th')) ? ' on' : '';
+    const hand = (p, mirror) => '<g' + (mirror ? ' transform="translate(240,0) scale(-1,1)"' : '') + '>' +
+        '<rect class="palm" x="12" y="54" width="78" height="46" rx="18"/>' +
+        '<rect class="fg fp' + on(p + 'p') + '" x="13" y="30" width="15" height="36" rx="7.5"/>' +
+        '<rect class="fg fr' + on(p + 'r') + '" x="31" y="16" width="15" height="48" rx="7.5"/>' +
+        '<rect class="fg fm' + on(p + 'm') + '" x="49" y="10" width="15" height="54" rx="7.5"/>' +
+        '<rect class="fg fi' + on(p + 'i') + '" x="67" y="18" width="15" height="46" rx="7.5"/>' +
+        '<rect class="fg ft' + on('th') + '" x="84" y="60" width="32" height="15" rx="7.5" transform="rotate(-28 84 67)"/></g>';
+    return '<svg class="hands" viewBox="0 0 240 104" aria-hidden="true">' + hand('l', false) + hand('r', true) + '</svg>';
+  }
+
+  /* on-screen keyboard (Backspace and Enter are live for the spelling game) */
+  function kbHTML() {
+    const lay = K.LAYOUTS[S.lang];
+    const key = k => {
+      const main = oskShift ? k.s : k.n;
+      const letter = k.n.toLowerCase() !== k.n.toUpperCase();
+      const alt = (!letter || S.lang === 'th') && k.s !== k.n ? '<span class="alt">' + esc(K.displayChar(oskShift ? k.n : k.s)) + '</span>' : '';
+      return '<button class="key ' + (k.code === 'KeyF' || k.code === 'KeyJ' ? 'bump' : '') + '" data-code="' + k.code + '" data-f="' + k.finger + '" tabindex="-1" aria-label="' + esc(main) + '">' + alt + esc(K.displayChar(main)) + '</button>';
+    };
+    const mod = (lbl, w) => '<span class="key mod ' + w + '" aria-hidden="true">' + lbl + '</span>';
+    const live = (code, lbl, w, f) => '<button class="key mod shift ' + w + '" data-code="' + code + '" data-f="' + f + '" tabindex="-1" aria-label="' + code + '">' + lbl + '</button>';
+    const r = lay.rows, sv = S.lang === 'sv';
+    const sh = code => '<button class="key mod shift w22 ' + (oskShift ? 'latched' : '') + '" data-code="' + code + '" data-f="' + (code === 'ShiftLeft' ? 'lp' : 'rp') + '" tabindex="-1" aria-label="Shift">⇧</button>';
+    return '<div class="kr">' + r[0].map(key).join('') + live('Backspace', '⌫', 'w18', 'rp') + '</div>' +
+      '<div class="kr">' + mod('⇥', 'w15') + r[1].map(key).join('') + (sv ? live('Enter', '↵', 'w15', 'rp') : '') + '</div>' +
+      '<div class="kr">' + mod('⇪', 'w18') + r[2].map(key).join('') + (sv ? '' : live('Enter', '↵', 'w22', 'rp')) + '</div>' +
+      '<div class="kr">' + sh('ShiftLeft') + r[3].map(key).join('') + sh('ShiftRight') + '</div>' +
+      '<div class="kr">' + mod('', 'w22') + '<button class="key space" data-code="Space" data-f="th" tabindex="-1" aria-label="Space">space</button>' + mod('', 'w22') + '</div>';
+  }
+  function paintKb() {
+    const kb = $('kb'); if (!kb) return;
+    kb.querySelectorAll('.target').forEach(e => e.classList.remove('target'));
+    const hs = hintState(); if (!hs.show) return;
+    if (hs.code) { const el = kb.querySelector('[data-code="' + hs.code + '"]'); if (el) el.classList.add('target'); return; }
+    if (hs.ch == null) return;
+    const info = K.LAYOUTS[S.lang].byChar[hs.ch]; if (!info) return;
+    const el = kb.querySelector('[data-code="' + info.code + '"]'); if (el) el.classList.add('target');
+    if (info.shift && !(hs.lenient && hs.ch.toLowerCase() !== hs.ch.toUpperCase())) {
+      const shEl = kb.querySelector('[data-code="' + (info.finger[0] === 'l' ? 'ShiftRight' : 'ShiftLeft') + '"]'); if (shEl) shEl.classList.add('target');
+    }
+  }
+  function flashKey(code, good) {
+    const el = $('kb') && $('kb').querySelector('[data-code="' + code + '"]'); if (!el) return;
+    el.classList.remove('hit', 'miss'); void el.offsetWidth; el.classList.add(good ? 'hit' : 'miss');
+    setTimeout(() => el.classList.remove('hit', 'miss'), 200);
+  }
+  function shake() { const tg = $('tgt'); if (tg) { tg.classList.remove('shake'); void tg.offsetWidth; tg.classList.add('shake'); } }
+
+  function armItem() {
+    if (!P) return;
+    clearTimeout(P.hintTimer); P.forceHint = false;
+    const ty = P.L.type;
+    if (ty === 'findkey' || ty === 'picture') {
+      P.hintTimer = setTimeout(() => { if (P && !P.ended) { P.forceHint = true; paintHelper(); paintKb(); } }, 5000);
+      const it = curItem();
+      if (it) setTimeout(() => { if (P && curItem() === it) sayPractice(ty === 'picture' ? it.word : it.text); }, lastSaid && P.i === 0 ? 2600 : 150);
+    }
+  }
+
+  function onInput(cands, code) {
+    if (!P || P.ended) return;
+    Audio.ctx();
+    const ty = P.L.type;
+    if (!P.t0) P.t0 = Date.now();
+    if (ty === 'explore') return explorePress(cands, code);
+    if (ty === 'balloon') return balloonPress(cands, code);
+    const exp = expectedChar(); if (exp == null) return;
+    P.keys++;
+    if (K.matches(exp, cands, lenient())) {
+      P.correct++; P.pos++; P.wrongStreak = 0; P.streak++;
+      flashKey(code, true);
+      if (P.pos >= curCps().length) return itemDone();
+      Audio.sfx('key');
+      paintPlay();
+    } else {
+      P.wrongStreak++; P.streak = 0;
+      P.errChars[exp] = (P.errChars[exp] || 0) + 1;
+      flashKey(code, false); Audio.sfx('wrong'); shake();
+      if (P.wrongStreak >= 2) say('wrong', null, { cooldown: 7000 });
+      paintHelper(); paintKb();
+    }
+  }
+
+  function itemDone() {
+    const ty = P.L.type;
+    Audio.sfx(ty === 'space' ? 'hop' : 'correct', P.streak);
+    if (ty === 'findkey' || ty === 'picture') say('correct');
+    else if ((ty === 'words' || ty === 'sentences') && Math.random() < 0.35) say('correct', null, { cooldown: 6000 });
+    if (ty === 'space') { const fr = $('frog'); if (fr) fr.style.transform = 'translateX(' + ((P.i + 1) * 100) + '%)'; }
+    P.i++; P.pos = 0;
+    if (ty === 'speed' && P.i >= P.items.length) { P.items = P.items.concat(K.makeItems(P.L, S.lang)); }
+    if (P.i >= P.items.length) { setTimeout(finish, ty === 'space' ? 450 : 250); paintMeter(); return; }
+    if (ty === 'space') { paintMeter(); paintKb(); return; }
+    paintPlay(); armItem();
+  }
+
+  /* explore mode: every key is a little surprise */
+  const EXPLORE_COLORS = ['var(--f-p)', 'var(--f-r)', 'var(--f-m)', 'var(--f-i)', 'var(--f-t)', 'var(--accent)'];
+  function explorePress(cands, code) {
+    const ch = cands[0] || cands[1]; if (!ch) return;
+    P.explored++; P.keys++; P.correct++;
+    const lay = K.LAYOUTS[S.lang]; const k = lay.byCode[code];
+    let col = 6; if (k) lay.rows.forEach(r => { const i = r.indexOf(k); if (i >= 0) col = i; });
+    Audio.sfx('correct', col);
+    flashKey(code, true);
+    const g = $('exg'), w = $('exw');
+    const pic = K.CONTENT[S.lang].pictures.find(p => p[2] === ch || p[2] === ch.toLowerCase());
+    if (g) { g.textContent = ch === ' ' ? '🐸' : K.displayChar(ch); g.style.color = EXPLORE_COLORS[P.explored % EXPLORE_COLORS.length]; g.classList.remove('pop'); void g.offsetWidth; g.classList.add('pop'); }
+    if (w) w.textContent = pic ? pic[0] + ' ' + pic[1] : '';
+    sayPractice(pic ? pic[1] : (ch === ' ' ? '' : ch));
+    paintMeter();
+    if (P.explored >= 20) setTimeout(finish, 400);
+  }
+
+  /* balloon game */
+  let raf = 0, lastT = 0, spawnAcc = 0;
+  const BAL_COLORS = ['var(--f-p)', 'var(--f-r)', 'var(--f-m)', 'var(--f-i)', 'var(--f-t)'];
+  function startBalloons() { lastT = performance.now(); spawnAcc = P.L.every; raf = requestAnimationFrame(loop); }
+  function stopGameLoop() { cancelAnimationFrame(raf); raf = 0; }
+  function topBalloon() { let best = null; for (const b of P.balloons) if (!b.dead && (!best || b.y > best.y)) best = b; return best; }
+  function loop(now) {
+    if (!P || P.ended || P.L.type !== 'balloon') return;
+    const dt = Math.min(50, now - lastT); lastT = now;
+    const sky = $('sky'); if (!sky) return;
+    const H = sky.clientHeight;
+    spawnAcc += dt;
+    if (P.spawned < P.L.count && (spawnAcc >= P.L.every || P.balloons.filter(b => !b.dead).length === 0)) {
+      spawnAcc = 0;
+      const ch = P.items[P.spawned].text; P.spawned++;
+      const el = document.createElement('div'); el.className = 'balloon';
+      el.textContent = K.displayChar(ch);
+      el.style.background = BAL_COLORS[P.spawned % BAL_COLORS.length];
+      el.style.left = (10 + Math.random() * 80) + '%';
+      sky.appendChild(el);
+      P.balloons.push({ ch, el, y: -80, dead: false });
+      paintHelper(); paintKb();
+    }
+    let changed = false;
+    for (const b of P.balloons) {
+      if (b.dead) continue;
+      b.y += P.L.speed * dt / 1000;
+      b.el.style.setProperty('--t', 'translateY(' + (-b.y) + 'px)');
+      b.el.style.transform = 'translateY(' + (-b.y) + 'px)';
+      if (b.y > H + 10) { b.dead = true; b.el.remove(); P.escaped++; changed = true; }
+    }
+    if (changed) { paintHelper(); paintKb(); paintMeter(); }
+    if (P.spawned >= P.L.count && P.balloons.every(b => b.dead)) { setTimeout(finish, 300); return; }
+    raf = requestAnimationFrame(loop);
+  }
+  function balloonPress(cands, code) {
+    P.keys++;
+    const alive = P.balloons.filter(b => !b.dead && K.matches(b.ch, cands, lenient())).sort((a, b) => b.y - a.y);
+    if (alive.length) {
+      const b = alive[0]; b.dead = true; P.correct++; P.popped++; P.streak++;
+      b.el.classList.add('boom'); setTimeout(() => b.el.remove(), 260);
+      Audio.sfx('pop'); flashKey(code, true);
+      if (P.streak > 0 && P.streak % 5 === 0) say('gameCheer', null, { cooldown: 5000 });
+    } else {
+      const tb = topBalloon(); if (tb) P.errChars[tb.ch] = (P.errChars[tb.ch] || 0) + 1;
+      P.streak = 0; P.wrongStreak++; Audio.sfx('wrong'); flashKey(code, false);
+    }
+    paintHelper(); paintKb(); paintMeter();
+  }
+
+  /* speed test timer */
+  function tickTimer() {
+    if (!P || P.ended || P.L.type !== 'speed') return;
+    const left = Math.max(0, P.deadline - Date.now());
+    const el = $('timer'); if (el) el.textContent = '⏱ ' + Math.ceil(left / 1000) + 's';
+    paintMeter();
+    if (left <= 0) return finish();
+    setTimeout(tickTimer, 250);
+  }
+
+  /* shared bookkeeping after any finished activity */
+  function afterActivity() {
+    if (!S.langsUsed.includes(S.lang)) S.langsUsed.push(S.lang);
+    const td = today(), y = new Date(); y.setDate(y.getDate() - 1);
+    if (S.streak.last !== td) { S.streak.days = S.streak.last === today(y) ? S.streak.days + 1 : 1; S.streak.last = td; }
+    const lv = K.effectiveLevel(prog(), S.age);
+    S.level[S.lang] = lv; S.maxLevel[S.lang] = Math.max(S.maxLevel[S.lang] || 0, lv);
+    const newBadges = checkBadges();
+    const stickerCount = Math.min(STICKERS.length, Math.floor(totalStars() / 5));
+    const newSticker = stickerCount > S.stickers; S.stickers = stickerCount;
+    return { newBadges, newSticker };
+  }
+  function celebrate(news) {
+    news.newBadges.forEach((b, i) => setTimeout(() => { toast(b.icon + ' ' + t('newBadge', { name: badgeName(b) })); Audio.sfx('badge'); }, 900 + i * 900));
+    if (news.newSticker) setTimeout(() => toast(STICKERS[S.stickers - 1] + ' ' + t('newSticker')), 900 + news.newBadges.length * 900);
+    if (news.newBadges.length) setTimeout(() => say('badge', null, { cooldown: 2000 }), 4800);
+  }
+
+  function finish() {
+    if (!P || P.ended) return;
+    P.ended = true; clearTimeout(P.hintTimer); stopGameLoop();
+    const L = P.L, ms = Math.max(1, Date.now() - (P.t0 || Date.now()));
+    const acc = K.accuracy(P.correct, P.keys);
+    let stars;
+    if (L.type === 'explore') stars = 3;
+    else if (L.type === 'balloon') { const r = P.popped / L.count; stars = r >= 0.8 ? 3 : r >= 0.5 ? 2 : 1; }
+    else stars = K.starsFor(acc);
+    const speed = (L.level >= 2 && L.type !== 'balloon') ? K.wpm(P.correct, ms) : null;
+    const pr = prog();
+    const rec = pr[L.id] || (pr[L.id] = { stars: 0, plays: 0, bestAcc: 0, bestWpm: 0, lastAcc: 0 });
+    const starsBefore = totalStars();
+    rec.plays++; rec.lastAcc = acc; rec.bestAcc = Math.max(rec.bestAcc, acc); rec.stars = Math.max(rec.stars, stars);
+    if (speed != null) rec.bestWpm = Math.max(rec.bestWpm || 0, speed);
+    const gained = totalStars() - starsBefore;
+    S.plays++; if (stars === 3) S.three++;
+    if (acc === 100 && P.keys >= 10 && L.type !== 'explore') S.perfect = true;
+    S.timeMs[S.lang] += ms;
+    for (const c in P.errChars) S.keyErr[S.lang][c] = (S.keyErr[S.lang][c] || 0) + P.errChars[c];
+    S.last = { type: 'lesson', id: L.id, lang: S.lang, done: true };
+    const news = afterActivity();
+    saveNote();
+    const weak = Object.entries(P.errChars).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]);
+    const suggestAcc = L.type === 'balloon' ? Math.round(100 * P.popped / L.count) : acc;
+    lastResult = { id: L.id, stars, acc, speed, ms, popped: P.popped, keys: P.keys, weak, suggest: K.suggestAfter(L.id, suggestAcc, stars), gained };
+    screen = 'result';
+    Audio.sfx(stars >= 2 ? 'win' : 'star');
+    render();
+    if (stars >= 2) say(gained === 1 ? 'star' : 'stars', { n: stars }); else say('tryMore');
+    if (lastResult.suggest.kind === 'up' && stars === 3) setTimeout(() => { if (screen === 'result') say('ready'); }, 3200);
+    celebrate(news);
+  }
+
+  const badgeName = b => b.n ? t('b_lv', { n: b.n }) : t('b_' + b.id);
+  function badgeEarned(b) {
+    const sp = LANGS.map(l => S.spell[l]);
+    switch (b.id) {
+      case 'first': return S.plays >= 1;
+      case 'ten': return S.plays >= 10;
+      case 'perfect': return S.perfect;
+      case 'three5': return S.three >= 5;
+      case 'streak3': return S.streak.days >= 3;
+      case 'poly': return S.langsUsed.length >= 3;
+      case 'speed20': return LANGS.some(l => Object.values(S.prog[l]).some(r => (r.bestWpm || 0) >= 20));
+      case 'speller': return sp.some(s => s.games >= 1);
+      case 'words50': return sp.reduce((a, s) => a + s.correct, 0) >= 50;
+      case 'flags': return sp.some(s => Object.keys(s.best).some(k => k.startsWith('countries:') && s.best[k] >= 3));
+      case 'flagspot': return LANGS.some(l => Object.values(S.flags[l].best).some(n => n >= 3));
+      default: return LANGS.some(l => K.LESSONS.filter(x => x.level === b.n).every(x => S.prog[l][x.id] && S.prog[l][x.id].stars >= 1));
+    }
+  }
+  function checkBadges() {
+    const out = [];
+    BADGES.forEach(b => { if (!S.badges.includes(b.id) && badgeEarned(b)) { S.badges.push(b.id); out.push(b); } });
+    return out;
+  }
+
+  function resultHTML() {
+    const R = lastResult, L = K.LESSON_BY_ID[R.id];
+    const stat = (v, l) => '<div class="stat"><div class="v">' + v + '</div><div class="l">' + esc(l) + '</div></div>';
+    let stats = '';
+    if (L.type === 'balloon') stats += stat(R.popped + '/' + L.count, t('popped'));
+    else if (L.type === 'explore') stats += stat(R.keys, t('keysPressed'));
+    else stats += stat(R.acc + '%', t('accuracy'));
+    if (R.speed != null) stats += stat(R.speed + ' <small>' + esc(t('wpm')) + '</small>', t('speed'));
+    stats += stat(Math.floor(R.ms / 60000) + ':' + String(Math.round(R.ms / 1000) % 60).padStart(2, '0'), t('time'));
+    const sug = K.LESSON_BY_ID[R.suggest.id];
+    const sugLbl = { up: 'suggestUp', down: 'suggestDown', again: 'suggestAgain' }[R.suggest.kind];
+    const nextL = K.LESSONS[L.index + 1];
+    return '<section class="result"><div class="bigstars" aria-label="' + R.stars + '/3">' + [0, 1, 2].map(i => i < R.stars ? '<span class="s">★</span>' : '★').join('') + '</div>' +
+      '<h1>' + esc(R.stars >= 2 ? pick(t('great')) : t('tryMore')) + '</h1><div class="stats">' + stats + '</div>' +
+      (R.weak.length ? '<p class="weak">' + esc(t('weakKeys')) + ' ' + R.weak.map(c => '<span class="kc">' + esc(K.displayChar(c)) + '</span>').join('') + '</p>' : '') +
+      '<div class="suggest"><span>' + esc(t(sugLbl)) + ' <strong>' + sug.icon + ' ' + esc(lessonName(sug)) + '</strong></span><button class="cap small primary" data-act="startLesson" data-v="' + sug.id + '">▶ ' + esc(t('play')) + '</button></div>' +
+      '<div class="actions"><button class="cap" data-act="startLesson" data-v="' + L.id + '">↻ ' + esc(t('again')) + '</button>' +
+      (nextL ? '<button class="cap" data-act="startLesson" data-v="' + nextL.id + '">' + esc(t('next')) + ' →</button>' : '') +
+      '<button class="cap" data-act="go" data-v="map">' + esc(t('map')) + '</button></div></section>';
+  }
+
+  /* ---------- pictures for vocabulary: emoji, flags, colours, shapes ---------- */
+  function starPts(cx, cy, r) { const p = []; for (let i = 0; i < 10; i++) { const a = (-90 + i * 36) * Math.PI / 180, rr = i % 2 ? r * 0.382 : r; p.push((cx + rr * Math.cos(a)).toFixed(2) + ',' + (cy + rr * Math.sin(a)).toFixed(2)); } return p.join(' '); }
+  const star = (cx, cy, r, fill) => '<polygon points="' + starPts(cx, cy, r) + '" fill="' + fill + '"/>';
+  const h3 = (a, b, c) => '<rect width="30" height="20" fill="' + a + '"/><rect y="6.67" width="30" height="6.67" fill="' + b + '"/><rect y="13.33" width="30" height="6.67" fill="' + c + '"/>';
+  const v3 = (a, b, c) => '<rect width="30" height="20" fill="' + a + '"/><rect x="10" width="10" height="20" fill="' + b + '"/><rect x="20" width="10" height="20" fill="' + c + '"/>';
+  const h2 = (a, b) => '<rect width="30" height="20" fill="' + a + '"/><rect y="10" width="30" height="10" fill="' + b + '"/>';
+  const nordic = (bg, outer, inner) => '<rect width="30" height="20" fill="' + bg + '"/><rect x="8.2" width="5.5" height="20" fill="' + outer + '"/><rect y="7.5" width="30" height="5" fill="' + outer + '"/>' +
+    (inner ? '<rect x="9.6" width="2.7" height="20" fill="' + inner + '"/><rect y="8.75" width="30" height="2.5" fill="' + inner + '"/>' : '');
+  const FLAGS = {
+    th: '<rect width="30" height="20" fill="#A51931"/><rect y="3.33" width="30" height="13.34" fill="#F4F5F8"/><rect y="6.67" width="30" height="6.66" fill="#2D2A4A"/>',
+    jp: '<rect width="30" height="20" fill="#FFFFFF"/><circle cx="15" cy="10" r="6" fill="#BC002D"/>',
+    se: '<rect width="30" height="20" fill="#006AA7"/><rect x="9.4" width="3.75" height="20" fill="#FECC00"/><rect y="8" width="30" height="4" fill="#FECC00"/>',
+    no: nordic('#BA0C2F', '#FFFFFF', '#00205B'), is: nordic('#02529C', '#FFFFFF', '#DC1E35'),
+    dk: '<rect width="30" height="20" fill="#C8102E"/><rect x="9" width="3" height="20" fill="#FFFFFF"/><rect y="8.5" width="30" height="3" fill="#FFFFFF"/>',
+    fi: '<rect width="30" height="20" fill="#FFFFFF"/><rect x="8.3" width="5" height="20" fill="#002F6C"/><rect y="7.5" width="30" height="5" fill="#002F6C"/>',
+    de: h3('#000000', '#DD0000', '#FFCE00'), nl: h3('#AE1C28', '#FFFFFF', '#21468B'), at: h3('#C8102E', '#FFFFFF', '#C8102E'),
+    fr: v3('#0055A4', '#FFFFFF', '#EF4135'), it: v3('#009246', '#FFFFFF', '#CE2B37'), ie: v3('#169B62', '#FFFFFF', '#FF883E'), be: v3('#000000', '#FDDA24', '#EF3340'),
+    pl: h2('#FFFFFF', '#DC143C'), ua: h2('#0057B7', '#FFD700'), id: h2('#CE1126', '#FFFFFF'),
+    es: '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
+    ch: '<rect width="30" height="20" fill="#DA291C"/><rect x="13" y="4" width="4" height="12" fill="#FFFFFF"/><rect x="9" y="8" width="12" height="4" fill="#FFFFFF"/>',
+    cn: '<rect width="30" height="20" fill="#DE2910"/>' + star(5, 5, 3, '#FFDE00') + star(10, 2, 1, '#FFDE00') + star(12, 4, 1, '#FFDE00') + star(12, 7, 1, '#FFDE00') + star(10, 9, 1, '#FFDE00'),
+    vn: '<rect width="30" height="20" fill="#DA251D"/>' + star(15, 10, 6, '#FFFF00'),
+    gr: Array.from({ length: 9 }, (_, i) => '<rect y="' + (i * 20 / 9).toFixed(3) + '" width="30" height="2.23" fill="' + (i % 2 ? '#FFFFFF' : '#0D5EAF') + '"/>').join('') +
+      '<rect width="11.11" height="11.11" fill="#0D5EAF"/><rect y="4.44" width="11.11" height="2.23" fill="#FFFFFF"/><rect x="4.44" width="2.23" height="11.11" fill="#FFFFFF"/>'
+  };
+  const SHAPES = {
+    circle: '<circle cx="50" cy="50" r="40"/>', triangle: '<polygon points="50,10 92,88 8,88"/>', square: '<rect x="14" y="14" width="72" height="72" rx="4"/>',
+    star: '<polygon points="' + starPts(50, 54, 44) + '"/>', heart: '<path d="M50 88 C20 66 6 50 6 32 C6 18 18 8 31 8 C40 8 47 13 50 20 C53 13 60 8 69 8 C82 8 94 18 94 32 C94 50 80 66 50 88Z"/>',
+    rectangle: '<rect x="6" y="26" width="88" height="48" rx="4"/>', oval: '<ellipse cx="50" cy="50" rx="44" ry="30"/>'
+  };
+  function picHTML(pic, small) {
+    if (pic.startsWith('flag:')) return '<svg class="flag" viewBox="0 0 30 20" role="img" aria-label="flag">' + FLAGS[pic.slice(5)] + '</svg>';
+    if (pic.startsWith('color:')) return '<svg class="picsvg" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 C72 8 92 24 92 48 C92 74 74 92 50 92 C24 92 8 76 8 52 C8 26 28 8 50 8Z" fill="' + pic.slice(6) + '" stroke="var(--line)" stroke-width="3"/></svg>';
+    if (pic.startsWith('shape:')) return '<svg class="picsvg" viewBox="0 0 100 100" aria-hidden="true"><g fill="var(--f-t)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round">' + SHAPES[pic.slice(6)] + '</g></svg>';
+    return small ? pic : '<div class="emoji pop" aria-hidden="true">' + pic + '</div>';
+  }
+
+  /* ---------- Spelling Challenge ---------- */
+  function spellHomeHTML() {
+    const sp = S.spell[S.lang], cat = S.spellCat, d = S.spellD;
+    const best = (c, dd) => sp.best[c + ':' + dd] || 0;
+    let h = '<div class="sphead"><h1>🔤 ' + esc(t('spellTitle')) + '</h1><span class="pill">' + esc(t('practiceLang')) + ': ' + esc(t('lang_' + S.lang)) + '</span>' +
+      '<button class="cap small" data-act="go" data-v="flags">🚩 ' + esc(t('flagTitle')) + '</button></div>';
+    if (sp.session) {
+      const s = sp.session;
+      h += '<div class="suggest" style="display:flex;justify-content:space-between"><span>⏸ ' + esc(t('continueGame')) + ': <strong>' + esc(s.review ? t('reviewTitle') : t('c_' + s.cat)) + ' · ' + esc(t('d' + s.d)) + ' (' + (s.i + 1) + '/' + s.ids.length + ')</strong></span><button class="cap small primary" data-act="spResume">▶ ' + esc(t('continueBtn')) + '</button></div>';
+    }
+    if (sp.missed.length) h += '<p><button class="cap" data-act="spReview">🔁 ' + esc(t('reviewMissed', { n: sp.missed.length })) + '</button></p>';
+    h += '<section class="spsec"><h2>1. ' + esc(t('chooseCat')) + '</h2><div class="tiles">';
+    for (const c in K.VOCAB) {
+      const top = Math.max(0, ...[1, 2, 3, 4].map(x => best(c, x)));
+      h += '<button class="cap tile ' + (c === cat ? 'on' : '') + '" data-act="spCat" data-v="' + c + '" aria-pressed="' + (c === cat) + '"><span class="ic" aria-hidden="true">' + K.VOCAB[c].icon + '</span><span class="nm">' + esc(t('c_' + c)) + '</span><span class="cnt">' + esc(t('words', { n: K.VOCAB[c].items.length })) + '</span>' + starStr(top) + '</button>';
+    }
+    h += '</div></section><section class="spsec"><h2>2. ' + esc(t('chooseLevel')) + '</h2><div class="dlv">';
+    for (let x = 1; x <= 4; x++) h += '<button class="cap ' + (x === d ? 'on' : '') + '" data-act="spD" data-v="' + x + '" aria-pressed="' + (x === d) + '"><b>' + x + ' · ' + esc(t('d' + x)) + '</b><span>' + esc(t('d' + x + 'x')) + '</span>' + starStr(best(cat, x)) + '</button>';
+    h += '</div></section><button class="cap primary" data-act="spStart">▶ ' + esc(t('play')) + ': ' + K.VOCAB[cat].icon + ' ' + esc(t('c_' + cat)) + ' · ' + esc(t('d' + d)) + '</button>';
+    return h;
+  }
+
+  function startSpell(sess) {
+    P = null; oskShift = false;
+    SG = Object.assign({ lang: S.lang, keys: 0 }, sess);
+    if (!SG.mini) { S.last = { type: 'spell', cat: SG.cat, review: !!SG.review, lang: S.lang, done: false }; saveSession(); }
+    screen = 'spellplay'; render();
+    if (!SG.mini) say('intro_spell');
+    armWord(!SG.mini);
+  }
+  function newSpellGame(cat, d, review) {
+    const ids = review ? S.spell[S.lang].missed.slice(0, 8) : K.spellPool(cat, S.lang, d, 8);
+    const max = ids.length * K.spellPoints(d, 'first', 0);
+    startSpell({ cat, d, review: !!review, ids, i: 0, score: 0, max, results: [] });
+  }
+  function saveSession() {
+    if (!SG || SG.mini) return;   /* a one-word practice from the flag game is not a game of its own */
+    S.spell[SG.lang].session = { cat: SG.cat, d: SG.d, review: SG.review, ids: SG.ids, i: SG.i, score: SG.score, max: SG.max, results: SG.results };
+    save();
+  }
+  const spItem = () => K.VOCAB_INDEX[SG.ids[SG.i]];
+  function armWord(first) {
+    const it = spItem(); if (!it) return spellFinish();
+    const cps = Array.from(it.word[SG.lang]);
+    SG.w = { it, cps, buf: [], pos: 0, tries: 0, hints: 0, wrong: 0, phase: SG.d === 1 ? 'copy' : SG.d === 2 ? 'gated' : 'free',
+      reveal: SG.d === 2 ? 1 : 0, hintKey: false, peek: false, marks: null, locked: false, shown: false };
+    paintSpell();
+    setTimeout(() => { if (SG && SG.w && SG.w.it === it) speakWord(); }, first ? 2800 : 300);
+  }
+  function speakWord() { if (SG && SG.w) sayPractice(SG.w.cps.join(''), SG.lang); }
+  function spellHint() {
+    const w = SG && SG.w; if (!w || w.phase === 'done') return { ch: null };
+    if (w.phase === 'copy' || w.phase === 'gated') return { ch: w.cps[w.pos], show: w.phase === 'copy' || w.hintKey || w.wrong >= 2, lenient: SG.d <= 2 || w.shown };
+    for (let i = 0; i < w.buf.length; i++) if (w.buf[i] !== w.cps[i]) return { code: 'Backspace', show: w.hintKey };
+    return { ch: w.cps[w.buf.length] ?? null, show: w.hintKey, lenient: false };
+  }
+
+  function spellPlayHTML() {
+    return '<div class="play"><div class="playbar"><button class="cap small" data-act="spQuit">✕ ' + esc(t('quit')) + '</button>' +
+      '<span class="ttl">' + (SG.mini ? '🚩 ' + esc(t('typeCountry')) : '🔤 ' + esc(SG.review ? t('reviewTitle') : t('c_' + SG.cat)) + ' · ' + esc(t('d' + SG.d))) + '</span><div class="meter" aria-hidden="true"><span id="meter" style="width:0%"></span></div>' +
+      '<span class="score" id="spscore"></span><span class="capswarn" id="caps" hidden>⇪ ' + esc(t('capsOn')) + '</span></div>' + saveWarnHTML() +
+      buddyHTML() + '<div class="stage" id="stage"></div><div class="helper" id="helper"></div><div class="kb" id="kb">' + kbHTML() + '</div>' +
+      '<p class="kbnote">' + esc(t('noKeyboard')) + '</p></div>';
+  }
+
+  function boxesHTML(w) {
+    const tg = K.graphemes(w.cps.join(''));
+    let cells;
+    if (w.phase === 'gated') {
+      cells = tg.map((g, i) => {
+        if (g.text === ' ') return '<span class="box gap">' + (w.pos > g.start ? '' : '·') + '</span>';
+        if (w.pos >= g.end) return '<span class="box ok">' + esc(g.text) + '</span>';
+        if (w.pos > g.start) return '<span class="box cur">' + esc(w.cps.slice(g.start, w.pos).join('')) + '</span>';
+        const ghost = i < w.reveal;
+        return '<span class="box ' + (w.pos === g.start ? 'cur ' : '') + (ghost ? 'ghost' : '') + '">' + (ghost ? esc(g.text) : '') + '</span>';
+      });
+    } else {
+      const yg = K.graphemes(w.buf.join(''));
+      const n = Math.max(tg.length, yg.length);
+      cells = [];
+      for (let i = 0; i < n; i++) {
+        const y = yg[i], g = tg[i];
+        let cls = '';
+        if (w.marks && y) cls = w.marks[i] ? 'ok' : 'bad';
+        else if (!g) cls = 'bad';
+        if (!y && i === yg.length) cls += ' cur';
+        if (g && g.text === ' ' && !y) { cells.push('<span class="box gap">·</span>'); continue; }
+        const ghost = !y && g && i < w.reveal;
+        cells.push('<span class="box ' + cls + (ghost ? ' ghost' : '') + '">' + (y ? esc(y.text) : ghost ? esc(g.text) : '') + '</span>');
+      }
+    }
+    return '<div class="boxes" aria-live="polite">' + cells.join('') + '</div>';
+  }
+  function freeLineHTML(w) {
+    const yg = K.graphemes(w.buf.join(''));
+    return '<div class="ansline" aria-live="polite">' + yg.map((g, i) => '<span class="' + (w.marks ? (w.marks[i] ? 'ok' : 'bad') : '') + '">' + (g.text === ' ' ? '&nbsp;' : esc(g.text)) + '</span>').join('') + (w.locked ? '' : '<span class="caret"></span>') + '</div>';
+  }
+
+  function spellStageHTML() {
+    const w = SG.w; if (!w) return '';
+    const it = w.it;
+    const info = it.info ? '<p class="info">' + esc(t('capital', { c: it.info[SG.lang] })) + '</p>' : '';
+    let ans;
+    if (w.phase === 'done') ans = '<div class="doneword pop">✓ ' + esc(w.cps.join('')) + '</div>';
+    else if (w.phase === 'copy') ans = '<p class="prompt">' + esc(w.shown ? t('answerWas') : t('typeThis')) + '</p>' + copyLineHTML(w.cps, w.pos) + (w.shown ? '<p class="prompt">' + esc(t('typeItNow')) + '</p>' : '');
+    else ans = '<p class="prompt">' + esc(t('spellWhat')) + '</p>' + (w.peek ? '<div class="peekword">' + esc(w.cps.join('')) + '</div>' : '') +
+      (w.phase === 'gated' || SG.d === 3 ? boxesHTML(w) : freeLineHTML(w));
+    const voiceOk = !!Audio.voiceFor(SG.lang) && S.voice;
+    const limit = HINT_LIMIT[SG.d], left = limit - w.hints;
+    let tools = '<button class="cap small" data-act="spListen"' + (voiceOk ? '' : ' disabled title="' + esc(t('noVoiceWord')) + '"') + '>🔊 ' + esc(t('listen')) + '</button>';
+    if (limit && (w.phase === 'gated' || w.phase === 'free')) tools += '<button class="cap small" data-act="spHint"' + (left > 0 ? '' : ' disabled') + '>💡 ' + esc(t('hint')) + ' · ' + esc(t('hintsLeft', { n: left })) + '</button>';
+    if (w.phase === 'free') tools += '<button class="cap small" data-act="spErase">⌫ ' + esc(t('erase')) + '</button><button class="cap small primary" data-act="spCheck"' + (w.buf.length ? '' : ' disabled') + '>✓ ' + esc(t('check')) + '</button>';
+    return '<div class="spgrid" id="tgt"><div class="sppic">' + picHTML(it.pic) + info + '</div><div class="spans">' + ans +
+      (w.phase === 'done' ? '' : '<div class="tools">' + tools + '</div>') + (voiceOk ? '' : '<p class="info">' + esc(t('noVoiceWord')) + '</p>') + '</div></div>';
+  }
+  function paintSpell() {
+    if (!SG || screen !== 'spellplay') return;
+    const st = $('stage'); if (st) st.innerHTML = spellStageHTML();
+    const sc = $('spscore'); if (sc) sc.textContent = '★ ' + SG.score;
+    paintHelper(); paintKb(); paintMeter();
+  }
+
+  function spellInput(cands, code) {
+    const w = SG && SG.w; if (!w || w.locked || w.phase === 'done') return;
+    Audio.ctx(); SG.keys++;
+    if (w.phase === 'free') {
+      if (code === 'Backspace') { if (w.buf.length) { w.buf.pop(); w.marks = null; Audio.sfx('click'); paintSpell(); } return; }
+      if (code === 'Enter') { if (w.buf.length) spellCheck(); return; }
+      const ch = cands[0] || cands[1]; if (!ch || w.buf.length >= w.cps.length + 4) return;
+      w.buf.push(ch); w.marks = null; Audio.sfx('key'); flashKey(code, true); paintSpell();
+      if (w.buf.length === w.cps.length) setTimeout(() => { if (SG && SG.w === w && !w.locked && w.buf.length === w.cps.length) spellCheck(); }, 350);
+      return;
+    }
+    if (code === 'Backspace' || code === 'Enter') return;
+    const exp = w.cps[w.pos];
+    if (K.matches(exp, cands, SG.d <= 2 || w.shown)) {
+      w.pos++; flashKey(code, true);
+      if (w.pos >= w.cps.length) return wordDone(w.shown ? 'shown' : w.wrong <= 1 ? 'first' : 'second');
+      Audio.sfx('key'); paintSpell();
+    } else {
+      w.wrong++; flashKey(code, false); Audio.sfx('wrong'); shake();
+      if (w.wrong >= 2) say('wrong', null, { cooldown: 7000 });
+      paintHelper(); paintKb();
+    }
+  }
+  function spellCheck() {
+    const w = SG.w; if (!w || w.locked || w.phase !== 'free') return;
+    w.locked = true; w.tries++;
+    const r = K.checkSpelling(w.buf.join(''), w.cps.join(''));
+    if (r.kind === 'exact') return wordDone(w.tries === 1 ? 'first' : 'second');
+    if (r.kind === 'case') { toast(t('capitalTip', { w: w.cps.join('') })); return wordDone(w.tries === 1 ? 'case' : 'second'); }
+    w.marks = r.marks; Audio.sfx('wrong'); paintSpell(); shake();
+    if (w.tries < 2) {
+      say('almost');
+      setTimeout(() => {
+        if (!SG || SG.w !== w) return;
+        let k = 0; while (k < w.buf.length && w.buf[k] === w.cps[k]) k++;   /* keep the part that was right */
+        w.buf = w.buf.slice(0, k); w.marks = null; w.locked = false; w.hintKey = SG.d === 3; paintSpell();
+      }, 1500);
+    } else {
+      say('showAnswer');
+      setTimeout(() => {
+        if (!SG || SG.w !== w) return;
+        w.phase = 'copy'; w.shown = true; w.pos = 0; w.buf = []; w.marks = null; w.locked = false; paintSpell(); speakWord();
+      }, 1700);
+    }
+  }
+  function spHint() {
+    const w = SG && SG.w; if (!w || w.phase === 'done' || w.phase === 'copy') return;
+    if (w.hints >= HINT_LIMIT[SG.d]) return;
+    w.hints++;
+    const tg = K.graphemes(w.cps.join(''));
+    const peek = () => { w.peek = true; paintSpell(); setTimeout(() => { if (SG && SG.w === w) { w.peek = false; paintSpell(); } }, 1800); };
+    if (SG.d === 2) { const cur = tg.findIndex(g => w.pos < g.end); w.reveal = Math.max(w.reveal, cur + 1); w.hintKey = true; }
+    else if (SG.d === 3) { if (w.hints === 1) { w.reveal = 1; w.hintKey = true; } else if (w.hints === 2) w.reveal = Math.ceil(tg.length / 2); else peek(); }
+    else peek();
+    Audio.sfx('whoosh'); speakWord(); paintSpell();
+  }
+  function wordDone(how) {
+    const w = SG.w; w.phase = 'done'; w.locked = true;
+    const pts = K.spellPoints(SG.d, how, w.hints);
+    SG.score += pts; SG.results.push({ id: w.it.id, how, pts });
+    const sp = S.spell[SG.lang];
+    sp.practised++; sp.attempts += Math.max(1, w.tries);
+    if (how !== 'shown') sp.correct++;
+    const cs = sp.cats[w.it.cat] || (sp.cats[w.it.cat] = { practised: 0, correct: 0 });
+    cs.practised++; if (how === 'first' || how === 'case') cs.correct++;
+    const mi = sp.missed.indexOf(w.it.id);
+    if (how === 'first' || how === 'case') { if (mi >= 0) sp.missed.splice(mi, 1); }
+    else if (mi < 0) sp.missed.push(w.it.id);
+    Audio.sfx('correct', SG.i * 2); setTimeout(() => Audio.sfx('star'), 180);
+    if (how === 'first' || how === 'case') say('correct');
+    paintSpell();
+    SG.i++; saveSession();
+    setTimeout(() => {
+      if (!SG || screen !== 'spellplay') return;
+      if (SG.mini) { save(); backToFlags(SG.score); return; }
+      if (SG.i >= SG.ids.length) spellFinish(); else armWord(false);
+    }, 1500);
+  }
+  function spellFinish() {
+    const sp = S.spell[SG.lang];
+    const stars = K.spellStars(SG.score, SG.max);
+    const starsBefore = totalStars();
+    if (!SG.review) { const k = SG.cat + ':' + SG.d; sp.best[k] = Math.max(sp.best[k] || 0, stars); }
+    sp.games++; sp.session = null;
+    S.points += SG.score;
+    S.last = { type: 'spell', cat: SG.cat, review: !!SG.review, lang: SG.lang, done: true };
+    const gained = totalStars() - starsBefore;
+    const news = afterActivity();
+    saveNote();
+    lastSpell = { cat: SG.cat, d: SG.d, review: SG.review, score: SG.score, max: SG.max, stars, results: SG.results, lang: SG.lang };
+    SG = null; screen = 'spellres';
+    Audio.sfx(stars >= 2 ? 'win' : 'star');
+    render();
+    if (stars >= 2) say(gained === 1 ? 'star' : 'stars', { n: stars }); else say('tryMore');
+    celebrate(news);
+  }
+  function spellResultHTML() {
+    const R = lastSpell;
+    const first = R.results.filter(r => r.how === 'first' || r.how === 'case').length;
+    const missed = S.spell[S.lang].missed.length;
+    const icon = { first: '✅', case: '✅', second: '🟡', shown: '🔁' };
+    const lbl = { first: t('firstTry'), case: t('firstTry'), second: t('secondTry'), shown: t('shown') };
+    return '<section class="result"><div class="bigstars" aria-label="' + R.stars + '/3">' + [0, 1, 2].map(i => i < R.stars ? '<span class="s">★</span>' : '★').join('') + '</div>' +
+      '<h1>' + esc(R.stars >= 2 ? pick(t('great')) : t('tryMore')) + '</h1><div class="stats">' +
+      '<div class="stat"><div class="v">' + R.score + '/' + R.max + '</div><div class="l">' + esc(t('points')) + '</div></div>' +
+      '<div class="stat"><div class="v">' + first + '/' + R.results.length + '</div><div class="l">' + esc(t('firstTry')) + '</div></div></div>' +
+      '<ul class="wordlist">' + R.results.map(r => { const it = K.VOCAB_INDEX[r.id]; return '<li><span class="mini">' + picHTML(it.pic, true) + '</span><span class="w">' + esc(it.word[R.lang]) + '</span><span title="' + esc(lbl[r.how]) + '" aria-label="' + esc(lbl[r.how]) + '">' + icon[r.how] + '</span></li>'; }).join('') + '</ul>' +
+      '<div class="actions">' + (R.review ? '' : '<button class="cap primary" data-act="spAgain">↻ ' + esc(t('again')) + '</button>') +
+      (missed ? '<button class="cap" data-act="spReview">🔁 ' + esc(t('reviewMissed', { n: missed })) + '</button>' : '') +
+      '<button class="cap" data-act="go" data-v="spell">' + esc(t('playOther')) + '</button><button class="cap" data-act="go" data-v="map">' + esc(t('map')) + '</button></div></section>';
+  }
+
+  /* ---------- Guess the Country by Flag ---------- */
+  const FLAG_SECONDS = 15;
+  const MINI_SPELL_D = { 1: 1, 2: 2, 3: 2, 4: 3 };
+  const flagSVG = (code, cls) => '<svg class="flag ' + (cls || '') + '" viewBox="0 0 30 20" role="img" aria-label="' + esc(t('flagTitle')) + '">' + FLAGS[code] + '</svg>';
+  const cname = (code, lang) => K.VOCAB_INDEX['countries:' + code].word[lang || (FG ? FG.lang : S.lang)];
+
+  function flagHomeHTML() {
+    const fl = S.flags[S.lang], d = S.flagD;
+    let h = '<div class="sphead"><h1>🚩 ' + esc(t('flagTitle')) + '</h1><span class="pill">' + esc(t('practiceLang')) + ': ' + esc(t('lang_' + S.lang)) + '</span></div>';
+    if (fl.session) {
+      const s = fl.session;
+      h += '<div class="suggest" style="display:flex;justify-content:space-between"><span>⏸ ' + esc(t('continueGame')) + ': <strong>' + esc(t('d' + s.d)) + ' (' + Math.min(s.i + 1, s.qs.length) + '/' + s.qs.length + ')</strong></span><button class="cap small primary" data-act="fgResume">▶ ' + esc(t('continueBtn')) + '</button></div>';
+    }
+    h += '<section class="spsec"><h2>' + esc(t('chooseLevel')) + '</h2><div class="dlv">';
+    for (let x = 1; x <= 4; x++) h += '<button class="cap ' + (x === d ? 'on' : '') + '" data-act="fgD" data-v="' + x + '" aria-pressed="' + (x === d) + '"><b>' + x + ' · ' + esc(t('d' + x)) + ' · ' + esc(t('ages', { a: AGE_RANGES[x - 1][1] })) + '</b><span>' + esc(t('fd' + x + 'x')) + '</span>' + starStr(fl.best[x] || 0) + '</button>';
+    h += '</div>';
+    if (d === 4) h += '<div class="toggles"><div class="row"><label for="fg-timed">⏱ ' + esc(t('timed')) + ' (' + esc(t('optional')) + ')</label><input id="fg-timed" type="checkbox" data-fset="flagTimed"' + (S.flagTimed ? ' checked' : '') + '></div>' +
+      '<div class="row"><label for="fg-hide">🙈 ' + esc(t('hideChoices')) + '</label><input id="fg-hide" type="checkbox" data-fset="flagHide"' + (S.flagHide ? ' checked' : '') + '></div></div>';
+    h += '</section><div class="actions" style="justify-content:flex-start"><button class="cap primary" data-act="fgStart">▶ ' + esc(t('play')) + ': ' + esc(t('d' + d)) + '</button>' +
+      '<button class="cap" data-act="fgToSpell">🔤 ' + esc(t('spellTitle')) + ': ' + esc(t('c_countries')) + '</button></div>';
+    return h;
+  }
+
+  function newFlagGame() {
+    const d = S.flagD, qs = K.flagRound(d, S.flags[S.lang].missed, 8);
+    startFlags({ d, timed: d === 4 && S.flagTimed, hide: d === 4 && S.flagHide, qs, i: 0, score: 0, max: qs.length * K.flagPoints(d, 'first'), results: [] });
+  }
+  function startFlags(sess) {
+    leavePlay();
+    FG = Object.assign({ lang: S.lang, tick: 0, bonus: 0 }, sess);
+    S.last = { type: 'flags', lang: S.lang, done: false };
+    screen = 'flagplay'; render();
+    say('intro_flags');
+    armFlag(true);
+  }
+  function saveFlagSession() {
+    if (!FG) return;
+    const i = FG.q && FG.q.done ? FG.i + 1 : FG.i;   /* an answered question is not asked again after a reload */
+    S.flags[FG.lang].session = i >= FG.qs.length ? null : { d: FG.d, timed: FG.timed, hide: FG.hide, qs: FG.qs, i, score: FG.score, bonus: FG.bonus, max: FG.max, results: FG.results };
+    save();
+  }
+  function armFlag(first) {
+    clearInterval(FG.tick);
+    const q = FG.qs[FG.i]; if (!q) return flagFinish();
+    FG.q = { code: q.code, opts: q.opts, tries: 0, picked: [], removed: [], done: false, timedOut: false, shown: !FG.hide, hinted: false, spelled: false, langs: false, t0: Date.now() };
+    saveFlagSession();
+    paintFlag();
+    if (FG.d <= 2 && !first) setTimeout(() => { if (FG && FG.q && !FG.q.done) say('flagAsk'); }, 200);
+    if (FG.timed && FG.q.shown) startFlagTimer();
+  }
+  function startFlagTimer() {
+    const q = FG.q; q.deadline = Date.now() + FLAG_SECONDS * 1000; q.t0 = Date.now();
+    clearInterval(FG.tick);
+    FG.tick = setInterval(() => {
+      if (!FG || FG.q !== q || q.done) { clearInterval(FG && FG.tick); return; }
+      const left = q.deadline - Date.now(), bar = $('tbar');
+      if (bar) bar.style.width = Math.max(0, 100 * left / (FLAG_SECONDS * 1000)) + '%';
+      if (left <= 0) { clearInterval(FG.tick); q.timedOut = true; Audio.sfx('wrong'); paintFlag(); }
+    }, 200);
+  }
+  function flagPick(code) {
+    const q = FG && FG.q; if (!q || q.done || !q.shown || !q.opts.includes(code)) return;
+    if (q.picked.includes(code) || q.removed.includes(code)) return;
+    if (q.timedOut && code !== q.code) return;
+    Audio.ctx();
+    if (code === q.code) {
+      clearInterval(FG.tick); q.done = true;
+      const how = q.timedOut ? 'late' : q.tries === 0 ? 'first' : 'second';
+      const pts = K.flagPoints(FG.d, how);
+      if (FG.timed && how === 'first' && Date.now() - q.t0 < 8000) FG.bonus += 5;   /* quick-answer bonus in the timed challenge */
+      FG.score += pts; FG.results.push({ code, how, pts });
+      const st = S.flags[FG.lang];
+      st.answered++; st.attempts += q.tries + 1;
+      if (how === 'first') { st.correct++; if (st.missed[code]) { st.missed[code]--; if (!st.missed[code]) delete st.missed[code]; } }
+      else st.missed[code] = (st.missed[code] || 0) + 1;
+      Audio.sfx('correct', FG.i * 2); setTimeout(() => Audio.sfx('star'), 160);
+      say('correct');
+      setTimeout(() => { if (FG && FG.q === q) sayPractice(cname(code), FG.lang); }, 1900);
+      saveFlagSession(); paintFlag();
+      if (FG.d === 4) setTimeout(() => { if (FG && FG.q === q && !q.spelled && screen === 'flagplay') { say('typeCountry'); flagSpell(); } }, 1800);
+    } else {
+      q.tries++; q.picked.push(code);
+      Audio.sfx('wrong'); say('flagNearly', null, { cooldown: 6000 });
+      paintFlag(); shake();
+    }
+  }
+  function flagSpell() {
+    const q = FG && FG.q; if (!q || !q.done) return;
+    clearInterval(FG.tick);
+    const d = MINI_SPELL_D[FG.d];
+    startSpell({ cat: 'countries', d, ids: ['countries:' + q.code], i: 0, score: 0, max: K.spellPoints(d, 'first', 0), results: [], mini: true });
+  }
+  /* back from the one-word spelling practice into the flag game */
+  function backToFlags(pts) {
+    SG = null;
+    if (!FG) { screen = 'flags'; render(); return; }
+    if (pts != null) { FG.bonus += pts; FG.q.spelled = true; }   /* spelling points are a bonus; stars come from the flag answers */
+    screen = 'flagplay'; render(); saveFlagSession();
+  }
+  function flagNext() {
+    if (!FG || !FG.q || !FG.q.done) return;
+    FG.i++;
+    if (FG.i >= FG.qs.length) flagFinish(); else armFlag(false);
+  }
+  function flagFinish() {
+    clearInterval(FG.tick);
+    const st = S.flags[FG.lang];
+    const stars = K.spellStars(FG.score, FG.max);
+    const starsBefore = totalStars();
+    st.best[FG.d] = Math.max(st.best[FG.d] || 0, stars); st.played++; st.session = null;
+    S.points += FG.score + FG.bonus;
+    S.last = { type: 'flags', lang: FG.lang, done: true };
+    const gained = totalStars() - starsBefore;
+    const news = afterActivity();
+    saveNote();
+    lastFlag = { d: FG.d, score: FG.score, bonus: FG.bonus, max: FG.max, stars, results: FG.results, lang: FG.lang };
+    FG = null; screen = 'flagres';
+    Audio.sfx(stars >= 2 ? 'win' : 'star');
+    render();
+    if (stars >= 2) say(gained === 1 ? 'star' : 'stars', { n: stars }); else say('tryMore');
+    celebrate(news);
+  }
+
+  function flagPlayHTML() {
+    return '<div class="play"><div class="playbar"><button class="cap small" data-act="fgQuit">✕ ' + esc(t('quit')) + '</button>' +
+      '<span class="ttl">🚩 ' + esc(t('flagTitle')) + ' · ' + esc(t('d' + FG.d)) + '</span><div class="meter" aria-hidden="true"><span id="meter" style="width:0%"></span></div>' +
+      '<span class="score" id="fgscore"></span></div>' + saveWarnHTML() + buddyHTML() + '<div class="stage" id="stage"></div></div>';
+  }
+  function flagStageHTML() {
+    const q = FG.q; if (!q) return '';
+    const reveal = q.timedOut || (FG.d === 1 && q.hinted) || (q.tries > 0 && (FG.d <= 2 || q.tries >= 2));
+    let h = '<div class="fq" id="tgt"><p class="prompt">' + esc(t('questionN', { i: FG.i + 1, n: FG.qs.length })) + '</p>' + flagSVG(q.code, 'big') + '<h2>' + esc(t('flagQ')) + '</h2>';
+    if (FG.timed && q.shown && !q.done && !q.timedOut) h += '<div class="tbar"><span id="tbar" style="width:' + Math.max(0, 100 * ((q.deadline || Date.now() + FLAG_SECONDS * 1000) - Date.now()) / (FLAG_SECONDS * 1000)) + '%"></span></div>';
+    if (!q.shown) h += '<button class="cap primary" data-act="fgShow">👀 ' + esc(t('showChoices')) + '</button>';
+    else {
+      h += '<div class="opts">' + q.opts.map((c, i) => {
+        let cls = '';
+        if (q.removed.includes(c)) cls = 'gone';
+        else if (q.picked.includes(c)) cls = 'bad';
+        else if (q.done && c === q.code) cls = 'good';
+        else if (!q.done && reveal && c === q.code) cls = 'reveal';
+        const off = cls === 'bad' || cls === 'gone' || (q.done && c !== q.code) || (q.timedOut && c !== q.code);
+        return '<div class="opt ' + cls + '"><button class="cap pickbtn" data-act="fgPick" data-v="' + c + '"' + (off ? ' disabled' : '') + '><span class="num" aria-hidden="true">' + (i + 1) + '</span>' + esc(cname(c)) + '</button>' +
+          (FG.d <= 2 ? '<button class="cap small saybtn" data-act="fgSay" data-v="' + c + '" aria-label="' + esc(t('listen') + ': ' + cname(c)) + '">🔊</button>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+    if (q.done) {
+      h += '<div class="fmsg ok">' + flagSVG(q.code, 'small') + '<span>' + esc(t('flagRight', { c: cname(q.code) })) + '</span></div>' +
+        '<div class="after">' + (q.spelled ? '<span class="pill">' + esc(t('spelledOk')) + '</span>' : '<button class="cap" data-act="fgSpell">🔤 ' + esc(t('afterSpell')) + '</button>') +
+        '<button class="cap" data-act="fgListen">🔊 ' + esc(t('afterListen')) + '</button><button class="cap" data-act="fgLangs" aria-expanded="' + q.langs + '">🌐 ' + esc(t('afterLangs')) + '</button>' +
+        '<button class="cap primary" data-act="fgNext">' + esc(t('nextQ')) + ' →</button></div>' +
+        (q.langs ? '<div class="langnames">' + LANGS.filter(l => l !== FG.lang).map(l => '<button class="cap small" data-act="fgSayLang" data-v="' + l + '">' + esc(t('lang_' + l)) + ': <b>' + esc(cname(q.code, l)) + '</b> 🔊</button>').join('') + '</div>' : '');
+    } else if (q.timedOut) h += '<div class="fmsg no">⏰ ' + esc(t('timeUp')) + ' ' + esc(t('correctIs', { c: cname(q.code) })) + '</div>';
+    else if (q.picked.length) { const last = q.picked[q.picked.length - 1]; h += '<div class="fmsg no">' + flagSVG(last, 'small') + '<span>' + esc(t('flagWrong', { c: cname(last) })) + '</span></div>'; }
+    if (!q.done && q.shown && FG.d <= 2 && !q.hinted && !q.timedOut) h += '<button class="cap small" data-act="fgHint">💡 ' + esc(FG.d === 1 ? t('hint') : t('fiftyHint')) + '</button>';
+    if (!q.done && q.shown) h += '<p class="muted" style="margin:0">' + esc(t('keysHint')) + '</p>';
+    return h + '</div>';
+  }
+  function paintFlag() {
+    if (!FG || screen !== 'flagplay') return;
+    const st = $('stage'); if (st) st.innerHTML = flagStageHTML();
+    const sc = $('fgscore'); if (sc) sc.textContent = '★ ' + (FG.score + FG.bonus);
+    paintMeter();
+  }
+  function flagResultHTML() {
+    const R = lastFlag;
+    const first = R.results.filter(r => r.how === 'first').length;
+    const icon = { first: '✅', second: '🟡', late: '⏰' };
+    return '<section class="result"><div class="bigstars" aria-label="' + R.stars + '/3">' + [0, 1, 2].map(i => i < R.stars ? '<span class="s">★</span>' : '★').join('') + '</div>' +
+      '<h1>' + esc(R.stars >= 2 ? pick(t('great')) : t('tryMore')) + '</h1><div class="stats">' +
+      '<div class="stat"><div class="v">' + R.score + '/' + R.max + '</div><div class="l">' + esc(t('points')) + '</div></div>' +
+      '<div class="stat"><div class="v">' + first + '/' + R.results.length + '</div><div class="l">' + esc(t('firstTry')) + '</div></div>' +
+      (R.bonus ? '<div class="stat"><div class="v">+' + R.bonus + '</div><div class="l">🔤 ' + esc(t('spellingShort')) + '</div></div>' : '') + '</div>' +
+      '<ul class="wordlist">' + R.results.map(r => '<li><span class="mini">' + flagSVG(r.code, 'tiny') + '</span><span class="w">' + esc(cname(r.code, R.lang)) + '</span><span>' + icon[r.how] + '</span></li>').join('') + '</ul>' +
+      '<div class="actions"><button class="cap primary" data-act="fgAgain">↻ ' + esc(t('again')) + '</button><button class="cap" data-act="go" data-v="flags">' + esc(t('chooseLevel')) + '</button>' +
+      '<button class="cap" data-act="fgToSpell">🔤 ' + esc(t('c_countries')) + '</button><button class="cap" data-act="go" data-v="map">' + esc(t('map')) + '</button></div></section>';
+  }
+
+  /* ---------- rewards ---------- */
+  function rewardsHTML() {
+    const n = S.stickers;
+    return '<div class="panel"><h2>🏅 ' + esc(t('badges')) + '</h2><div class="badges">' + BADGES.map(b => '<div class="badge ' + (S.badges.includes(b.id) ? '' : 'off') + '"><div class="bi" aria-hidden="true">' + b.icon + '</div><div class="bn">' + esc(badgeName(b)) + '</div></div>').join('') + '</div></div>' +
+      '<div class="panel"><h2>' + esc(t('stickers')) + ' · ★ ' + totalStars() + ' · ' + esc(t('points')) + ' ' + S.points + '</h2><p class="muted">' + esc(t('stickerHint')) + '</p><div class="stickers">' +
+      STICKERS.map((s, i) => i < n ? '<div class="sticker">' + s + '</div>' : '<div class="sticker off">' + ((i + 1) * 5) + '★</div>').join('') + '</div></div>';
+  }
+
+  /* ---------- parents ---------- */
+  function newGate() { PG.a = 3 + Math.floor(Math.random() * 7); PG.b = 3 + Math.floor(Math.random() * 7); PG.wrong = false; }
+  function parentsHTML() {
+    if (!PG.ok) {
+      return '<div class="panel" style="max-width:480px;margin:0 auto"><h2>🔒 ' + esc(t('parents')) + '</h2><form data-form="gate" class="row"><label for="gate">' + esc(t('gateQ', { a: PG.a, b: PG.b })) + '</label>' +
+        '<input id="gate" type="number" inputmode="numeric" style="width:6rem" autocomplete="off"><button class="cap primary" type="submit">' + esc(t('ok')) + '</button></form>' +
+        (PG.wrong ? '<p class="warn">' + esc(t('gateWrong')) + '</p>' : '') + '<p><button class="cap small" data-act="go" data-v="map">← ' + esc(t('back')) + '</button></p></div>';
+    }
+    const rows = LANGS.map(l => {
+      const p = S.prog[l], recs = Object.values(p);
+      const done = recs.filter(r => r.plays > 0).length;
+      const stars = recs.reduce((a, r) => a + r.stars, 0);
+      const avg = recs.length ? Math.round(recs.reduce((a, r) => a + r.lastAcc, 0) / recs.length) + '%' : '–';
+      const best = Math.max(0, ...recs.map(r => r.bestWpm || 0));
+      return '<tr><td>' + esc(t('lang_' + l)) + '</td><td>' + K.effectiveLevel(p, S.age) + ' / ' + Math.max(K.effectiveLevel(p, S.age), S.maxLevel[l] || 0) + '</td><td>' + done + ' / ' + K.LESSONS.length + '</td><td>' + stars + ' / ' + K.LESSONS.length * 3 + '</td><td>' + avg + '</td><td>' + (best ? best + ' ' + esc(t('wpm')) : '–') + '</td><td>' + Math.round(S.timeMs[l] / 60000) + ' ' + esc(t('min')) + '</td></tr>';
+    }).join('');
+    const srows = LANGS.map(l => {
+      const s = S.spell[l];
+      return '<tr><td>' + esc(t('lang_' + l)) + '</td><td>' + s.practised + '</td><td>' + s.correct + '</td><td>' + s.attempts + '</td><td>' + (s.practised ? Math.round(100 * s.correct / s.practised) + '%' : '–') + '</td><td>' + s.missed.length + '</td></tr>';
+    }).join('');
+    const sp = S.spell[S.lang];
+    const catRows = Object.keys(K.VOCAB).map(c => { const cs = sp.cats[c]; return '<tr><td>' + K.VOCAB[c].icon + ' ' + esc(t('c_' + c)) + '</td>' + [1, 2, 3, 4].map(x => '<td>' + starStr(sp.best[c + ':' + x] || 0) + '</td>').join('') + '<td>' + (cs ? cs.correct + ' / ' + cs.practised : '–') + '</td></tr>'; }).join('');
+    const missedWords = sp.missed.map(id => K.VOCAB_INDEX[id]).filter(Boolean);
+    const frows = LANGS.map(l => {
+      const f = S.flags[l];
+      return '<tr><td>' + esc(t('lang_' + l)) + '</td><td>' + f.played + '</td><td>' + f.correct + ' / ' + f.answered + '</td><td>' + f.attempts + '</td>' + [1, 2, 3, 4].map(x => '<td>' + starStr(f.best[x] || 0) + '</td>').join('') + '</tr>';
+    }).join('');
+    const tricky = Object.entries(S.flags[S.lang].missed).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const weak = Object.entries(S.keyErr[S.lang]).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    const planIds = K.plan(prog(), S.age);
+    const tog = (k, lbl) => '<div class="row"><label for="tg-' + k + '">' + esc(t(lbl)) + '</label><input id="tg-' + k + '" type="checkbox" data-set="' + k + '"' + (S[k] ? ' checked' : '') + '></div>';
+    const voiceOk = Audio.voiceFor(S.ui);
+    return '<div class="panel"><h2>' + esc(t('progress')) + ' · ' + esc(S.avatar) + ' ' + esc(S.name) + '</h2><p class="muted">' + esc(t('ages', { a: ageLabel(S.age) })) + ' · ' + esc(t('createdOn', { d: fmtDay(S.created) })) + ' · ' + esc(t('lastSeen', { d: fmtDay(S.lastSeen) })) + ' · ★ ' + totalStars() + ' · ' + esc(t('points')) + ' ' + S.points + '</p>' +
+      '<div class="tablewrap"><table><thead><tr><th></th><th>' + esc(t('currentLevel')) + ' / max</th><th>' + esc(t('lessonsDone')) + '</th><th>' + esc(t('totalStars')) + '</th><th>' + esc(t('avgAcc')) + '</th><th>' + esc(t('bestWpm')) + '</th><th>' + esc(t('practiceTime')) + '</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>' +
+      '<div class="panel"><h2>🔤 ' + esc(t('spellTitle')) + '</h2><div class="tablewrap"><table><thead><tr><th></th><th>' + esc(t('spelled')) + '</th><th>' + esc(t('correctLbl')) + '</th><th>' + esc(t('attempts')) + '</th><th>' + esc(t('accuracy')) + '</th><th>' + esc(t('missedCount')) + '</th></tr></thead><tbody>' + srows + '</tbody></table></div>' +
+      '<h2 style="margin-top:1rem">' + esc(t('topicProgress')) + ' (' + esc(t('lang_' + S.lang)) + ')</h2><div class="tablewrap"><table><thead><tr><th></th>' + [1, 2, 3, 4].map(x => '<th>' + esc(t('d' + x)) + '</th>').join('') + '<th>' + esc(t('firstTry')) + '</th></tr></thead><tbody>' + catRows + '</tbody></table></div>' +
+      '<p class="muted">' + esc(t('missedCount')) + ': ' + (missedWords.length ? missedWords.map(it => '<span class="pill">' + esc(it.word[S.lang]) + '</span>').join(' ') : esc(t('none'))) + '</p></div>' +
+      '<div class="panel"><h2>🚩 ' + esc(t('flagTitle')) + '</h2><div class="tablewrap"><table><thead><tr><th></th><th>' + esc(t('played')) + '</th><th>' + esc(t('firstTry')) + '</th><th>' + esc(t('attempts')) + '</th>' + [1, 2, 3, 4].map(x => '<th>' + esc(t('d' + x)) + '</th>').join('') + '</tr></thead><tbody>' + frows + '</tbody></table></div>' +
+      '<p class="muted">' + esc(t('trickyFlags')) + ' (' + esc(t('lang_' + S.lang)) + '): ' + (tricky.length ? tricky.map(([c, n]) => '<span class="pill">' + flagSVG(c, 'tiny') + ' ' + esc(cname(c, S.lang)) + ' ×' + n + '</span>').join(' ') : esc(t('none'))) + '</p></div>' +
+      '<div class="panel"><h2>' + esc(t('plan')) + ' (' + esc(t('lang_' + S.lang)) + ')</h2><ol class="plan">' + planIds.map(id => { const l = K.LESSON_BY_ID[id]; return '<li>' + esc(t('level')) + ' ' + l.level + ': ' + l.icon + ' ' + esc(lessonName(l)) + '</li>'; }).join('') + '</ol>' +
+      '<p class="muted">' + esc(t('weakAll')) + ': ' + (weak.length ? weak.map(([c, n]) => '<span class="pill">' + esc(K.displayChar(c)) + ' ×' + n + '</span>').join(' ') : esc(t('none'))) + '</p></div>' +
+      '<div class="panel"><h2>' + esc(t('settings')) + '</h2>' + tog('sfx', 'sfxLbl') + tog('voice', 'voiceLbl') + tog('music', 'musicLbl') +
+      '<div class="row"><label for="vol">' + esc(t('volume')) + '</label><input id="vol" type="range" min="0" max="100" step="5" value="' + S.volume + '" data-set="volume"></div>' +
+      (S.voice && !voiceOk ? '<p class="muted">' + esc(t('voiceMissing', { lang: t('lang_' + S.ui) })) + '</p>' : '') +
+      tog('hints', 'hintsLbl') +
+      '<div class="row"><label for="brk">' + esc(t('breakLbl')) + '</label><select id="brk" data-set="breakMin">' + [0, 10, 15, 20, 30].map(n => '<option value="' + n + '"' + (S.breakMin === n ? ' selected' : '') + '>' + esc(n ? t('everyMin', { n }) : t('off')) + '</option>').join('') + '</select></div>' +
+      '<div class="row"><button class="cap small" data-act="editProfile" data-v="' + S.id + '">✏️ ' + esc(t('editProfile')) + '</button></div></div>' +
+      '<div class="panel"><p class="muted">🛡️ ' + esc(t('privacy')) + '</p>' +
+      (PG.confirmReset ? '<p class="warn">' + esc(t('resetConfirm')) + '</p><div class="actions" style="justify-content:flex-start"><button class="cap" data-act="doReset">' + esc(t('yesReset')) + '</button><button class="cap" data-act="cancelReset">' + esc(t('cancel')) + '</button></div>'
+        : '<button class="cap small" data-act="askReset">' + esc(t('reset')) + '</button>') + '</div>';
+  }
+
+  /* ---------- break reminder ---------- */
+  setInterval(() => {
+    if (!S || !S.breakMin || document.hidden || !$('ov').hidden) return;
+    if (!['play', 'result', 'map', 'spellplay', 'spellres', 'spell', 'flags', 'flagplay', 'flagres'].includes(screen)) return;
+    if (Date.now() - lastBreak >= S.breakMin * 60000) {
+      if (P && !P.ended) { stopGameLoop(); P.paused = true; }
+      overlay('<div class="bi" aria-hidden="true">🧘</div><h2>' + esc(t('breakTitle')) + '</h2><p>' + esc(t('breakText')) + '</p><button class="cap primary" data-act="endBreak">' + esc(t('breakBtn')) + '</button>');
+      say('breakTime');
+    }
+  }, 15000);
+
+  /* ---------- events ---------- */
+  function leavePlay() {
+    if (P) { P.ended = true; clearTimeout(P.hintTimer); }
+    if (FG) { clearInterval(FG.tick); saveFlagSession(); }
+    stopGameLoop(); P = null; SG = null; FG = null;
+  }
+  const ACT = {
+    go(v) {
+      if (screen === 'play' || screen === 'spellplay' || screen === 'flagplay') leavePlay();
+      if (v === 'parents') { PG.ok = false; PG.confirmReset = false; newGate(); }
+      if (v === 'profiles') { leavePlay(); S = null; ROOT.cur = null; save(); Audio.stopMusic(); }
+      screen = v; render();
+      if (v === 'parents') { const g = $('gate'); if (g) g.focus(); }
+    },
+    setUi(v) { if (S) S.ui = v; ROOT.ui = v; DEV.ui = v; if (ED) ED.ui = ED.id ? ED.ui : v; save(); render(); },
+    setLang(v) {
+      S.lang = v; save();
+      if (screen === 'play' && P) startLesson(P.L.id);
+      else if (screen === 'spellplay') { leavePlay(); screen = 'spell'; render(); }
+      else if (screen === 'flagplay') { leavePlay(); screen = 'flags'; render(); }
+      else render();
+    },
+    pickProfile(v) { pickProfile(v); },
+    newProfile() { openEditor(null); },
+    editProfile(v) { openEditor(ROOT.profiles.find(p => p.id === v)); },
+    edAge(v) { ED.age = +v; render(); },
+    edAvatar(v) { ED.avatar = v; render(); },
+    edLang(v) { ED.lang = v; render(); },
+    edUi(v) { ED.ui = v; if (!ED.id && !S) { ROOT.ui = v; } render(); },
+    saveProfile() {
+      const name = ED.name.trim();
+      if (!name) { ED.err = true; render(); $('nm').focus(); return; }
+      let p = ED.id && ROOT.profiles.find(x => x.id === ED.id);
+      const isNew = !p;
+      if (isNew) { p = defaults(); ROOT.profiles.push(p); }
+      const ageChanged = p.age !== ED.age;
+      Object.assign(p, { name, age: ED.age, avatar: ED.avatar, lang: ED.lang, ui: ED.ui, sfx: ED.sfx, voice: ED.voice, music: ED.music, hints: ED.hints });
+      if (isNew || ageChanged) p.spellD = Math.min(4, K.ageLevel(p.age));
+      ED = null;
+      S = p; if (save()) toast('✓ ' + t('saved'));
+      if (isNew) { screen = 'map'; render(); say('welcomeName', { name: S.name }); if (S.music) Audio.startMusic(); }
+      else { pickProfile(p.id); }
+    },
+    askDelete() { ED.confirmDelete = true; render(); },
+    cancelDelete() { ED.confirmDelete = false; render(); },
+    deleteProfile() {
+      const id = ED.id; ED = null;
+      const i = ROOT.profiles.findIndex(p => p.id === id); if (i >= 0) ROOT.profiles.splice(i, 1);
+      if (S && S.id === id) S = null;
+      ROOT.cur = null; save(); toast('✓ ' + t('saved'));
+      if (ROOT.profiles.length) { screen = 'profiles'; render(); } else openEditor(null);
+    },
+    continue() { const ct = continueTarget(); if (ct.kind === 'spell') ACT.spResume(); else if (ct.kind === 'flags') ACT.fgResume(); else startLesson(ct.id); },
+    startLesson(v) { startLesson(v); },
+    quit() { leavePlay(); screen = 'map'; render(); },
+    replay() { if (lastSaid) Audio.speak(lastSaid.text, lastSaid.lang, lastSaid.buddy); },
+    askReset() { PG.confirmReset = true; render(); },
+    cancelReset() { PG.confirmReset = false; render(); },
+    doReset() {
+      const keep = { id: S.id, created: S.created, ui: S.ui, lang: S.lang, name: S.name, age: S.age, avatar: S.avatar, sfx: S.sfx, voice: S.voice, music: S.music, volume: S.volume, hints: S.hints, breakMin: S.breakMin };
+      const fresh = Object.assign(defaults(), keep); fresh.spellD = Math.min(4, K.ageLevel(fresh.age));
+      const i = ROOT.profiles.indexOf(S); ROOT.profiles[i] = fresh; S = fresh;
+      PG.confirmReset = false; saveNote('saved'); render();
+    },
+    endBreak() {
+      lastBreak = Date.now(); closeOverlay();
+      if (P && P.paused && !P.ended) { P.paused = false; if (P.L.type === 'balloon') startBalloons(); }
+    },
+    /* spelling */
+    spCat(v) { S.spellCat = v; save(); render(); },
+    spD(v) { S.spellD = +v; save(); render(); },
+    spStart() { newSpellGame(S.spellCat, S.spellD, false); },
+    spAgain() { newSpellGame(lastSpell.cat, lastSpell.d, false); },
+    spReview() { if (S.spell[S.lang].missed.length) newSpellGame('review', Math.max(2, Math.min(3, S.spellD)), true); },
+    spResume() { const s = S.spell[S.lang].session; if (s && s.ids.every(id => K.VOCAB_INDEX[id])) startSpell(Object.assign({}, s)); else { S.spell[S.lang].session = null; save(); render(); } },
+    spQuit() {
+      if (SG && SG.mini) { save(); backToFlags(null); return; }
+      saveSession(); leavePlay(); screen = 'spell'; render(); toast('✓ ' + t('savedProgress'));
+    },
+    spListen() { speakWord(); },
+    /* flag game */
+    fgD(v) { S.flagD = +v; save(); render(); },
+    fgStart() { newFlagGame(); },
+    fgAgain() { newFlagGame(); },
+    fgResume() {
+      const s = S.flags[S.lang].session;
+      if (s && s.i < s.qs.length && s.qs.every(q => FLAGS[q.code])) startFlags(Object.assign({}, s)); else { S.flags[S.lang].session = null; save(); screen = 'flags'; render(); }
+    },
+    fgQuit() { leavePlay(); screen = 'flags'; render(); toast('✓ ' + t('savedProgress')); },
+    fgPick(v) { flagPick(v); },
+    fgShow() { if (FG && FG.q) { FG.q.shown = true; paintFlag(); if (FG.timed) startFlagTimer(); } },
+    fgHint() {
+      const q = FG && FG.q; if (!q || q.done || q.hinted) return;
+      q.hinted = true;
+      if (FG.d >= 2) { const wrong = q.opts.filter(c => c !== q.code && !q.picked.includes(c) && !q.removed.includes(c)); if (wrong.length) q.removed.push(wrong[Math.floor(Math.random() * wrong.length)]); }
+      Audio.sfx('whoosh'); paintFlag();
+    },
+    fgSay(v) { if (!sayPractice(cname(v), FG ? FG.lang : S.lang)) toast(t('noVoiceWord')); },
+    fgListen() { if (FG && FG.q && !sayPractice(cname(FG.q.code), FG.lang)) toast(t('noVoiceWord')); },
+    fgLangs() { if (FG && FG.q) { FG.q.langs = !FG.q.langs; paintFlag(); } },
+    fgSayLang(v) { if (FG && FG.q && !sayPractice(cname(FG.q.code, v), v)) toast(t('noVoiceWord')); },
+    fgSpell() { flagSpell(); },
+    fgNext() { flagNext(); },
+    fgToSpell() { S.spellCat = 'countries'; save(); ACT.go('spell'); },
+    spHint() { spHint(); },
+    spErase() { spellInput([], 'Backspace'); },
+    spCheck() { const w = SG && SG.w; if (w && w.buf.length) spellCheck(); }
+  };
+
+  document.addEventListener('click', e => {
+    const nm = $('nm'); if (nm && ED) ED.name = nm.value;
+    const key = e.target.closest('.key[data-code]');
+    if (key && (screen === 'play' || screen === 'spellplay')) { oskPress(key.dataset.code); return; }
+    const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
+    Audio.ctx(); Audio.sfx('click');
+    if (C().music) Audio.startMusic();
+    ACT[el.dataset.act] && ACT[el.dataset.act](el.dataset.v);
+  });
+  document.addEventListener('submit', e => {
+    e.preventDefault();
+    if (e.target.dataset.form === 'gate') {
+      const v = parseInt($('gate').value, 10);
+      if (v === PG.a * PG.b) PG.ok = true; else { newGate(); PG.wrong = true; }
+      render(); const g = $('gate'); if (g) g.focus();
+    }
+  });
+  document.addEventListener('change', e => {
+    const ek = e.target.dataset && e.target.dataset.ed;
+    if (ek && ED) { ED[ek] = e.target.checked; return; }
+    const fk = e.target.dataset && e.target.dataset.fset;
+    if (fk && S) { S[fk] = e.target.checked; save(); return; }
+    const k = e.target.dataset && e.target.dataset.set; if (!k || !S) return;
+    if (e.target.type === 'checkbox') S[k] = e.target.checked; else S[k] = +e.target.value;
+    if (k === 'volume') Audio.setVolume();
+    if (k === 'music') { if (S.music) Audio.startMusic(); else Audio.stopMusic(); }
+    if (k === 'voice' && !S.voice && Audio.hasTTS) { try { speechSynthesis.cancel(); } catch (err) { /* ignore */ } }
+    if (save()) toast('✓ ' + t('saved'));
+    if (k === 'voice' || k === 'breakMin') render();
+  });
+  document.addEventListener('input', e => { if (e.target.id === 'vol' && S) { S.volume = +e.target.value; Audio.setVolume(); } if (e.target.id === 'nm' && ED) ED.name = e.target.value; });
+
+  function oskPress(code) {
+    if (!$('ov').hidden) return;
+    if (screen === 'play' && (!P || P.ended)) return;
+    if (code === 'ShiftLeft' || code === 'ShiftRight') { oskShift = !oskShift; $('kb').innerHTML = kbHTML(); paintKb(); return; }
+    if (code === 'Backspace' || code === 'Enter') { if (screen === 'spellplay') spellInput([], code); return; }
+    const k = K.LAYOUTS[S.lang].byCode[code]; if (!k) return;
+    const ch = oskShift ? k.s : k.n;
+    if (oskShift) { oskShift = false; $('kb').innerHTML = kbHTML(); }
+    if (screen === 'spellplay') spellInput([ch], code); else onInput([ch], code);
+  }
+
+  document.addEventListener('keydown', e => {
+    /* flag game: 1–4 pick an answer, Enter or Space goes to the next flag */
+    if (screen === 'flagplay' && FG && FG.q && $('ov').hidden && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'SELECT') return;
+      const m = /^(?:Digit|Numpad)([1-4])$/.exec(e.code);
+      if (m && FG.q.opts[+m[1] - 1]) { e.preventDefault(); if (!e.repeat) flagPick(FG.q.opts[+m[1] - 1]); return; }
+      if ((e.code === 'Enter' || e.code === 'Space' || e.code === 'NumpadEnter') && FG.q.done && !(tag === 'BUTTON' && e.code !== 'Space')) { e.preventDefault(); if (!e.repeat) flagNext(); return; }
+      return;
+    }
+    const inGame = (screen === 'play' && P && !P.ended) || (screen === 'spellplay' && SG);
+    if (!inGame || !$('ov').hidden) return;
+    const tag = e.target.tagName; if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.ctrlKey || e.metaKey || (e.altKey && !(e.getModifierState && e.getModifierState('AltGraph')))) return;
+    const caps = !!(e.getModifierState && e.getModifierState('CapsLock'));
+    const cw = $('caps'); if (cw) cw.hidden = !(caps && S.lang !== 'th');
+    if (e.key === 'Shift' || e.code === 'ShiftLeft' || e.code === 'ShiftRight') return;
+    if (screen === 'spellplay' && (e.code === 'Backspace' || e.code === 'Enter' || e.key === 'Backspace' || e.key === 'Enter')) {
+      e.preventDefault(); spellInput([], e.key === 'Enter' || e.code === 'Enter' ? 'Enter' : 'Backspace'); return;
+    }
+    const cands = K.candidates(K.LAYOUTS[S.lang], e.code, e.key, e.shiftKey, caps);
+    if (!cands.some(Boolean)) return;
+    e.preventDefault();
+    if (e.repeat) return; /* holding a key down should not count as many mistakes */
+    if (screen === 'spellplay') spellInput(cands, e.code); else onInput(cands, e.code);
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && Audio.hasTTS) { try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+    if (document.hidden && S) save();
+  });
+
+  /* ---------- boot: always start on the profile picker (or the first-profile form) ---------- */
+  if (ROOT.profiles.length) {
+    screen = 'profiles';
+    lastSaid = { buddy: 'bunny', text: K.VOICE[ROOT.ui].welcome[1], lang: ROOT.ui };
+    render();
+  } else {
+    lastSaid = { buddy: 'bunny', text: K.VOICE[ROOT.ui].welcome[1], lang: ROOT.ui };
+    openEditor(null);
+  }
+  /* exposed for automated checks only */
+  window.__kk = { root: () => ROOT, active: () => S, state: () => ({ screen, SG, P }) };
+})();
+</script>
