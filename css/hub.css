@@ -146,6 +146,16 @@ th { font-size: .85rem; color: var(--muted); }
 .hplayers { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 6px; }
 .hp.won b { color: var(--good); }
 
+/* online page */
+.note { background: color-mix(in srgb, var(--good) 14%, var(--surface)); border: 2px solid var(--good); border-radius: 14px; padding: .6rem .9rem; margin: 0 0 14px; font-weight: 600; }
+.form input[type="email"], .form input[type="password"], .row input[type="text"], .row select, .codein { min-height: 52px; font-size: 1.1rem; padding: .4rem .8rem; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); max-width: 100%; }
+.codein { font-size: 1.6rem; letter-spacing: .12em; text-transform: uppercase; width: 13ch; font-variant-numeric: tabular-nums; }
+.bigcode { font-size: clamp(2.4rem, 8vw, 4rem); font-weight: 800; letter-spacing: .12em; text-align: center; margin: .2rem 0; font-variant-numeric: tabular-nums; }
+.plain { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
+.plain li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sel { user-select: all; overflow-wrap: anywhere; }
+h3 { margin: 14px 0 6px; font-size: 1.1rem; }
+
 /* toast */
 #toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 30; display: grid; gap: 8px; pointer-events: none; }
 #toast .t { background: var(--ink); color: var(--bg); padding: .6rem 1.1rem; border-radius: 999px; font-weight: 700; }

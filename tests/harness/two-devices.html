@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEST: two devices</title>
+<style>
+  body { margin: 0; display: flex; gap: 6px; background: #8a96a3; font-family: system-ui, sans-serif; }
+  iframe { border: 0; flex: 1; height: 100vh; background: #fff; }
+  #status { position: fixed; bottom: 4px; left: 4px; background: #000; color: #fff; padding: 2px 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<!-- TEST ONLY: two "devices" sharing one in-browser database with the real migration. Serve the repo root over http. -->
+<iframe id="A" title="Device A"></iframe>
+<iframe id="B" title="Device B"></iframe>
+<div id="status">starting database…</div>
+<script src="fake-supabase.js"></script>
+<script type="module">
+  import { PGlite } from '../../node_modules/@electric-sql/pglite/dist/index.js';
+  const status = document.getElementById('status');
+  try {
+    const db = new PGlite();
+    const testSrc = await (await fetch('../../supabase/tests/security.test.js')).text();
+    await db.exec(testSrc.match(/const SUPABASE_STANDIN = `([\s\S]*?)`;/)[1]);
+    await db.exec(await (await fetch('../../supabase/migrations/0001_family_hub_security.sql')).text());
+    window.__db = db;
+    window.__backend = FakeSupabase.create(db);
+    document.getElementById('A').src = 'device.html?name=A';
+    document.getElementById('B').src = 'device.html?name=B';
+    status.textContent = 'database ready';
+    window.__ready = true;
+  } catch (e) { status.textContent = 'ERROR ' + e.message; window.__error = e.message; }
+</script>
+</body>
+</html>

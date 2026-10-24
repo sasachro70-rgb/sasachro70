@@ -4,6 +4,7 @@
   const FGH = G.FGH = G.FGH || {};
   FGH.T = {
     th: {
+      onlineName: 'ครอบครัวออนไลน์', onlineDesc: 'เข้าสู่ระบบ สร้างห้องเกมพร้อมรหัส และเล่นด้วยกันจากหลายเครื่อง',
       tagline: 'เกมครอบครัว ผลัดกันเล่นบน iPad เครื่องเดียว', menuLang: 'ภาษาเมนู', games: 'เกม', players: 'ผู้เล่น', history: 'ประวัติการแข่งขัน', play: 'เล่น',
       keykidsName: 'KeyKids — ฝึกพิมพ์', keykidsDesc: 'ฝึกพิมพ์ สะกดคำ และทายธงสำหรับเด็ก 3–10 ปี', open: 'เปิด',
       resume: 'เล่นต่อเกมที่ค้างไว้', resumeInfo: '{game} · ตาที่ {t}/{n}',
@@ -28,6 +29,7 @@
       keysHint: 'กดเลข 1–4 บนแป้นพิมพ์เพื่อเลือกได้ด้วย', lang_th: 'ไทย', lang_sv: 'สวีเดน', lang_en: 'อังกฤษ'
     },
     sv: {
+      onlineName: 'Familj online', onlineDesc: 'Logga in, skapa spelrum med kod och spela tillsammans från flera enheter.',
       tagline: 'Familjespel – turas om på en och samma iPad', menuLang: 'Meny', games: 'Spel', players: 'Spelare', history: 'Matchhistorik', play: 'Spela',
       keykidsName: 'KeyKids – lär dig skriva', keykidsDesc: 'Skriva, stava och gissa flaggor för barn 3–10 år', open: 'Öppna',
       resume: 'Fortsätt matchen', resumeInfo: '{game} · tur {t}/{n}',
@@ -52,6 +54,7 @@
       keysHint: 'Tips: du kan också trycka 1–4 på tangentbordet.', lang_th: 'Thai', lang_sv: 'Svenska', lang_en: 'Engelska'
     },
     en: {
+      onlineName: 'Family Online', onlineDesc: 'Sign in, make a game room with a code and play together from several devices.',
       tagline: 'Family games – take turns on one iPad', menuLang: 'Menu', games: 'Games', players: 'Players', history: 'Match history', play: 'Play',
       keykidsName: 'KeyKids — Learn to type', keykidsDesc: 'Typing, spelling and flags for children aged 3–10', open: 'Open',
       resume: 'Resume the match', resumeInfo: '{game} · turn {t}/{n}',

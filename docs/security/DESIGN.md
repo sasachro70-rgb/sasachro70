@@ -113,10 +113,29 @@ What this does **not** cover, and must be checked on a real Supabase project:
 * Edge Functions (none are needed for the database checks; an IP-based rate limit would need one).
 * PostgREST's exposure of functions and views.
 
-## 7. Next step: connecting the app
+## 7. The app side (built) and what still needs a real project
 
-1. Create a Supabase project, enable anonymous sign-ins, run the migration (`supabase db push`).
-2. Put the project URL and **anon** key into `js/config.js` (never the service_role key).
-3. Add `js/auth-service.js` (sign in, anonymous sign-in, sign out, session refresh) and
-   `js/sync-service.js` (rooms, sessions, answers) that call only the functions above.
-4. Run `supabase/tests` against the real project with `supabase test db` and repeat the manual checks in section 6.
+Built in `online.html` and `js/online/`:
+
+| File | Role |
+|---|---|
+| `config.js` | Project URL and **anon** key. Empty by default, so online play is off and nothing is downloaded. |
+| `supabase-client.js` | Loads supabase-js (pinned 2.45.4) only when configured; refuses service_role / secret keys. |
+| `auth-service.js` | Sign up, sign in, sign-in link, guest (anonymous) sign-in, keep a guest's progress (adds e-mail + password, same account id), password reset, sign out on this device or everywhere. Separate from games and family data. |
+| `online-service.js` | Families, profiles, rooms, codes, sessions, answers, results and linking, only through the database functions and RLS-protected reads. Answers that cannot be sent wait on the device and are re-sent with the same idempotency key. |
+| `online-ui.js` | The page: sign-in, family and children, link requests, rooms with a code shown once, revoke, players on the host's iPad, playing across devices, results. |
+
+Tested:
+* `supabase/tests/online-client.test.js` runs the real `online-service.js` against the migration in PGlite: a full game with a
+  guest, a dropped connection and a lost reply (the answer counts once), results, linking, revoked codes.
+* `tests/harness/two-devices.html` (test only, never loaded by the app) runs the real page on two "devices" side by side
+  against one in-browser PGlite database. Checked by hand in the browser: sign-up, family, child, room code, guest joins with a
+  wrong and a right code, a 2-round game across both devices, a direct call to play someone else's turn refused, results on
+  both devices, link request and approval, guest keeps progress and signs in again, sign-out, layout at iPad width.
+
+Still needs a real Supabase project (not testable here):
+1. Create a project, enable **anonymous sign-ins** and e-mail sign-in, run the migration (`supabase db push`).
+2. Put the project URL and anon key into `js/online/config.js`.
+3. Check by hand: e-mail confirmation, sign-in links, password reset, session expiry and refresh, sign-out everywhere,
+   Realtime private channels (`room:<id>`), and that supabase-js 2.45.4 behaves like the stand-in used in the tests.
+4. Optionally run the same SQL checks on the real database with `supabase test db` (pgTAP) – not written yet.

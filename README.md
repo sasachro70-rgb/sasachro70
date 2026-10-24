@@ -17,7 +17,8 @@ Open `index.html` (or the GitHub Pages address). It works offline and also when 
 | `js/data/countries.js` | 30 countries: names in Thai, Swedish and English, capitals, flag drawings, look-alike groups |
 | `js/i18n.js` | Hub texts in Thai, Swedish and English |
 | `css/hub.css` | Tablet-first layout, light and dark |
-| `tests/` | Hub tests and the KeyKids regression test (`npm test`) |
+| `online.html`, `js/online/` | Family Online: accounts, guest rooms with codes, playing across devices (off until `js/online/config.js` is filled in) |
+| `tests/` | Hub tests and the KeyKids regression test (`npm test`); `tests/harness/` is a two-device test bench for the online page |
 | `supabase/` | Database design for accounts, rooms and profile linking, with security tests (`npm run test:security`) |
 | `docs/security/DESIGN.md` | Data model, roles, threat model, RLS overview and known limits |
 

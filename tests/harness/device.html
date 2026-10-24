@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TEST device</title>
+<link rel="stylesheet" href="../../css/hub.css">
+</head>
+<body>
+<div id="app"></div>
+<!-- TEST ONLY: same scripts as online.html, but the Supabase client comes from the test bench (two-devices.html) -->
+<script>window.FGH_CLIENT_FACTORY = async () => window.parent.__backend.client(new URLSearchParams(location.search).get('name'));</script>
+<script src="../../js/i18n.js"></script>
+<script src="../../js/data/countries.js"></script>
+<script src="../../js/hub-core.js"></script>
+<script src="../../js/games/flag-quiz.js"></script>
+<script src="../../js/online/i18n-online.js"></script>
+<script src="../../js/online/supabase-client.js"></script>
+<script src="../../js/online/auth-service.js"></script>
+<script src="../../js/online/online-service.js"></script>
+<script src="../../js/online/online-ui.js"></script>
+</body>
+</html>
