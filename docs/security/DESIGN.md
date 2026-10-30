@@ -139,3 +139,56 @@ Still needs a real Supabase project (not testable here):
 3. Check by hand: e-mail confirmation, sign-in links, password reset, session expiry and refresh, sign-out everywhere,
    Realtime private channels (`room:<id>`), and that supabase-js 2.45.4 behaves like the stand-in used in the tests.
 4. Optionally run the same SQL checks on the real database with `supabase test db` (pgTAP) – not written yet.
+
+## 8. Points, rewards, learning progress and the parent PIN (migration 0002)
+
+### Data model
+
+| Table | Holds | Written by |
+|---|---|---|
+| `family_settings` | points rules (jsonb), time zone, parent PIN salt + hash | `save_point_rules`, `set_parent_pin`, `reset_parent_pin` |
+| `profile_settings` | kind (child/adult), age, difficulty, daily goal, voice speed, archived | `save_profile_settings`, `archive_profile` |
+| `point_transactions` | every change of points; unique `(family_id, key)` | `finish_activity`, `adjust_points`, `import_points`, `request_reward` (auto-approve), `decide_redemption` |
+| `completed_units` | units finished once (for the replay rule) | `finish_activity` |
+| `activity_log` | finished games and lessons with time and result | `finish_activity` |
+| `rewards` | the family's rewards | `save_reward`, `delete_reward` (archives when there is history) |
+| `reward_redemptions` | requests: pending / approved / rejected / cancelled | `request_reward`, `cancel_redemption`, `decide_redemption` |
+| `learning_state` | one versioned document per learner (courses, word cards, favourites) | `save_learning_state` |
+| `private.parent_unlocks`, `private.pin_attempts` | PIN sessions and failed tries | `unlock_parent` |
+
+The balance is never stored. It is `sum(amount)` of `point_transactions`, which no client can insert, update or delete.
+
+### Rules enforced by the database
+
+| # | Threat | Protection |
+|---|---|---|
+| P1 | A child edits its points | No write grants on any table; only the functions above write, and they compute amounts themselves |
+| P2 | Forged game results ("I got 9999 right") | `finish_activity` clamps every number, applies the family's rules, a per-activity cap and a per-day cap; unknown kinds earn 0 |
+| P3 | Replaying the same result / double-tap / lost reply | Every activity has a key; `(family_id, key)` is unique, a second call returns `duplicate` and pays nothing |
+| P4 | Farming one easy lesson | `completed_units`: a replay earns only the replay share (default 50 %) |
+| P5 | Redeeming twice, overspending, negative balance | Requests reserve points; a second pending request for the same reward is refused; approval re-checks the balance under a row lock and spends once (key `redeem:<id>`); adjustments and imports may not go below the reserved amount |
+| P6 | Rejected request still costs points | Rejection writes no transaction |
+| P7 | A child on the parent's signed-in tablet opens parent functions | Parent functions need an owner/manager account **and** `unlock_parent` with the PIN within the last 15 minutes; 5 wrong PINs in 10 minutes block that account; the PIN hash is not readable (column grant) |
+| P8 | Another family's data | RLS `is_family_member()` on every table; functions check the profile's family |
+| P9 | Overwriting progress from another device | `save_learning_state` refuses an old revision and returns the current document; the app merges and retries |
+| P10 | A guest or member manages rewards | `require_parent` reads the role from `family_members` |
+
+Known limits: a client can still *claim* to have finished a game it did not play. The caps (per activity and per day,
+set by the parent) bound what that can earn; full prevention would need every game to run on the server.
+Without a family account all of this runs in the browser (`js/family/ledger.js`) with the same rules; a child with
+browser developer tools could change local data. The PIN then only keeps children out of the dashboard.
+
+### Migration and rollback
+
+* 0002 only adds objects; nothing in 0001 changes. Run it after 0001 (`supabase db push`).
+* A device's existing local data is uploaded once by a parent ("Upload this device's data" in the dashboard):
+  profiles are created with `create_child_profile`, local transactions go in with `import_points` (idempotent, keys
+  prefixed `import:`), rewards with `save_reward`, progress with `save_learning_state`. Until then the device keeps its
+  local history next to the server's.
+* Rollback: `drop function` for the 17 public functions and the private helpers of 0002, `drop table` for its 8 public and 2 private tables,
+  in reverse order. 0001 keeps working.
+
+### How this is tested
+
+`supabase/tests/points.test.js` (11 tests) and `supabase/tests/family-sync.test.js` (two devices, upload, earn,
+redeem, approve, merge) run the migrations in PostgreSQL as the real `authenticated` role. See `docs/TEST_REPORT.md`.

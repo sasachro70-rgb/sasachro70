@@ -120,6 +120,7 @@
       core.listGames().map(g => '<button class="card game" data-act="setup" data-v="' + g.id + '"><span class="gicon" aria-hidden="true">' + g.icon + '</span><span class="gname">' + esc(L(g.name)) + '</span><span class="gdesc">' + esc(L(g.desc)) + '</span><span class="btn primary">▶ ' + esc(t('play')) + '</span></button>').join('') +
       '<a class="card game" href="keykids.html"><span class="gicon" aria-hidden="true">⌨️</span><span class="gname">' + esc(t('keykidsName')) + '</span><span class="gdesc">' + esc(t('keykidsDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>' +
       '<a class="card game" href="online.html"><span class="gicon" aria-hidden="true">🌐</span><span class="gname">' + esc(t('onlineName')) + '</span><span class="gdesc">' + esc(t('onlineDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a></div>';
+    if (FGH.hubBridge) h += FGH.hubBridge.homeHTML(S.ui, esc);
     h += '<h2 class="sec">' + esc(t('players')) + '</h2><div class="card"><p class="chips">' + (S.players.length ? S.players.map(chip).join(' ') : esc(t('noPlayers'))) + '</p>' +
       '<div class="row"><button class="btn" data-act="go" data-v="players">👥 ' + esc(t('players')) + '</button><button class="btn" data-act="newPlayer">＋ ' + esc(t('addPlayer')) + '</button></div></div>';
     h += '<h2 class="sec">' + esc(t('history')) + '</h2><div class="card">' + (S.history.length ? historyList(S.history.slice(0, 3)) : '<p class="muted">' + esc(t('noHistory')) + '</p>') +
@@ -278,6 +279,7 @@
     if (phase === 'done') {
       lastEntry = core.finishMatch(S, m);
       save(); sfx.win();
+      if (FGH.hubBridge) FGH.hubBridge.matchFinished(lastEntry, S.players, toast);
       screen = 'results'; render();
     } else { save(); render(); }
   }

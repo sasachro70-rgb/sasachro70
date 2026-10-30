@@ -1,11 +1,15 @@
 // KeyKids regression test (keykids.html): layouts, Thai/Swedish input, lessons, spelling and flag quiz logic.
 // Run: node --test "tests/*.test.js"
 const test = require("node:test");
-test("KeyKids core logic still works after the move to keykids.html", () => {
+test("KeyKids core logic still works after the split into js/keykids/", () => {
   const fs = require('fs'), vm = require('vm'), assert = require('assert');
-  const html = fs.readFileSync(require('path').join(__dirname, '..', 'keykids.html'), 'utf8');
-  const core = html.match(/<script id="kk-core">([\s\S]*?)<\/script>/)[1];
-  const ui = html.match(/<script id="kk-ui">([\s\S]*?)<\/script>/)[1];
+  const P = require('path');
+  /* since the split into modules: keykids.html loads js/keykids/core.js and js/keykids/ui.js */
+  const core = fs.readFileSync(P.join(__dirname, '..', 'js', 'keykids', 'core.js'), 'utf8');
+  const ui = fs.readFileSync(P.join(__dirname, '..', 'js', 'keykids', 'ui.js'), 'utf8');
+  const html = ui;
+  const page = fs.readFileSync(P.join(__dirname, '..', 'keykids.html'), 'utf8');
+  assert(/<script src="js\/keykids\/core.js"><\/script>/.test(page) && /<script src="js\/keykids\/ui.js"><\/script>/.test(page), 'keykids.html loads both scripts');
   new vm.Script(ui); // syntax check of the UI script
   const ctx = { Intl }; vm.createContext(ctx); vm.runInContext(core, ctx);
   const K = ctx.KK;
