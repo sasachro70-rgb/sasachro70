@@ -1,4 +1,4 @@
--- ThaiElevate, part 5 (Phase H): homework, hand-in, teacher review and feedback, student comments,
+-- Pasathai, part 5 (Phase H): homework, hand-in, teacher review and feedback, student comments,
 -- and protected course content (the teaching material that must never be public).
 -- Builds on 0001–0004. Purely additive: no existing table, policy or function is changed.
 --

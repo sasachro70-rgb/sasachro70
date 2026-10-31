@@ -8,8 +8,8 @@
   const AC = () => FGH.academy, SRS = () => FGH.srs, KL = () => FGH.kidsLanguage;
   const TXT = {
     en: {
-      playTitle: 'Play Zone', playSub: 'Play, explore and learn through fun activities.', playDesc: 'Family games, KeyKids, quizzes and the reward shop – the Thai Learning Academy is a separate area.', toAcademy: 'Thai Learning Academy', toHome: 'ThaiElevate home',
-      heroTitle: 'ThaiElevate', heroSub: 'Learn, Play & Grow Together', heroDesc: 'A fun place for children and adults to learn languages, play games and discover new things.',
+      playTitle: 'Play Zone', playSub: 'Play, explore and learn through fun activities.', playDesc: 'Family games, KeyKids, quizzes and the reward shop – the Thai Learning Academy is a separate area.', toAcademy: 'Thai Learning Academy', toHome: 'Pasathai home',
+      heroTitle: 'Pasathai', heroSub: 'Learn, Play & Grow Together', heroDesc: 'A fun place for children and adults to learn languages, play games and discover new things.',
       startLearning: 'Start Learning', playGames: 'Play Games', exploreLangs: 'Explore Languages',
       kidsZone: 'Kids Zone', kidsZoneSub: 'Kids Learning & Games', kidsArea: 'Kids learning area', kidsAreaD: 'Knowledge games, word guessing, language lessons and the reward shop',
       academy: 'Adult Language Academy', academySub: 'Learn a New Language', lessons: '{n} lessons', levels: 'Levels: {l}', skillsTitle: 'What you practise',
@@ -21,8 +21,8 @@
       skills: { conversation: 'Conversation', vocabulary: 'Vocabulary', grammar: 'Grammar', listening: 'Listening', speaking: 'Speaking', reading: 'Reading', writing: 'Writing', pronunciation: 'Pronunciation', work: 'Work', real: 'Real life' }
     },
     sv: {
-      playTitle: 'Play Zone', playSub: 'Spela, upptäck och lär genom roliga aktiviteter.', playDesc: 'Familjespel, KeyKids, frågesporter och belöningsbutiken – Thai Learning Academy är en egen del.', toAcademy: 'Thai Learning Academy', toHome: 'ThaiElevate start',
-      heroTitle: 'ThaiElevate', heroSub: 'Lär, lek och väx tillsammans', heroDesc: 'En rolig plats där barn och vuxna lär sig språk, spelar spel och upptäcker nya saker.',
+      playTitle: 'Play Zone', playSub: 'Spela, upptäck och lär genom roliga aktiviteter.', playDesc: 'Familjespel, KeyKids, frågesporter och belöningsbutiken – Thai Learning Academy är en egen del.', toAcademy: 'Thai Learning Academy', toHome: 'Pasathai start',
+      heroTitle: 'Pasathai', heroSub: 'Lär, lek och väx tillsammans', heroDesc: 'En rolig plats där barn och vuxna lär sig språk, spelar spel och upptäcker nya saker.',
       startLearning: 'Börja lära dig', playGames: 'Spela spel', exploreLangs: 'Utforska språk',
       kidsZone: 'Barnens zon', kidsZoneSub: 'Lärande och spel för barn', kidsArea: 'Barnens lärsida', kidsAreaD: 'Kunskapsspel, gissa ordet, språklektioner och belöningar',
       academy: 'Adult Language Academy', academySub: 'Lär dig ett nytt språk', lessons: '{n} lektioner', levels: 'Nivåer: {l}', skillsTitle: 'Det här tränar du',
@@ -34,8 +34,8 @@
       skills: { conversation: 'Samtal', vocabulary: 'Ordförråd', grammar: 'Grammatik', listening: 'Hörförståelse', speaking: 'Tala', reading: 'Läsa', writing: 'Skriva', pronunciation: 'Uttal', work: 'Jobb', real: 'Vardag' }
     },
     th: {
-      playTitle: 'Play Zone', playSub: 'เล่น สำรวจ และเรียนรู้ผ่านกิจกรรมสนุก ๆ', playDesc: 'เกมครอบครัว KeyKids เกมตอบคำถาม และร้านแลกรางวัล – Thai Learning Academy แยกเป็นอีกส่วนหนึ่ง', toAcademy: 'Thai Learning Academy', toHome: 'หน้าแรก ThaiElevate',
-      heroTitle: 'ThaiElevate', heroSub: 'เรียนรู้ เล่น และเติบโตไปด้วยกัน', heroDesc: 'พื้นที่สนุก ๆ ให้เด็กและผู้ใหญ่ได้เรียนภาษา เล่นเกม และค้นพบสิ่งใหม่',
+      playTitle: 'Play Zone', playSub: 'เล่น สำรวจ และเรียนรู้ผ่านกิจกรรมสนุก ๆ', playDesc: 'เกมครอบครัว KeyKids เกมตอบคำถาม และร้านแลกรางวัล – Thai Learning Academy แยกเป็นอีกส่วนหนึ่ง', toAcademy: 'Thai Learning Academy', toHome: 'หน้าแรก Pasathai',
+      heroTitle: 'Pasathai', heroSub: 'เรียนรู้ เล่น และเติบโตไปด้วยกัน', heroDesc: 'พื้นที่สนุก ๆ ให้เด็กและผู้ใหญ่ได้เรียนภาษา เล่นเกม และค้นพบสิ่งใหม่',
       startLearning: 'เริ่มเรียน', playGames: 'เล่นเกม', exploreLangs: 'สำรวจภาษา',
       kidsZone: 'โซนเด็ก', kidsZoneSub: 'การเรียนรู้และเกมสำหรับเด็ก', kidsArea: 'พื้นที่เรียนรู้ของเด็ก', kidsAreaD: 'เกมความรู้ ทายคำศัพท์ บทเรียนภาษา และแลกรางวัล',
       academy: 'Adult Language Academy', academySub: 'เรียนภาษาใหม่', lessons: '{n} บทเรียน', levels: 'ระดับ: {l}', skillsTitle: 'ทักษะที่ได้ฝึก',

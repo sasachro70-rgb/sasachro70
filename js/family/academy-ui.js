@@ -1,5 +1,5 @@
 /* academy.html – two modes:
-   - Thai Learning Academy (ThaiElevate, Phase C): academy.html, academy.html?course=th. Thai is the only target language; Swedish or
+   - Thai Learning Academy (Pasathai, Phase C): academy.html, academy.html?course=th. Thai is the only target language; Swedish or
      Thai explanations (saved per learner as adult[pid].thExplain, missing Thai texts fall back to Swedish); its own navigation:
      Dashboard, Courses, Lessons, Thai Practice, Learning Games, Classroom, Homework, My Progress. Children and adults can learn here.
      Progress keeps the key ac:th:sv whatever the explanation language, so switching never hides progress.

@@ -1,4 +1,4 @@
-/* ThaiElevate welcome page (index.html).
+/* Pasathai welcome page (index.html).
    - Menu language th / sv / en: shared with the Play Zone (it is the "ui" field of the hub's saved data, fgh.v1), so both pages agree.
    - Explanation language sv / th: saved on this device as "te.explain" and sent to the Academy as ?explain=.
      (Saving it in the student's profile on the server is part of the Academy phase.)

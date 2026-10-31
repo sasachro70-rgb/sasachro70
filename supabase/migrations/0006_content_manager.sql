@@ -1,4 +1,4 @@
--- ThaiElevate, part 6 (Phase F): Teacher Content Manager – drafts, publishing, version history, lesson media.
+-- Pasathai, part 6 (Phase F): Teacher Content Manager – drafts, publishing, version history, lesson media.
 -- Builds on 0001–0005. Additive: two new columns on public.course_content (owner_id, published_by); nothing else changes.
 --
 -- Rules

@@ -1,4 +1,4 @@
-# ThaiElevate
+# Pasathai
 
 **Learn Thai. Speak Thai. Understand Thai.** Thai for children and families in Sweden (formerly *Family Game Hub*),
 as a static site (GitHub Pages) with an optional Supabase account. The welcome page `index.html` has two areas:
@@ -33,7 +33,7 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 
 | Path | What it is |
 |---|---|
-| `index.html`, `css/welcome.css`, `js/welcome.js` | ThaiElevate welcome page: the two areas, explanation language, account menu |
+| `index.html`, `css/welcome.css`, `js/welcome.js` | Pasathai welcome page: the two areas, explanation language, account menu |
 | `play.html`, `js/hub-core.js`, `js/hub-ui.js`, `js/games/` | Play Zone: family games hub (unchanged logic; links to the new areas, matches feed the points ledger) |
 | `keykids.html`, `js/keykids/core.js`, `js/keykids/ui.js`, `css/keykids.css` | KeyKids, split from one 198 KB file into modules; behaviour unchanged |
 | `kids.html`, `academy.html`, `parent.html` | The three new areas |

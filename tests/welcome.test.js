@@ -1,4 +1,4 @@
-// ThaiElevate Phase B: welcome page, Play Zone and branding. Run: node --test tests/
+// Pasathai Phase B: welcome page, Play Zone and branding. Run: node --test tests/
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
@@ -14,10 +14,10 @@ function load(files) {
 
 test('welcome page: brand, Thai heading, English and Swedish subtitles, the two doors', () => {
   const html = read('index.html');
-  assert.match(html, /<span class="brand-name">Thai<b>Elevate<\/b><\/span>/);
-  assert.match(html, /ยินดีต้อนรับสู่ <span class="nowrap">ThaiElevate<\/span>/);
-  assert.ok(html.includes('Welcome to ThaiElevate – Your Thai Language Learning Journey.'));
-  assert.ok(html.includes('Välkommen till ThaiElevate – din resa för att lära dig thailändska.'));
+  assert.match(html, /<span class="brand-name">Pasa<b>thai<\/b><\/span>/);
+  assert.match(html, /ยินดีต้อนรับสู่ <span class="nowrap">Pasathai<\/span>/);
+  assert.ok(html.includes('Welcome to Pasathai – Your Thai Language Learning Journey.'));
+  assert.ok(html.includes('Välkommen till Pasathai – din resa för att lära dig thailändska.'));
   assert.ok(html.includes('Learn Thai. Speak Thai. Understand Thai.'));
   assert.ok(html.includes('Learn Thai with confidence.'));
   assert.match(html, /class="door play" href="play\.html"/);
@@ -62,7 +62,7 @@ test('welcome page: changing the menu language keeps every other part of the sav
 
 test('Play Zone: the former home page with the same saved data; no academy or school sections mixed in', () => {
   const html = read('play.html');
-  assert.match(html, /<title>Play Zone · ThaiElevate<\/title>/);
+  assert.match(html, /<title>Play Zone · Pasathai<\/title>/);
   for (const s of ['js/hub-core.js', 'js/games/flag-quiz.js', 'js/family/hub-bridge.js', 'js/hub-ui.js']) assert.ok(html.includes(s), s);
   const ui = read('js/hub-ui.js');
   assert.ok(ui.includes("STORE = 'fgh.v1'"), 'same storage key as before');
@@ -70,7 +70,7 @@ test('Play Zone: the former home page with the same saved data; no academy or sc
   assert.ok(ui.includes('playHeroHTML'));
   const bridge = read('js/family/hub-bridge.js');   // all three languages are checked by tests/thai-voice.test.js (home page texts)
   assert.ok(bridge.includes("playSub: 'Spela, upptäck och lär genom roliga aktiviteter.'"));
-  assert.equal((bridge.match(/heroTitle: 'ThaiElevate'/g) || []).length, 3);
+  assert.equal((bridge.match(/heroTitle: 'Pasathai'/g) || []).length, 3);
   assert.ok(!bridge.includes("heroTitle: 'Family Game Hub'"));
 });
 
@@ -81,7 +81,7 @@ test('branding: no page title or visible header text says Family Game Hub; Play 
   assert.ok(read('js/online/online-ui.js').includes('href="play.html"'));
   assert.match(read('kids.html'), /data-home="play\.html"/);
   const FT = load(['js/family/i18n.js']).window.FGH.FT;
-  for (const l of ['en', 'sv', 'th']) { assert.equal(FT[l].hub, 'ThaiElevate'); assert.equal(FT[l].playZone, 'Play Zone'); }
+  for (const l of ['en', 'sv', 'th']) { assert.equal(FT[l].hub, 'Pasathai'); assert.equal(FT[l].playZone, 'Play Zone'); }
 });
 
 test('Thai Learning Academy (Phase C): own navigation, Thai-only mode, explanation sv/th, texts in three languages', () => {

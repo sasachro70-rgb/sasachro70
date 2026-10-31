@@ -201,7 +201,7 @@ ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
   .logincard { border-color: #999; }
 }
 
-/* ---------- Thai Learning Academy (ThaiElevate Phase C): deep indigo navigation, teal for progress, Thai in a looped font ---------- */
+/* ---------- Thai Learning Academy (Pasathai Phase C): deep indigo navigation, teal for progress, Thai in a looped font ---------- */
 body[data-area="academy"] { --tla: #232A6B; --tla-teal: #0E8C80; --font: "Noto Sans", "Noto Sans Thai Looped", -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", "Thonburi", Roboto, sans-serif; }
 @media (prefers-color-scheme: dark) { body[data-area="academy"] { --tla: #8C96F2; --tla-teal: #4FD1C0; } }
 body[data-area="academy"] [lang="th"], body[data-area="academy"] .tw, body[data-area="academy"] .tl { font-family: "Noto Sans Thai Looped", "Thonburi", "Leelawadee UI", sans-serif; }

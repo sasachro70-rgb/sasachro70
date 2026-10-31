@@ -1,5 +1,11 @@
 # Changes in this version
 
+## 31 Oct 2026 – New name: Pasathai
+
+* The product is now called **Pasathai** (ภาษาไทย) instead of ThaiElevate, on every page title, the brand top left
+  ("Pasa**thai**"), the welcome heading "ยินดีต้อนรับสู่ Pasathai", menus, buttons, texts in all three languages and the docs.
+* Unchanged on purpose: file names, saved data keys (`fgh.*`, `te.explain`) and code names, so nobody loses data or links.
+
 ## 31 Oct 2026 – Phase F: Teacher Content Manager
 
 **Database** `supabase/migrations/0006_content_manager.sql` (+ `supabase/rollback/0006_rollback.sql`). Run after 0005 in the SQL Editor.
@@ -75,7 +81,7 @@ Run it in the Supabase SQL Editor (or `supabase db push`) **before** using the n
 * Loaded by `academy.html`, `parent.html`, `student.html`. Tests: `tests/thai-read.test.js` (structure, every answer is an option, Thai facts:
   คำเป็น/คำตาย, มาตรา, tones, classes, 9 groups, 32 vowels).
 
-## 31 Oct 2026 – ThaiElevate, Phase C: Thai Learning Academy navigation and dashboard
+## 31 Oct 2026 – Pasathai, Phase C: Thai Learning Academy navigation and dashboard
 
 No database change; saved data keeps its keys.
 
@@ -93,12 +99,12 @@ No database change; saved data keeps its keys.
 * **Other language courses** (Swedish, English, Spanish) unchanged at `academy.html?course=sv|en|es` (welcome page footer link).
 * Files: `js/family/academy-ui.js`, `js/family/i18n.js` (`tla*` texts in en/sv/th), `css/family.css`, `academy.html`, `index.html`, `tests/welcome.test.js`.
 
-## 31 Oct 2026 – ThaiElevate, Phase B: new name and two main areas
+## 31 Oct 2026 – Pasathai, Phase B: new name and two main areas
 
 Built on `feature/family-game-hub` at 043009f. Approved scope: branding + two entry areas. No database change, no saved data renamed,
-no file deleted. Audit and plan: "ThaiElevate – Phase 0 audit report".
+no file deleted. Audit and plan: "Pasathai – Phase 0 audit report".
 
-* **New welcome page** `index.html` (+ `css/welcome.css`, `js/welcome.js`): ThaiElevate brand top left, "ยินดีต้อนรับสู่ ThaiElevate"
+* **New welcome page** `index.html` (+ `css/welcome.css`, `js/welcome.js`): Pasathai brand top left, "ยินดีต้อนรับสู่ Pasathai"
   with the English and Swedish subtitles, two doors – 🎮 **Play Zone** and 📚 **Thai Learning Academy** – the explanation language
   (Svenska / ภาษาไทย, saved on the device as `te.explain`, sent to the Academy as `?explain=`), account menu (sign in, student, teacher,
   parent) and menu language th / sv / en (shared with the Play Zone). Noto Sans / Noto Sans Thai Looped / Noto Serif Thai (OFL) from
@@ -106,7 +112,7 @@ no file deleted. Audit and plan: "ThaiElevate – Phase 0 audit report".
 * **Play Zone** `play.html` = the former `index.html`, same scripts and the same saved data (`fgh.v1`, `keykids.v1`, `fgh.family.v1`).
   Its home shows the games, KeyKids, kids area, Family Online, players, history and Parent Zone. The language-course picker and the
   School section are no longer on this page (they belong to the Academy / welcome page; nothing was removed from the code).
-* **Branding:** page titles, header brand, `FGH.FT.*.hub` and the hub hero say ThaiElevate. KeyKids, Family Online and the kids area
+* **Branding:** page titles, header brand, `FGH.FT.*.hub` and the hub hero say Pasathai. KeyKids, Family Online and the kids area
   lead back to the Play Zone (`<body data-home="play.html">`); Academy, parent, teacher and student pages lead to the welcome page.
 * **Kept reachable:** Swedish, English and Spanish courses (footer link "Other language courses" → `academy.html`); all five kids
   language pairs stay in the Play Zone. Thai explanations are not written yet: choosing ภาษาไทย shows a note and the lessons fall back to Swedish.

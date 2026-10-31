@@ -1,4 +1,4 @@
-/* Play Zone screens (ThaiElevate; formerly the Family Game Hub home): home, players, match setup, pass-the-iPad turns with a timer, results and history.
+/* Play Zone screens (Pasathai; formerly the Family Game Hub home): home, players, match setup, pass-the-iPad turns with a timer, results and history.
    Game-specific drawing comes from the registered game (questionHTML); everything else is shared. */
 (function () {
   'use strict';
@@ -84,7 +84,7 @@
     return '<div class="seg" role="group" aria-label="' + esc(t('menuLang')) + '">' + LANGS.map(l => '<button data-act="ui" data-v="' + l + '" class="' + (S.ui === l ? 'on' : '') + '" aria-pressed="' + (S.ui === l) + '">' + NATIVE[l] + '</button>').join('') + '</div>';
   }
   function topHTML(title, backTo) {
-    return '<header class="top">' + (backTo ? '<button class="btn small" data-act="go" data-v="' + backTo + '">← ' + esc(t('back')) + '</button>' : '<a class="brand" href="index.html" title="ThaiElevate"><span class="logo" aria-hidden="true">🎮</span>ThaiElevate</a>') +
+    return '<header class="top">' + (backTo ? '<button class="btn small" data-act="go" data-v="' + backTo + '">← ' + esc(t('back')) + '</button>' : '<a class="brand" href="index.html" title="Pasathai"><span class="logo" aria-hidden="true">🎮</span>Pasathai</a>') +
       (title ? '<h1 class="ttl">' + esc(title) + '</h1>' : '') + '<span class="grow"></span>' + langSeg() +
       '<button class="btn small" data-act="sound" aria-pressed="' + S.sound + '">' + (S.sound ? '🔊' : '🔇') + ' ' + esc(t('sound')) + '</button></header>' + warnHTML();
   }
@@ -121,7 +121,7 @@
     const cards = core.listGames().map(g => '<button class="card game" data-act="setup" data-v="' + g.id + '"><span class="gicon" aria-hidden="true">' + g.icon + '</span><span class="gname">' + esc(L(g.name)) + '</span><span class="gdesc">' + esc(L(g.desc)) + '</span><span class="btn primary">▶ ' + esc(t('play')) + '</span></button>').join('') +
       '<a class="card game" href="keykids.html"><span class="gicon" aria-hidden="true">⌨️</span><span class="gname">' + esc(t('keykidsName')) + '</span><span class="gdesc">' + esc(t('keykidsDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>' +
       '<a class="card game" href="online.html"><span class="gicon" aria-hidden="true">🌐</span><span class="gname">' + esc(t('onlineName')) + '</span><span class="gdesc">' + esc(t('onlineDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>';
-    /* Play Zone (ThaiElevate): games and family activities only. The language courses and the school pages live in the
+    /* Play Zone (Pasathai): games and family activities only. The language courses and the school pages live in the
        Thai Learning Academy, reached from the welcome page (index.html) – they are no longer mixed into this page. */
     if (B && B.kidsZoneHTML) h += B.kidsZoneHTML(S.ui, esc, cards);
     else h += '<h2 class="sec">' + esc(t('games')) + '</h2><div class="games">' + cards + '</div>';
