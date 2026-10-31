@@ -51,6 +51,33 @@ Levels: A1, A2, B1, B2, C1. Level tests are built automatically from the level's
 Every text in `tr`, `title`, `goal`, `grammar` must exist for every language in `explain` (checked by `npm test`).
 A new course file must be added as a `<script>` line in `academy.html` and `parent.html`.
 
+## 3b. Thai for Swedish speakers – `content/academy-th.js`
+
+Same lesson format as the other courses, plus:
+
+* `levels: [{ id: 'L1', n: 1, name: {sv, en, th} }, …]` – the course's own levels (Level 1–5) instead of CEFR.
+* `rom` on every Thai word and dialogue line. Use **RTGS** (Thailand's official romanization, e.g. สวัสดี = `sawatdi`). RTGS shows neither tones nor vowel length; the tone lesson writes tones with accents (khaa, khàa, khâa, kháa, khǎa).
+* Explanations (`tr`, `note`, `title`, `goal`, `grammar`) in Swedish: `{ sv: '…' }`.
+* Thai is written without spaces between words. Use a space only where Thai puts one (between phrases/sentences). Put the polite particle straight after the word: `สวัสดีครับ`, not `สวัสดี ครับ` (a test checks this).
+* Word-order exercises: mark the tiles with `|`: `{ type: 'order', answer: 'คุณ|ชื่อ|อะไร|ครับ', rom: 'khun chue arai khrap', tr: { sv: 'Vad heter du?' } }`.
+* Gap exercises can carry the Swedish meaning: `{ type: 'gap', text: 'สบายดี___ครับ', tr: { sv: 'Mår du bra?' }, opts: [...], a: 'ไหม' }`.
+* `mc` exercises whose prompt is not Thai text: add `noSay: true` so it is not read aloud.
+* The tone lesson has `tones: [{ name, rom, sv, curve: [[x 0–1, pitch 1–5], …], word, wrom, wsv, desc }]`. The graph is a schematic (Chao tone numbers), not a recording.
+
+Have a native speaker check new Thai text before publishing.
+
+## 3c. Recorded audio (optional)
+
+The voice system plays a recorded file instead of the device voice when one is listed for the exact text:
+
+```js
+// content/audio.js (load it before js/family/voice.js on the page)
+window.FGH_CONTENT = window.FGH_CONTENT || {};
+FGH_CONTENT.audio = { th: { 'สวัสดี': 'audio/th/sawatdi.mp3' } };
+```
+
+No recordings are included yet; without them the device's own voice is used.
+
 ## 4. Screen texts
 
 All texts of the family pages are in `js/family/i18n.js` (Thai, Swedish, English). `npm test` fails if a key is missing in one language.

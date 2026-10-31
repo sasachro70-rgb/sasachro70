@@ -103,7 +103,7 @@
   /* learning documents are merged, so progress made on two devices is kept from both */
   function learningDoc(f, pid) {
     const done = {}; Object.keys(f.done).filter(k => k.startsWith(pid + '|')).forEach(k => { done[k.slice(pid.length + 1)] = f.done[k]; });
-    return { learning: f.learning[pid] || {}, srs: f.srs[pid] || {}, favorites: f.favorites[pid] || [], adult: f.adult[pid] || null, done };
+    return { learning: f.learning[pid] || {}, srs: f.srs[pid] || {}, favorites: f.favorites[pid] || [], adult: f.adult[pid] || null, voice: (f.voice || {})[pid] || null, done };
   }
   function applyLearning(f, pid, d) {
     if (!d) return;
@@ -111,6 +111,7 @@
     const srs = f.srs[pid] || (f.srs[pid] = {}); for (const k in (d.srs || {})) if (!srs[k] || (d.srs[k].last || 0) > (srs[k].last || 0)) srs[k] = d.srs[k];
     f.favorites[pid] = Array.from(new Set((f.favorites[pid] || []).concat(d.favorites || [])));
     if (d.adult && !f.adult[pid]) f.adult[pid] = d.adult;
+    if (d.voice && FGH.voice) { f.voice = f.voice || {}; f.voice[pid] = FGH.voice.merge(f.voice[pid], d.voice); }
     for (const u in (d.done || {})) if (!f.done[pid + '|' + u]) f.done[pid + '|' + u] = d.done[u];
   }
 

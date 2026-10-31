@@ -10,6 +10,7 @@
   const de = (who, t, th, sv) => ({ who, t, tr: { th, sv } });
   const ve = (t, th, sv, note) => ({ t, tr: { th, sv }, note: note || null });
   A.courses.en = {
+    desc: { en: 'English for travel, work and daily life – explained in Thai or Swedish.', sv: 'Engelska för resor, jobb och vardag – förklaringar på thai eller svenska.', th: 'ภาษาอังกฤษสำหรับการเดินทาง การทำงาน และชีวิตประจำวัน อธิบายเป็นภาษาไทยหรือสวีเดน' },
     target: 'en', explain: ['th', 'sv'], sample: true, passPct: 70,
     lessons: [
       { id: 'en-a1-intro', level: 'A1', icon: '👋', skills: ['conversation', 'vocabulary', 'speaking'],
@@ -83,6 +84,7 @@
   const ds = (who, t, th, en) => ({ who, t, tr: { th, en } });
   const vs = (t, th, en, note) => ({ t, tr: { th, en }, note: note || null });
   A.courses.es = {
+    desc: { en: 'Spanish from the start – explained in Thai or English.', sv: 'Spanska från början – förklaringar på thai eller engelska.', th: 'ภาษาสเปนตั้งแต่เริ่มต้น อธิบายเป็นภาษาไทยหรืออังกฤษ' },
     target: 'es', explain: ['th', 'en'], sample: true, passPct: 70,
     lessons: [
       { id: 'es-a1-hola', level: 'A1', icon: '👋', skills: ['conversation', 'vocabulary', 'pronunciation'],

@@ -6,6 +6,7 @@ A learning platform for the whole family, as a static site (GitHub Pages) with a
 * **KeyKids** – typing, spelling and flags for children aged 3–10 – `keykids.html`
 * **Kids area** – Knowledge & Word Games, Kids Language Learning (5 language pairs) and the Reward shop – `kids.html`
 * **Adult Language Academy** – CEFR A1–C1 lessons, level tests and spaced-repetition word review – `academy.html`
+  * **Lär dig thailändska** – Thai for Swedish speakers, Level 1–5, romanization (RTGS), the five tones with a pitch graph
 * **Parent Dashboard** – PIN-protected: points, rewards, requests, history, learning progress, profiles, rules – `parent.html`
 * **Family Online** – accounts, guest rooms with codes, play across devices – `online.html`
 
@@ -37,6 +38,7 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 | `js/family/store.js` | Family record: profiles, links to hub players and KeyKids learners, activity history, progress, parent PIN |
 | `js/family/kids-knowledge.js`, `kids-language.js`, `academy.js`, `srs.js` | Game and lesson engines (no DOM, tested in Node) |
 | `js/family/*-ui.js`, `kit.js`, `i18n.js`, `css/family.css` | Screens, shared helpers, texts in Thai/Swedish/English |
+| `js/family/voice.js`, `voice-ui.js` | Voice & speed per learner and language (only voices the device has), sentence pauses, recorded-audio support |
 | `js/family/actions.js`, `cloud-sync.js` | Every change goes through actions; with a family account, cloud-sync sends it to the server |
 | `js/family/keykids-bridge.js`, `hub-bridge.js` | Connect KeyKids and the family games to the ledger |
 | `content/` | Lesson and question content, separate from game logic |

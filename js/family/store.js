@@ -27,6 +27,7 @@
       srs: {},                      // [pid][itemKey] = review card (js/family/srs.js)
       favorites: {},                // [pid] = [itemKey]
       adult: {},                    // [pid] = { target, explain, level, goal, minutesPerDay, started }
+      voice: {},                    // [pid] = voice settings per learner (js/family/voice.js)
       custom: { kidsWords: [], disabledLessons: [] },
       imported: { hub: [], keykids: [] },
       sync: { familyId: null, lastPull: 0, outbox: [] }
@@ -44,7 +45,7 @@
     f.custom = Object.assign(emptyFamily().custom, o.custom);
     f.imported = Object.assign(emptyFamily().imported, o.imported);
     f.sync = Object.assign(emptyFamily().sync, o.sync);
-    for (const k of ['learning', 'srs', 'favorites', 'adult', 'done']) if (!f[k] || typeof f[k] !== 'object') f[k] = {};
+    for (const k of ['learning', 'srs', 'favorites', 'adult', 'done', 'voice']) if (!f[k] || typeof f[k] !== 'object') f[k] = {};
     f.profiles = (Array.isArray(f.profiles) ? f.profiles : []).filter(p => p && p.id).map(fixProfile);
     if (!Array.isArray(f.log)) f.log = [];
     return f;

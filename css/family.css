@@ -147,3 +147,34 @@ body[data-area="parent"] .card { padding: .9rem 1rem; }
 body[data-area="parent"] th, body[data-area="parent"] td { white-space: normal; }
 @media (max-width: 560px) { .ptitle { font-size: 1.15rem; width: 100%; order: 3; } }
 a.btn, a.tile { color: inherit; }
+
+/* ---------- voice settings, romanization and the Thai tone lesson ---------- */
+:root { --tone1: #6B7280; --tone2: #2463D1; --tone3: #E5484D; --tone4: #15A67A; --tone5: #B7791F; }
+@media (prefers-color-scheme: dark) { :root { --tone1: #A1A9B5; --tone2: #6FA3FF; --tone3: #FF7B6B; --tone4: #3CCB9B; --tone5: #F2B33D; } }
+.rom { color: var(--muted); font-size: .92rem; font-style: italic; letter-spacing: .01em; }
+.ans .rom { display: block; font-weight: 500; font-size: .85rem; }
+.ans.sub { flex-direction: column; gap: .1rem; }
+.saybtns { display: inline-flex; gap: 2px; vertical-align: middle; }
+.saybtns .ghost { min-width: 40px; min-height: 40px; }
+table.vocab .tw { font-size: 1.25rem; }
+[lang="th"] { line-height: 1.7; }
+.vspeed { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.vspeed.compact { margin: 0 0 10px; }
+.vspeed .btn.small { min-height: 40px; padding: .2rem .6rem; font-variant-numeric: tabular-nums; }
+.vlist { display: grid; gap: 8px; }
+.vrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: .5rem .7rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.vrow.on { border-color: var(--good); box-shadow: inset 4px 0 0 var(--good); }
+.vrow .vname { flex: 1 1 200px; display: grid; }
+.vrow .vname small { color: var(--muted); }
+.tonegraph { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
+.tonegraph .grid { stroke: var(--line); stroke-width: 1; }
+.tonegraph .cl { fill: var(--muted); font-size: 11px; }
+.tonegraph .tone.t1, .tonecard.t1 .sw { stroke: var(--tone1); background: var(--tone1); }
+.tonegraph .tone.t2, .tonecard.t2 .sw { stroke: var(--tone2); background: var(--tone2); }
+.tonegraph .tone.t3, .tonecard.t3 .sw { stroke: var(--tone3); background: var(--tone3); }
+.tonegraph .tone.t4, .tonecard.t4 .sw { stroke: var(--tone4); background: var(--tone4); }
+.tonegraph .tone.t5, .tonecard.t5 .sw { stroke: var(--tone5); background: var(--tone5); }
+.tones { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 10px; margin-top: 10px; }
+.tonecard { border: 1px solid var(--line); border-radius: 12px; padding: .6rem .7rem; background: var(--surface); }
+.tonecard .sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 4px; }
+.tonecard .tw b { font-size: 1.5rem; }

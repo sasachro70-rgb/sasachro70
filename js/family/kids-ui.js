@@ -18,7 +18,8 @@
   const avail = p => LG.available(fam().ledger, p.id);
   const pairOf = p => { const l = fam().learning[p.id]; return KL.pairById((l && l.kidsPair) || '') || null; };
   const AGES = { 1: '3–4', 2: '5–6', 3: '7–8', 4: '9–10' };
-  const rate = () => { const p = me(); return p ? p.ttsRate : 0.9; };
+  const VO = FGH.voice, VUI = FGH.voiceUI;
+  const rate = () => VO.rateOf(fam(), V.pid);
   let warned = 0;
   function speak(text, lang) { if (!K.speak(text, lang, rate())) { if (Date.now() - warned > 15000) { warned = Date.now(); K.toast('🔇 ' + t('voiceMissing', { lang: t('lang.' + lang) })); } return false; } return true; }
 
@@ -28,8 +29,9 @@
     document.body.dataset.area = 'kids';
     const p = me();
     if (!p || p.kind !== 'child') { V.pid = null; V.screen = 'who'; }
+    VO.use(V.pid);
     const app = $('app');
-    const S = { who: whoHTML, home: homeHTML, games: homeHTML, setup: setupHTML, run: runHTML, result: resultHTML, lang: langHTML, intro: introHTML, memory: memoryHTML, shop: shopHTML };
+    const S = { who: whoHTML, home: homeHTML, games: homeHTML, setup: setupHTML, run: runHTML, result: resultHTML, lang: langHTML, intro: introHTML, memory: memoryHTML, shop: shopHTML, voice: voiceHTML };
     app.innerHTML = (S[V.screen] || homeHTML)();
     if (V.screen === 'run') afterRun();
   }
@@ -216,7 +218,7 @@
     const review = KL.reviewLesson(all, c.words, pair);
     let h = top(t('pairs.' + pair.id), 'home') + '<div class="row" style="margin:0 0 6px">' + KL.content().pairs.map(pr => '<button class="btn small' + (pr.id === pair.id ? ' on' : '') + '" data-act="pair" data-v="' + pr.id + '">' + esc(t('pairs.' + pr.id)) + '</button>').join('') + '</div>' +
       '<p class="muted"><span class="badge-sample">' + esc(t('sample')) + '</span> ' + esc(t('sampleNote')) + '</p>' +
-      '<div class="row"><label for="rate">' + esc(t('speed')) + '</label><input id="rate" type="range" min="0.5" max="1.2" step="0.1" value="' + p.ttsRate + '" data-change="rate"></div>';
+      '<div class="row">' + VUI.speedHTML(p.id, true) + '<button class="btn small" data-act="go" data-v="voice">🗣️ ' + esc(t('voice.title')) + '</button></div>';
     const cur = c.current && all.find(l => l.id === c.current);
     h += '<div class="row">' + (cur ? '<button class="btn primary big" data-act="openLesson" data-v="' + esc(cur.id) + '">▶ ' + esc(t('resume', { l: L(cur.name) })) + '</button>' : '') +
       (review ? '<button class="btn big" data-act="openLesson" data-v="review">🔁 ' + esc(L(review.name)) + ' (' + review.items.length + ')</button>' : '') + '</div>';
@@ -235,7 +237,7 @@
   function introHTML() {
     const p = me(), pair = pairOf(p), l = findLesson(V.lesson); if (!l) { V.screen = 'lang'; return langHTML(); }
     const items = KL.usable(l, pair), to = pair.to, from = pair.from;
-    let h = top(L(l.name), 'go:lang') + '<p class="muted">' + esc(t('pairs.' + pair.id)) + ' · <span class="badge-sample">' + esc(t('sample')) + '</span></p>';
+    let h = top(L(l.name), 'go:lang') + '<p class="muted">' + esc(t('pairs.' + pair.id)) + ' · <span class="badge-sample">' + esc(t('sample')) + '</span></p>' + VUI.speedHTML(p.id, true);
     if (l.type === 'words') {
       h += '<h2 class="sec">' + esc(t('learnWords')) + '</h2><p class="muted">' + esc(t('tapToHear')) + '</p><div class="flash">' + items.map(it => '<button class="fcard" data-act="say" data-v="' + esc(to + '|' + KL.clean(it[to])) + '">' + K.pic(it.pic, 'md') + '<span class="tw">' + esc(KL.clean(it[to])) + '</span><span class="sw">' + esc(KL.clean(it[from])) + '</span></button>').join('') + '</div>';
     } else {
@@ -257,14 +259,13 @@
   let playing = 0;
   function playAll() {
     const p = me(), pair = pairOf(p), l = findLesson(V.lesson), items = KL.usable(l, pair);
-    const my = ++playing; let i = 0;
-    if (!K.voiceFor(pair.to)) { K.toast('🔇 ' + t('voiceMissing', { lang: t('lang.' + pair.to) })); return; }
-    const step = () => {
-      if (my !== playing || i >= items.length || V.screen !== 'intro') return;
-      const u = new SpeechSynthesisUtterance(KL.clean(items[i][pair.to])); const v = K.voiceFor(pair.to); u.voice = v; u.lang = v.lang; u.rate = rate();
-      u.onend = () => { i++; setTimeout(step, 350); }; speechSynthesis.speak(u);
-    };
-    speechSynthesis.cancel(); step();
+    speak(items.map(it => KL.clean(it[pair.to])).join('\n'), pair.to);
+  }
+  /* ---------- voice settings for this child (the languages of the kids' courses) ---------- */
+  function voiceHTML() {
+    const p = me(), pair = pairOf(p);
+    const langs = Array.from(new Set((pair ? [pair.to, pair.from] : []).concat(...KL.content().pairs.map(x => [x.to, x.from]))));
+    return top(t('voice.title'), 'go:lang') + VUI.panelHTML(p.id, langs);
   }
 
   /* ---------- memory cards: picture ↔ word ---------- */
@@ -405,10 +406,9 @@
     async cancelReq(v) { const p = me(); await A.cancel(p.id, v); render(); },
     closeOv() { closeOv(); }
   };
+  Object.assign(ACT, VUI.acts(() => V.pid, render));
   K.bindActs(ACT);
-  document.addEventListener('change', e => {
-    if (e.target.dataset.change === 'rate') { const p = me(); A.saveProfile(p.id, { ttsRate: +e.target.value }); const pr = pairOf(p); if (pr) { const l = KL.lessons(fam().custom).find(x => KL.usable(x, pr).length); if (l) K.speak(KL.usable(l, pr)[0][pr.to], pr.to, +e.target.value); } }
-  });
+  if (VO.onVoices) VO.onVoices(() => { if (V.screen === 'voice') render(); });
   store.onChange(() => { if (V.screen === 'shop' || V.screen === 'home') render(); });
   if (V.pid && location.hash) { const h = location.hash.slice(1); if (h === 'shop' || h === 'lang') V.screen = h; }
   if (FGH.cloud) FGH.cloud.start().then(() => render()).catch(() => {});

@@ -213,4 +213,53 @@
       pdSecurityNote: 'ในเครื่องนี้ PIN ช่วยกันไม่ให้เด็กเข้าหน้าผู้ปกครอง เมื่อใช้บัญชีครอบครัว เซิร์ฟเวอร์จะตรวจทุกการเปลี่ยนคะแนนและการอนุมัติรางวัล'
     }
   };
+  /* ---------- voice settings and the Thai course (added with "Lär dig thailändska") ---------- */
+  const X = {
+    en: {
+      acLevelN: 'Level {n}', acRomNote: 'Romanization: {sys} (Thailand’s official system). It does not show tones or vowel length – always listen to the voice.',
+      acTones: 'The five tones', acToneGraph: 'Pitch graph of the five Thai tones', acToneGraphNote: 'Schematic graph of how each tone typically moves (1 = low, 5 = high). It is not a recording or a measurement of your voice. The sound comes from this device’s Thai voice reading the word.',
+      acToneCompare: 'Play all five, slowly',
+      voice: {
+        title: 'Voice settings', intro: 'Choose the voice and speed for each language. Only voices installed on this device are shown. Your choice is saved for this learner and follows them to other devices; if a device lacks the voice, the closest one (same accent and gender) is used.',
+        speed: 'Speed', speedDefault: 'recommended start speed (0.85×)', slow: 'Slow', repeat: 'Repeat 3 times', preview: 'Preview', select: 'Select', selected: 'Selected',
+        reset: 'Reset to default', resetDone: 'Back to the default voice', isDefault: 'Default voice', count: '{n} voices on this device', accents: 'Accents on this device', noRegion: 'region not stated',
+        female: 'female', male: 'male', unknown: 'gender not stated', offline: 'works offline', online: 'needs internet',
+        genderNote: 'Browsers do not report a voice’s gender. It is shown when the voice’s name is a known female or male voice, otherwise “not stated”.',
+        none: 'This device has no voice for {lang}.', install: 'Add one in the device settings: Windows – Settings › Time & language › Speech; iPhone/iPad/Mac – Accessibility › Spoken content › Voices; Android – Settings › Text-to-speech (Google). Then reload this page.',
+        noTTS: 'This browser cannot read text aloud. Words are shown as text.', substitute: 'The voice chosen on another device ({name}) is not on this device, so the closest one is used.',
+        saved: 'Voice saved: {name}', gone: 'That voice is no longer available on this device.'
+      }
+    },
+    sv: {
+      acLevelN: 'Nivå {n}', acRomNote: 'Romanisering: {sys} (Thailands officiella system). Den visar inte toner eller vokallängd – lyssna alltid på rösten.',
+      acTones: 'De fem tonerna', acToneGraph: 'Tonkurvor för thailändskans fem toner', acToneGraphNote: 'Schematisk bild av hur varje ton brukar röra sig (1 = låg, 5 = hög). Det är ingen inspelning och ingen mätning av din röst. Ljudet kommer från enhetens thailändska röst som läser ordet.',
+      acToneCompare: 'Spela alla fem långsamt',
+      voice: {
+        title: 'Röstinställningar', intro: 'Välj röst och hastighet för varje språk. Bara röster som finns på den här enheten visas. Valet sparas för den här eleven och följer med till andra enheter; saknas rösten där används den som liknar mest (samma accent och kön).',
+        speed: 'Hastighet', speedDefault: 'rekommenderad starthastighet (0,85×)', slow: 'Långsamt', repeat: 'Upprepa 3 gånger', preview: 'Lyssna', select: 'Välj', selected: 'Vald',
+        reset: 'Återställ standard', resetDone: 'Standardrösten används igen', isDefault: 'Standardröst', count: '{n} röster på enheten', accents: 'Accenter på enheten', noRegion: 'region anges inte',
+        female: 'kvinna', male: 'man', unknown: 'kön anges inte', offline: 'fungerar utan internet', online: 'kräver internet',
+        genderNote: 'Webbläsare anger inte rösternas kön. Det visas när röstens namn är en känd kvinno- eller mansröst, annars ”anges inte”.',
+        none: 'Enheten har ingen röst för {lang}.', install: 'Lägg till en i enhetens inställningar: Windows – Inställningar › Tid och språk › Tal; iPhone/iPad/Mac – Hjälpmedel › Uppläst innehåll › Röster; Android – Inställningar › Text till tal (Google). Ladda sedan om sidan.',
+        noTTS: 'Den här webbläsaren kan inte läsa upp text. Orden visas som text.', substitute: 'Rösten som valdes på en annan enhet ({name}) finns inte här, så den som liknar mest används.',
+        saved: 'Röst sparad: {name}', gone: 'Den rösten finns inte längre på enheten.'
+      }
+    },
+    th: {
+      acLevelN: 'ระดับ {n}', acRomNote: 'การถอดเสียง: {sys} (ระบบทางการของไทย) ไม่แสดงวรรณยุกต์และความยาวสระ ควรฟังเสียงประกอบเสมอ',
+      acTones: 'วรรณยุกต์ทั้งห้าเสียง', acToneGraph: 'กราฟระดับเสียงของวรรณยุกต์ไทยทั้งห้าเสียง', acToneGraphNote: 'กราฟนี้แสดงรูปแบบทั่วไปของแต่ละเสียง (1 = ต่ำ, 5 = สูง) ไม่ใช่การบันทึกหรือการวัดเสียงของคุณ เสียงที่ได้ยินมาจากเสียงอ่านภาษาไทยของเครื่องนี้',
+      acToneCompare: 'เล่นทั้งห้าเสียงช้า ๆ',
+      voice: {
+        title: 'ตั้งค่าเสียงอ่าน', intro: 'เลือกเสียงและความเร็วสำหรับแต่ละภาษา แสดงเฉพาะเสียงที่มีในเครื่องนี้ การเลือกจะบันทึกไว้สำหรับผู้เรียนคนนี้และใช้ในเครื่องอื่นด้วย ถ้าเครื่องอื่นไม่มีเสียงนั้นจะใช้เสียงที่ใกล้เคียงที่สุด (สำเนียงและเพศเดียวกัน)',
+        speed: 'ความเร็ว', speedDefault: 'ความเร็วเริ่มต้นที่แนะนำ (0.85×)', slow: 'ช้า', repeat: 'ฟังซ้ำ 3 ครั้ง', preview: 'ลองฟัง', select: 'เลือก', selected: 'เลือกแล้ว',
+        reset: 'กลับเป็นค่าเริ่มต้น', resetDone: 'กลับไปใช้เสียงเริ่มต้นแล้ว', isDefault: 'เสียงเริ่มต้น', count: 'มี {n} เสียงในเครื่องนี้', accents: 'สำเนียงที่มีในเครื่องนี้', noRegion: 'ไม่ระบุภูมิภาค',
+        female: 'หญิง', male: 'ชาย', unknown: 'ไม่ระบุเพศ', offline: 'ใช้ได้โดยไม่ต้องมีอินเทอร์เน็ต', online: 'ต้องใช้อินเทอร์เน็ต',
+        genderNote: 'เบราว์เซอร์ไม่บอกเพศของเสียง จะแสดงเพศเมื่อชื่อเสียงเป็นเสียงหญิงหรือชายที่รู้จัก นอกนั้นแสดงว่า “ไม่ระบุเพศ”',
+        none: 'เครื่องนี้ไม่มีเสียงอ่านภาษา{lang}', install: 'เพิ่มเสียงได้ในการตั้งค่าเครื่อง: Windows – การตั้งค่า › เวลาและภาษา › คำพูด; iPhone/iPad/Mac – การช่วยการเข้าถึง › เนื้อหาที่พูด › เสียง; Android – การตั้งค่า › การอ่านออกเสียง (Google) แล้วโหลดหน้านี้ใหม่',
+        noTTS: 'เบราว์เซอร์นี้อ่านออกเสียงไม่ได้ จะแสดงเป็นตัวหนังสือแทน', substitute: 'เสียงที่เลือกไว้ในเครื่องอื่น ({name}) ไม่มีในเครื่องนี้ จึงใช้เสียงที่ใกล้เคียงที่สุด',
+        saved: 'บันทึกเสียงแล้ว: {name}', gone: 'เสียงนี้ไม่มีในเครื่องแล้ว'
+      }
+    }
+  };
+  for (const l in X) Object.assign(FGH.FT[l], X[l]);
 })(typeof window !== 'undefined' ? window : globalThis);

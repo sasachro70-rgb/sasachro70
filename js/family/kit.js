@@ -28,14 +28,17 @@
 
   /* ---------- speech ---------- */
   const hasTTS = typeof speechSynthesis !== 'undefined';
+  /* the learner's chosen voice (js/family/voice.js); the first matching voice when that file is not loaded */
   function voiceFor(lang) {
+    if (FGH.voice) { const c = FGH.voice.current(lang); return c ? c.voice : null; }
     if (!hasTTS) return null;
     const vs = speechSynthesis.getVoices(), loc = LOCALE[lang] || lang;
     return vs.find(v => v.lang.replace('_', '-').toLowerCase() === loc.toLowerCase()) || vs.find(v => v.lang.toLowerCase().startsWith(lang)) || null;
   }
   if (hasTTS) { try { speechSynthesis.getVoices(); } catch (e) { /* ignore */ } }
   /* reads text aloud in that language; false when the device has no voice for it (the caller then shows the text) */
-  function speak(text, lang, rate) {
+  function speak(text, lang, rate, opts) {
+    if (FGH.voice) return FGH.voice.say(text, lang, Object.assign({}, opts, rate != null ? { rate } : {}));
     text = clean(text);
     if (!hasTTS || !text) return false;
     const v = voiceFor(lang); if (!v) return false;

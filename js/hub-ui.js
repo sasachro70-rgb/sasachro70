@@ -109,22 +109,25 @@
   }
 
   function homeHTML() {
-    let h = topHTML() + '<p class="tagline">' + esc(t('tagline')) + '</p>';
+    const B = FGH.hubBridge;
+    let h = topHTML() + (B && B.heroHTML ? B.heroHTML(S.ui, esc) : '<p class="tagline">' + esc(t('tagline')) + '</p>');
     const m = S.current;
     if (m) {
       const g = core.getGame(m.gameId);
       h += '<section class="card resume"><div><h2>⏸ ' + esc(t('resume')) + '</h2><p>' + esc(t('resumeInfo', { game: L(g.name), t: Math.min(m.t + 1, m.turns.length), n: m.turns.length })) + '</p><p>' + m.players.map(chip).join(' ') + '</p></div>' +
         '<div class="row"><button class="btn primary big" data-act="resume">▶ ' + esc(t('cont')) + '</button><button class="btn" data-act="askConfirm" data-v="quit">' + esc(t('quit')) + '</button></div>' + confirmHTML('quit', t('quitConfirm'), t('yesQuit')) + '</section>';
     }
-    h += '<h2 class="sec">' + esc(t('games')) + '</h2><div class="games">' +
-      core.listGames().map(g => '<button class="card game" data-act="setup" data-v="' + g.id + '"><span class="gicon" aria-hidden="true">' + g.icon + '</span><span class="gname">' + esc(L(g.name)) + '</span><span class="gdesc">' + esc(L(g.desc)) + '</span><span class="btn primary">▶ ' + esc(t('play')) + '</span></button>').join('') +
+    /* the family games, KeyKids and Family Online (unchanged), shown in the Kids Zone */
+    const cards = core.listGames().map(g => '<button class="card game" data-act="setup" data-v="' + g.id + '"><span class="gicon" aria-hidden="true">' + g.icon + '</span><span class="gname">' + esc(L(g.name)) + '</span><span class="gdesc">' + esc(L(g.desc)) + '</span><span class="btn primary">▶ ' + esc(t('play')) + '</span></button>').join('') +
       '<a class="card game" href="keykids.html"><span class="gicon" aria-hidden="true">⌨️</span><span class="gname">' + esc(t('keykidsName')) + '</span><span class="gdesc">' + esc(t('keykidsDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>' +
-      '<a class="card game" href="online.html"><span class="gicon" aria-hidden="true">🌐</span><span class="gname">' + esc(t('onlineName')) + '</span><span class="gdesc">' + esc(t('onlineDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a></div>';
-    if (FGH.hubBridge) h += FGH.hubBridge.homeHTML(S.ui, esc);
+      '<a class="card game" href="online.html"><span class="gicon" aria-hidden="true">🌐</span><span class="gname">' + esc(t('onlineName')) + '</span><span class="gdesc">' + esc(t('onlineDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>';
+    if (B && B.kidsZoneHTML) h += B.kidsZoneHTML(S.ui, esc, cards) + B.academyHTML(S.ui, esc);
+    else h += '<h2 class="sec">' + esc(t('games')) + '</h2><div class="games">' + cards + '</div>';
     h += '<h2 class="sec">' + esc(t('players')) + '</h2><div class="card"><p class="chips">' + (S.players.length ? S.players.map(chip).join(' ') : esc(t('noPlayers'))) + '</p>' +
       '<div class="row"><button class="btn" data-act="go" data-v="players">👥 ' + esc(t('players')) + '</button><button class="btn" data-act="newPlayer">＋ ' + esc(t('addPlayer')) + '</button></div></div>';
     h += '<h2 class="sec">' + esc(t('history')) + '</h2><div class="card">' + (S.history.length ? historyList(S.history.slice(0, 3)) : '<p class="muted">' + esc(t('noHistory')) + '</p>') +
       '<div class="row"><button class="btn" data-act="go" data-v="history">📜 ' + esc(t('history')) + '</button></div></div>';
+    if (B && B.parentHTML) h += B.parentHTML(S.ui, esc);
     return h;
   }
 
@@ -380,7 +383,9 @@
     if (ans && !ans.disabled) { audio(); answer(ans.dataset.answer); return; }
     const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
     audio(); sfx.tap();
-    const fn = ACT[el.dataset.act]; if (fn) fn(el.dataset.v);
+    const fn = ACT[el.dataset.act]; if (fn) return fn(el.dataset.v);
+    /* home page sections from js/family/hub-bridge.js (language picker) */
+    const B = FGH.hubBridge; if (B && B.acts && B.acts[el.dataset.act]) B.acts[el.dataset.act](el.dataset.v, render);
   });
   document.addEventListener('keydown', e => {
     if (screen !== 'match' || !M() || e.ctrlKey || e.metaKey || e.altKey) return;

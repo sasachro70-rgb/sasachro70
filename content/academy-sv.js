@@ -15,6 +15,7 @@
   const v = (t, th, en, note) => ({ t, tr: { th, en }, note: note || null });
 
   A.courses.sv = {
+    desc: { en: 'Swedish for everyday life, work and study in Sweden – explained in Thai or English.', sv: 'Svenska för vardag, jobb och studier – förklaringar på thai eller engelska.', th: 'ภาษาสวีเดนสำหรับชีวิตประจำวัน การทำงาน และการเรียน อธิบายเป็นภาษาไทยหรืออังกฤษ' },
     target: 'sv', explain: ['th', 'en'], sample: true, passPct: 70,
     lessons: [
       { id: 'sv-a1-hej', level: 'A1', icon: '👋', skills: ['conversation', 'vocabulary', 'pronunciation', 'speaking'],

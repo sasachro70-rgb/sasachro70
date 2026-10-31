@@ -9,6 +9,10 @@
   const course = target => courses()[target] || null;
   const courseKey = (target, explain) => 'ac:' + target + ':' + explain;
   const lessonsAt = (c, level) => c.lessons.filter(l => l.level === level);
+  /* a course may name its own levels (the Thai course: Level 1–5); the others use CEFR A1–C1 */
+  const levelIds = c => (c && Array.isArray(c.levels) && c.levels.length) ? c.levels.map(l => l.id) : LEVELS;
+  const levelInfo = (c, id) => (c && Array.isArray(c.levels) && c.levels.find(l => l.id === id)) || null;
+  const firstLevel = c => levelIds(c)[0];
   const lessonById = (c, id) => c.lessons.find(l => l.id === id) || null;
   const itemKey = (c, lesson, w) => c.target + ':' + lesson.id + ':' + w.t;
   const tr = (obj, lang) => obj ? (obj[lang] != null ? obj[lang] : Object.values(obj)[0]) : '';
@@ -28,10 +32,14 @@
     const optsOf = (list, a) => shuffle(list.map((o, k) => ({ v: String(k), text: typeof o === 'string' ? o : tr(o, explain) })), rnd);
     lesson.exercises.forEach((e, i) => {
       const id = lesson.id + ':e' + i;
-      if (e.type === 'mc') out.push({ type: 'mc', id, prompt: e.prompt, q: tr(e.q, explain), opts: optsOf(e.opts), answer: String(e.a), say: e.prompt });
+      if (e.type === 'mc') out.push({ type: 'mc', id, prompt: e.prompt, rom: e.rom || null, q: tr(e.q, explain), opts: optsOf(e.opts), answer: String(e.a), say: e.noSay ? null : (e.say || e.prompt), noSay: !!e.noSay });
       else if (e.type === 'listen') out.push({ type: 'listen', id, say: e.say, opts: optsOf(e.opts), answer: String(e.a), reveal: e.say });
-      else if (e.type === 'gap') out.push({ type: 'gap', id, text: e.text, opts: shuffle(e.opts.map(o => ({ v: o, text: o })), rnd), answer: e.a, say: e.text.replace('___', e.a) });
-      else if (e.type === 'order') { const ws = e.answer.split(/\s+/); out.push({ type: 'order', id, tiles: shuffle(ws.map((w, k) => ({ k, g: w })), rnd), answer: e.answer, say: e.answer }); }
+      else if (e.type === 'gap') out.push({ type: 'gap', id, text: e.text, rom: e.rom || null, sub: e.tr ? tr(e.tr, explain) : '', opts: shuffle(e.opts.map(o => ({ v: o, text: o })), rnd), answer: e.a, say: e.text.replace('___', e.a) });
+      else if (e.type === 'order') {
+        /* Thai is written without spaces between words, so Thai answers mark the tiles with "|" and the tiles are joined without spaces */
+        const thai = e.answer.includes('|'), ws = thai ? e.answer.split('|') : e.answer.split(/\s+/), answer = thai ? ws.join('') : e.answer;
+        out.push({ type: 'order', id, tiles: shuffle(ws.map((w, k) => ({ k, g: w })), rnd), answer, joiner: thai ? '' : ' ', say: answer, rom: e.rom || null, sub: e.tr ? tr(e.tr, explain) : '' });
+      }
       else if (e.type === 'translate') out.push({ type: 'translate', id, from: tr(e.from, explain), answer: e.answer, accept: e.accept || [], say: e.answer });
       else if (e.type === 'write') out.push({ type: 'write', id, task: tr(e.task, explain), model: e.model });
     });
@@ -39,12 +47,12 @@
     vocab.forEach((w, i) => {
       const others = shuffle(lesson.vocab.filter(x => x !== w), rnd).slice(0, 3);
       if (i % 2 === 0) out.splice(Math.min(out.length, i + 1), 0, { type: 'mc', id: itemKey(c, lesson, w), word: true, prompt: w.t, q: '', say: w.t,
-        opts: shuffle([w].concat(others).map(x => ({ v: x.t, text: tr(x.tr, explain) })), rnd), answer: w.t });
+        rom: w.rom || null, opts: shuffle([w].concat(others).map(x => ({ v: x.t, text: tr(x.tr, explain) })), rnd), answer: w.t });
       else out.splice(Math.min(out.length, i + 1), 0, { type: 'mc', id: itemKey(c, lesson, w), word: true, reverse: true, prompt: tr(w.tr, explain), q: '', say: w.t,
-        opts: shuffle([w].concat(others).map(x => ({ v: x.t, text: x.t })), rnd), answer: w.t });
+        opts: shuffle([w].concat(others).map(x => ({ v: x.t, text: x.t, sub: x.rom || '' })), rnd), answer: w.t });
     });
     const line = lesson.dialogue.filter(d => d.t.split(' ').length <= 10)[0] || lesson.dialogue[0];
-    if (line) out.push({ type: 'speak', id: lesson.id + ':speak', say: line.t, sub: tr(line.tr, explain) });
+    if (line) out.push({ type: 'speak', id: lesson.id + ':speak', say: line.t, rom: line.rom || null, sub: tr(line.tr, explain) });
     return out;
   }
 
@@ -59,8 +67,8 @@
   function nextLesson(c, prog, level) {
     prog = prog || { lessons: {} };
     if (prog.current) { const cur = lessonById(c, prog.current); if (cur && !(prog.lessons[cur.id] && prog.lessons[cur.id].done)) return cur; }
-    const from = Math.max(0, LEVELS.indexOf(level || 'A1'));
-    const order = c.lessons.filter(l => LEVELS.indexOf(l.level) >= from).concat(c.lessons.filter(l => LEVELS.indexOf(l.level) < from));
+    const ids = levelIds(c), from = Math.max(0, ids.indexOf(level || ids[0]));
+    const order = c.lessons.filter(l => ids.indexOf(l.level) >= from).concat(c.lessons.filter(l => ids.indexOf(l.level) < from));
     return order.find(l => !(prog.lessons[l.id] && prog.lessons[l.id].done)) || null;
   }
   function levelState(c, prog, level) {
@@ -83,5 +91,5 @@
     };
   }
 
-  FGH.academy = { LEVELS, courses, course, courseKey, lessonsAt, lessonById, itemKey, tr, exercises, levelTest, check, norm, nextLesson, levelState, stats };
+  FGH.academy = { LEVELS, levelIds, levelInfo, firstLevel, courses, course, courseKey, lessonsAt, lessonById, itemKey, tr, exercises, levelTest, check, norm, nextLesson, levelState, stats };
 })(typeof window !== 'undefined' ? window : globalThis);

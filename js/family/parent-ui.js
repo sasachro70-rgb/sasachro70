@@ -3,6 +3,9 @@
 (function () {
   'use strict';
   const FGH = window.FGH, K = FGH.kit, F = FGH.family, LG = FGH.ledger, store = FGH.familyStore, A = FGH.actions;
+  /* the course and level of an adult learner, e.g. "Lär dig thailändska · Level 1" or "Swedish A2" */
+  const acName = s => { const AC0 = FGH.academy, c = AC0 && AC0.course(s.target), i = c && AC0.levelInfo ? AC0.levelInfo(c, s.level) : null;
+    return c && c.name ? FGH.kit.L(c.name) + ' · ' + (i ? FGH.kit.t('acLevelN', { n: i.n }) : s.level) : FGH.kit.t('lang.' + s.target) + ' ' + s.level; };
   const KL = FGH.kidsLanguage, AC = FGH.academy;
   const { $, esc, t, L } = K;
   const UNLOCK = 'fgh.parentUnlock', MINUTES = 15;
@@ -77,7 +80,7 @@
     }
     if (adults().length) h += '<h2 class="sec">' + esc(t('pdAdults')) + '</h2><div class="card tablewrap"><table><thead><tr><th></th><th>' + esc(t('pdCourse')) + '</th><th>' + esc(t('pdLessonsDone')) + '</th><th>' + esc(t('pdWeekMin')) + '</th><th>' + esc(t('pdLast')) + '</th></tr></thead><tbody>' +
       adults().map(a => { const s = f.adult[a.id], c = s && AC && AC.course ? AC.course(s.target) : null, pr = s ? (f.learning[a.id] || {})[AC.courseKey(s.target, s.explain)] : null;
-        return '<tr><td>' + esc(a.avatar + ' ' + a.name) + '</td><td>' + (s ? esc(t('lang.' + s.target) + ' ' + s.level) : '–') + '</td><td>' + (c && pr ? Object.values(pr.lessons).filter(r => r.done).length + ' / ' + c.lessons.length : '–') + '</td><td>' + F.weekly(f, a.id).reduce((x, d) => x + d.minutes, 0) + '</td><td>' + esc(pr && pr.lastAt ? K.fmtDate(pr.lastAt) : '–') + '</td></tr>'; }).join('') + '</tbody></table></div>';
+        return '<tr><td>' + esc(a.avatar + ' ' + a.name) + '</td><td>' + (s ? esc(acName(s)) : '–') + '</td><td>' + (c && pr ? Object.values(pr.lessons).filter(r => r.done).length + ' / ' + c.lessons.length : '–') + '</td><td>' + F.weekly(f, a.id).reduce((x, d) => x + d.minutes, 0) + '</td><td>' + esc(pr && pr.lastAt ? K.fmtDate(pr.lastAt) : '–') + '</td></tr>'; }).join('') + '</tbody></table></div>';
     return h;
   }
 
@@ -163,7 +166,7 @@
     if (adults().length) h += '<h2 class="sec">' + esc(t('pdAdults')) + '</h2>' + adults().map(a => {
       const s = f.adult[a.id]; if (!s) return '<p>' + esc(a.avatar + ' ' + a.name) + ': –</p>';
       const c = AC.course(s.target), pr = (f.learning[a.id] || {})[AC.courseKey(s.target, s.explain)], st = AC.stats(c, pr, f.srs[a.id], f.log, a.id);
-      return '<section class="card"><h3 style="margin-top:0">' + esc(a.avatar + ' ' + a.name) + ' · ' + esc(t('lang.' + s.target)) + ' ' + esc(s.level) + '</h3><div class="kpis">' + kpi(st.pct + ' %', t('acProgress')) + kpi(st.done + '/' + st.total, t('acStats.done')) + kpi(st.words, t('acStats.words')) + kpi(st.avg == null ? '–' : st.avg + ' %', t('acStats.avg')) + kpi(K.fmtMin(st.timeMs), t('acStats.time')) + '</div>' +
+      return '<section class="card"><h3 style="margin-top:0">' + esc(a.avatar + ' ' + a.name) + ' · ' + esc(acName(s)) + '</h3><div class="kpis">' + kpi(st.pct + ' %', t('acProgress')) + kpi(st.done + '/' + st.total, t('acStats.done')) + kpi(st.words, t('acStats.words')) + kpi(st.avg == null ? '–' : st.avg + ' %', t('acStats.avg')) + kpi(K.fmtMin(st.timeMs), t('acStats.time')) + '</div>' +
         (pr && pr.tests && pr.tests.length ? '<p>' + pr.tests.slice(-5).map(x => esc(t('acLevelTest', { l: x.level }) + ': ' + x.pct + ' %' + (x.passed ? ' ✓' : ''))).join(' · ') + '</p>' : '') + '</section>';
     }).join('');
     return h || '<p class="muted">' + esc(t('none')) + '</p>';

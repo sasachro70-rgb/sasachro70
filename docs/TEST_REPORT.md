@@ -1,3 +1,38 @@
+# Test report – Thai course, voice settings, home page (31 Oct 2026)
+
+All results below were produced by actually running the tests in the build sandbox on 31 Oct 2026.
+
+| Suite | Command | Result |
+|---|---|---|
+| Existing family, KeyKids and hub tests (`family`, `keykids`, `hub`) | `npm test` | 22/22 pass (unchanged) |
+| New: Thai course, voice logic, per-learner voice settings, home page texts (`tests/thai-voice.test.js`, 6 tests) | `npm test` | 6/6 pass |
+| Database suites (security, online client, points, family sync) | `npm run test:security` | 32/32 pass (same PostgreSQL 16 adapter as below) |
+
+Total: 28 + 32 = 60 tests pass.
+
+**What the new tests check:** Level 1–5 each have lessons; every Thai word and line has Thai script, RTGS romanization and a Swedish
+translation; polite particles are written without a space; Thai word-order answers have no spaces and rebuild from their tiles; every generated
+exercise has its answer among the options; the tone lesson has the five tones สามัญ เอก โท ตรี จัตวา with คา ข่า ค่า ค้า ขา; สวัสดี = sawatdi = Hej
+with the note “En vanlig hälsning på thailändska.”; Continue Learning and level tests work with Level 1–5; the Swedish course keeps A1–C1.
+Voices: only voices of the asked language are listed (a Finnish voice is never offered for Swedish), main accent first, the chosen voice is
+restored, a missing voice is replaced by the closest (name → accent + gender → accent → gender), never a voice of another language;
+sentence splitting, pauses, Thai without added spaces, mixed Swedish/Thai text split by script; settings kept per learner, saved and loaded,
+reset, merged from two devices (newer choice wins); an old speed-slider value is kept.
+
+**Browser run (Chromium + Playwright, voices simulated with 7 named voices because the sandbox has none):** home page in English with hero,
+Kids Zone, Academy, Parent Zone (summary hidden without PIN), 4 language cards, picker Thai → Swedish → `academy.html?course=th&explain=sv`,
+a family game still opens; new adult learner → Thai course setup → tone lesson (graph with 5 curves, ขา read by the Thai voice at 0.85×, slow
+button ≤ 0.6×) → greeting lesson (repeat ×3, speed changed to 1.25× inside the lesson, whole dialogue read line by line by the Thai voice)
+→ all exercises answered → 100 %; voice screen lists Thai/Swedish/English/Spanish voices, select Niwat → saved for this learner → used after
+reload → reset → default voice again; home page Continue Learning shows the learner, course, last lesson, % and words to review; switching
+to the Swedish course and back keeps Thai progress; parent, kids, KeyKids and online pages render. Mobile 375 px: no horizontal scroll.
+No JavaScript errors (only blocked external network in the sandbox). The earlier smoke scripts (points, rewards, KeyKids → ledger) still pass.
+
+**Not tested here:** real voices on real devices (iPhone, Android, Windows) – how each device's Thai voice sounds and which voices exist
+varies; the gender shown is guessed from known voice names. Thai content should be read through by a native speaker before wider use.
+
+---
+
 # Test report – Family learning platform (30 Oct 2026)
 
 ## Automated

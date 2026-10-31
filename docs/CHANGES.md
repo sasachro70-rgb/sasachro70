@@ -1,5 +1,37 @@
 # Changes in this version
 
+## 31 Oct 2026 – Thai course, voice settings, new home page
+
+Built on `feature/family-game-hub` at 216673a. Existing features, files and saved data are kept; no database migration.
+
+**Added**
+
+| File | Purpose |
+|---|---|
+| `content/academy-th.js` | “Lär dig thailändska” – Thai for Swedish speakers, Level 1–5, 14 sample lessons, RTGS romanization, tone lesson |
+| `js/family/voice.js` | Voice choice per learner and language, speed 0.5–1.5× (default 0.85×), sentence splitting, pauses, mixed Thai/Swedish text, recorded-audio support |
+| `js/family/voice-ui.js` | Voice settings screen (preview, select, reset) and the speed bar used in lessons |
+| `tests/thai-voice.test.js` | Thai content checks, voice logic, per-learner settings, home page texts |
+
+**Changed**
+
+| File | Change |
+|---|---|
+| `js/hub-ui.js`, `js/family/hub-bridge.js`, `css/hub.css`, `index.html` | New home page: hero, Kids Zone, Adult Language Academy with language picker and Continue Learning, Parent Zone (summary only after the parent PIN). All games, players and history unchanged |
+| `js/family/academy.js`, `academy-ui.js` | Courses may have their own levels (Thai: Level 1–5); romanization, listen / slow / repeat buttons, tone graph, Thai word-order tiles without spaces, speed bar, voice screen, `?course=&explain=` links. Level per course is remembered |
+| `js/family/kit.js` | `speak()` and `voiceFor()` use the learner’s chosen voice (falls back to the old behaviour if voice.js is not loaded) |
+| `js/family/kids-ui.js` | Central speed bar and voice screen instead of the old speed slider (an old slider value is kept) |
+| `js/family/store.js`, `cloud-sync.js` | New `voice` part in the family record; synced inside the learner’s learning document (newer choice wins) |
+| `js/family/parent-ui.js` | Shows course name and Level for the Thai course |
+| `content/academy-sv.js`, `academy-en-es.js` | Course descriptions for the home page |
+| `academy.html`, `parent.html`, `kids.html` | Load the new files |
+
+**Saved data:** `fgh.family.v1` gets `voice[profileId] = { rate, rateAt, langs: { th: { id, name, region, gender, at } }, lastLang, lastUsed, updated }` and `adult[profileId].levels`. Nothing existing is renamed or removed.
+
+---
+
+## 30 Oct 2026 – learning platform
+
 Built on branch `feature/family-game-hub` (commit 597778d). Existing features, files and saved data are kept.
 
 ## Data migration (browser)
