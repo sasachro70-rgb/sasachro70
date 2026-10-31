@@ -69,3 +69,10 @@ No paid API, no AI service and no analytics are used. Nothing is sent anywhere u
 3. Protected course content (for example the BOOK 42 course) is loaded separately with a SQL file that is **not** in this repository
    (the repository is public). Paste that file into the SQL Editor and run it; run it again to update the content.
 4. Undo: `supabase/rollback/0005_rollback.sql` (export the homework tables first if you want to keep them).
+
+
+## Migration 0006 (Teacher Content Manager)
+
+1. SQL Editor → paste `supabase/migrations/0006_content_manager.sql` → Run (needs 0005). It creates the private bucket `course-media`.
+2. Teachers open **teacher.html → 📚 Course content** (`content.html`).
+3. Undo: `supabase/rollback/0006_rollback.sql` (published courses stay).

@@ -71,6 +71,33 @@
       studentThread: id => rpc('student_thread', { p_assignment: id }),
       studentSubmit: (id, answer, file) => rpc('student_submit', { p_assignment: id, p_answer: answer || '', p_file_path: file ? file.path : null, p_file_name: file ? file.name : null, p_file_type: file ? file.type : null }),
       studentComment: (id, body) => rpc('student_comment', { p_assignment: id, p_body: body }),
+      /* ---------- Teacher Content Manager (migration 0006) ---------- */
+      teacherCourses: () => rpc('teacher_courses'),
+      getCourseDraft: id => rpc('get_course_draft', { p_course: id }),
+      saveCourseDraft: (id, title, doc) => rpc('save_course_draft', { p_course: id, p_title: title, p_doc: doc }),
+      deleteCourseDraft: id => rpc('delete_course_draft', { p_course: id }),
+      publishCourseDraft: id => rpc('publish_course_draft', { p_course: id }),
+      unpublishCourse: id => rpc('unpublish_course', { p_course: id }),
+      courseHistory: id => rpc('course_history', { p_course: id }),
+      restoreCourseVersion: (id, v) => rpc('restore_course_version', { p_course: id, p_version: v }),
+      /* lesson audio and images: private bucket "course-media", path "<course id>/<audio|img>/<name>" */
+      async uploadCourseMedia(courseId, file, kind, name) {
+        if (!file) return null;
+        if (file.size > 20 * 1024 * 1024) throw Object.assign(new Error('file_too_large'), { code: 'file_too_large' });
+        const safe = String(name || file.name || 'fil').normalize('NFC').replace(/[^\w.\-\u0E00-\u0E7F]+/g, '_').slice(-80);
+        const path = courseId + '/' + (kind === 'audio' ? 'audio' : 'img') + '/' + Date.now().toString(36) + '-' + safe;
+        let res;
+        try { res = await client.storage.from('course-media').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false }); } catch (e) { throw toError(e); }
+        if (res.error) throw toError(res.error);
+        return path;
+      },
+      async mediaLinks(paths) {
+        paths = Array.from(new Set((paths || []).filter(Boolean))); if (!paths.length) return {};
+        let res;
+        try { res = await client.storage.from('course-media').createSignedUrls(paths, 3600); } catch (e) { throw toError(e); }
+        if (res.error) throw toError(res.error);
+        const out = {}; (res.data || []).forEach(x => { if (x && x.signedUrl) out[x.path] = x.signedUrl; }); return out;
+      },
       /* files of hand-ins: private bucket "submissions", path "<student id>/<assignment id>/<time>-<name>"; read through a link valid 1 hour */
       async uploadSubmissionFile(studentId, assignmentId, file) {
         if (!file) return null;

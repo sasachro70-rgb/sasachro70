@@ -71,7 +71,7 @@
   function top() {
     const a = V.acc;
     return K.header(t('teacherTitle'), { back: V.screen === 'class' || V.screen === 'cards' ? 'toClasses' : V.screen === 'hw' ? 'toClass' : V.screen === 'thread' ? 'toHw' : null,
-      extra: a && a.signed_in && !a.guest ? '<span class="pill">🧑‍🏫 ' + esc(a.display_name || '') + '</span><button class="btn small" data-act="signOut">' + esc(t('signOut')) + '</button>' : '' });
+      extra: a && a.signed_in && !a.guest ? '<a class="btn small" href="content.html">📚 ' + esc(K.t('cm.title')) + '</a><span class="pill">🧑‍🏫 ' + esc(a.display_name || '') + '</span><button class="btn small" data-act="signOut">' + esc(t('signOut')) + '</button>' : '' });
   }
   function confirmHTML() {
     if (!V.confirm) return '';

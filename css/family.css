@@ -260,3 +260,18 @@ body[data-area="academy"] [lang="th"], body[data-area="academy"] .tw, body[data-
 .msg p { margin: .3rem 0 0; white-space: pre-wrap; }
 .pill { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .65rem; border-radius: 999px; background: var(--shade); font-size: .88rem; font-weight: 600; }
 .hwgrid { width: 100%; }
+.lesson-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 12px; }
+.lesson-images figure { margin: 0; text-align: center; }
+.lesson-images img { width: 100%; height: 140px; object-fit: contain; border-radius: 12px; background: var(--shade); }
+/* Teacher Content Manager (Phase F) */
+.mapgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.blocks { display: grid; gap: 8px; }
+.block { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: start; padding: .6rem .8rem; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.block select { min-height: 40px; }
+.block .bb { overflow-x: auto; }
+.block.role-skip { opacity: .55; }
+.block.role-title { border-left: 4px solid #232A6B; } .block.role-reading { border-left: 4px solid #0E8C80; } .block.role-explanation { border-left: 4px solid #F2A13B; }
+.block.role-words { border-left: 4px solid #8E4EC6; } .block.role-questions { border-left: 4px solid #D6409F; } .block.role-image { border-left: 4px solid #30A46C; }
+.block table td { padding: .15rem .5rem; border-bottom: 1px solid var(--line); }
+textarea { width: 100%; border-radius: 12px; border: 1px solid var(--line); padding: .6rem; font: inherit; background: var(--surface); color: var(--ink); }
+@media (max-width: 600px) { .block { grid-template-columns: 1fr; } }

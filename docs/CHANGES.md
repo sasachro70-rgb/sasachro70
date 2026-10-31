@@ -1,5 +1,37 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase F: Teacher Content Manager
+
+**Database** `supabase/migrations/0006_content_manager.sql` (+ `supabase/rollback/0006_rollback.sql`). Run after 0005 in the SQL Editor.
+Until then the Content Manager says that the database needs the update; everything else keeps working.
+
+* **New page `content.html`** (teacher page → 📚 Course content), only for approved teachers and admins:
+  - **My courses**: create a course (id `t-…`), open, see published version and saved draft.
+  - **Import** – the file is read in the browser, nothing is sent anywhere until the teacher saves:
+    - **Excel (.xlsx) and CSV**: sheet choice, "first row is a header", column mapping (Thai, romanization, Swedish, Thai explanation,
+      note, audio file, lesson, level, picture) guessed from the header and changeable, every row checked with the reason shown
+      (no Thai, no Swedish, unknown level, duplicate…); words grouped into lessons by the lesson and level columns. Old .xls: the page asks
+      for .xlsx or CSV.
+    - **Word (.docx)**: headings, paragraphs, lists, tables and pictures in order; the teacher marks each part as title, reading,
+      explanation, words, questions or picture (a guess is made, nothing is used unmarked).
+    - **PDF**: text per page with pdf.js (loaded from jsDelivr only when a PDF is opened), page range, "mark these pages as…", repair of
+      Thai text split by Word-made PDFs (ท า → ทำ, น ้า → น้ำ, ป ่ า → ป่า). Pages without text (scanned) can be read with OCR
+      (Tesseract, Thai + Swedish) – marked as "can make mistakes"; OCR could not be tested here (no internet).
+    - Lines like "ยาย mormor" are split into Thai and Swedish automatically; "thai | romanization | svenska" works everywhere.
+  - **Lesson editor**: titles (sv/th), level, icon, goal, reading lines, words, explanations (sv/th), open questions; listening questions
+    are made from the words again when the words change; audio files are linked to words by file name (word, romanization or number);
+    pictures; a preview with the real Thai voice.
+  - **Draft → check → publish**: the check lists every problem; publishing asks for confirmation; students see the course at once.
+    **Unpublish** keeps the content as a draft. **Versions**: every earlier publication is kept (append-only) and can be loaded back as a
+    draft (never published automatically).
+* Media: private Storage bucket `course-media` (audio/images ≤ 20 MB). Upload: whoever may edit that course. Read: staff and signed-in
+  students, through links valid 1 hour made after the access check. Imported audio replaces the synthetic voice for that word.
+* Academy lessons show imported pictures. Teacher-made courses appear in the Thai Academy's course list like the others.
+* **Tests**: `tests/import.test.js` (Excel, CSV, Word, PDF text repair, mapping, row checks, engine compatibility; small test files in
+  `tests/fixtures/`), `supabase/tests/content.test.js` (F1–F4: own courses, drafts invisible to students, publish, history, restore,
+  unpublish, media rules, rollback). Browser run: a teacher imports Excel, Word and the real BOOK 42 PDF (page 13), uploads audio, publishes;
+  a student sees the course, the uploaded audio is used, the story is there; a student cannot open the Content Manager.
+
 ## 31 Oct 2026 – Phase H: homework, hand-in, review, feedback; closed Thai Academy; protected course content
 
 **Database** `supabase/migrations/0005_homework_protected_content.sql` (+ `supabase/rollback/0005_rollback.sql`) – additive.

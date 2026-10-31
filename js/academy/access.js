@@ -18,6 +18,21 @@
     A.courses[key] = Object.assign({ target: 'th', explain: ['sv'], passPct: 70, track: 'thai' }, row.doc, { protected: true, version: row.version });
     return key;
   }
+  /* lesson audio and images live in the private bucket "course-media": links valid 1 hour, made after the access check */
+  async function attachMedia(svc, keys) {
+    const C = G.FGH_CONTENT, A = C.academy, paths = [], wordOf = {};
+    keys.forEach(k => (A.courses[k].lessons || []).forEach(l => {
+      for (const t in (l.audio || {})) { paths.push(l.audio[t]); (wordOf[l.audio[t]] = wordOf[l.audio[t]] || []).push(t); }
+      (l.images || []).forEach(im => { if (im && im.path) paths.push(im.path); });
+    }));
+    if (!paths.length || !svc.mediaLinks) return;
+    try {
+      const links = await svc.mediaLinks(paths);
+      C.media = Object.assign(C.media || {}, links);
+      C.audio = C.audio || {}; C.audio.th = C.audio.th || {};
+      for (const p in links) (wordOf[p] || []).forEach(t => { C.audio.th[String(t).replace(/\|/g, '').trim()] = links[p]; });
+    } catch (e) { /* lessons still work with the synthetic voice */ }
+  }
   function reasonOf(e) {
     const m = String((e && (e.message || e.code)) || e || '');
     if (/offline|failed to fetch|network|load failed/i.test(m)) return 'offline';
@@ -37,6 +52,7 @@
     try {
       const list = await svc.listCourseContent();
       for (const it of (list || [])) { const row = await svc.getCourseContent(it.id); const k = register(row); if (k) out.courses.push(k); }
+      await attachMedia(svc, out.courses);
     } catch (e) { out.contentError = reasonOf(e); }
     return out;
   }
