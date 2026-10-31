@@ -1,5 +1,23 @@
 # Changes in this version
 
+## 31 Oct 2026 – ThaiElevate, Phase C: Thai Learning Academy navigation and dashboard
+
+No database change; saved data keeps its keys.
+
+* `academy.html` (and `?course=th`) is now the **Thai Learning Academy**: Thai is the only target language, and children as well as
+  adults can learn (a signed-in school student is a child profile). Its own navigation: Dashboard · Courses · Lessons · Thai Practice ·
+  Learning Games · Classroom · Homework · My Progress.
+* **Explanation language** Svenska / ภาษาไทย on every screen, saved per learner (`adult[pid].thExplain`) and on the device (`te.explain`).
+  Thai explanation texts are not written yet: the app says so and shows Swedish. Thai progress always uses the key `ac:th:sv`, so
+  switching the explanation language never hides progress.
+* **Dashboard:** welcome + name, course and level, Continue / Today's lesson, minutes today, words to review, progress, recent activity.
+  Homework and teacher feedback show an honest "comes in a later update" (built in Phase H).
+* **Learning Games:** Listen and choose, Find the Thai word, Build the sentence – generated from the lessons up to the learner's level;
+  a game counts as study time and never changes lesson results.
+* **Classroom:** shows the signed-in student's class; otherwise links to Student login and the teacher page. Live lessons: Phase G.
+* **Other language courses** (Swedish, English, Spanish) unchanged at `academy.html?course=sv|en|es` (welcome page footer link).
+* Files: `js/family/academy-ui.js`, `js/family/i18n.js` (`tla*` texts in en/sv/th), `css/family.css`, `academy.html`, `index.html`, `tests/welcome.test.js`.
+
 ## 31 Oct 2026 – ThaiElevate, Phase B: new name and two main areas
 
 Built on `feature/family-game-hub` at 043009f. Approved scope: branding + two entry areas. No database change, no saved data renamed,

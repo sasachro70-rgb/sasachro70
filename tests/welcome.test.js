@@ -83,3 +83,19 @@ test('branding: no page title or visible header text says Family Game Hub; Play 
   const FT = load(['js/family/i18n.js']).window.FGH.FT;
   for (const l of ['en', 'sv', 'th']) { assert.equal(FT[l].hub, 'ThaiElevate'); assert.equal(FT[l].playZone, 'Play Zone'); }
 });
+
+test('Thai Learning Academy (Phase C): own navigation, Thai-only mode, explanation sv/th, texts in three languages', () => {
+  const ui = read('js/family/academy-ui.js');
+  assert.ok(ui.includes("const THAI = !params.get('course') || params.get('course') === 'th'"));
+  assert.ok(ui.includes("const TABS = ['home', 'courses', 'lessons', 'practice', 'games', 'classroom', 'homework', 'progress']"));
+  assert.ok(ui.includes("AC.courseKey('th', AC.course('th').explain[0])"), 'Thai progress key does not depend on the explanation language');
+  for (const f of ['dashHTML', 'coursesHTML', 'lessonsHTML', 'practiceHTML', 'gamesHTML', 'classroomHTML', 'homeworkHTML', 'progressHTML']) assert.ok(ui.includes('function ' + f + '('), f);
+  const FT = load(['js/family/i18n.js']).window.FGH.FT;
+  for (const l of ['en', 'sv', 'th']) {
+    for (const k of ['home', 'courses', 'lessons', 'practice', 'games', 'classroom', 'homework', 'progress']) assert.ok(FT[l].tlaNav[k], l + ' tlaNav.' + k);
+    for (const k of ['listen', 'meaning', 'order']) assert.ok(FT[l].tlaGame[k] && FT[l].tlaGame[k + 'D'], l + ' tlaGame.' + k);
+  }
+  assert.equal(FT.th.tlaNav.homework, 'การบ้าน');
+  assert.equal(FT.th.tlaNav.progress, 'ความก้าวหน้าของฉัน');
+  assert.ok(read('index.html').includes('href="academy.html?course=sv" data-t="otherCourses"'), 'other courses stay reachable');
+});

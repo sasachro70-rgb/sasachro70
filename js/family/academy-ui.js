@@ -1,4 +1,10 @@
-/* Adult Language Academy (academy.html): course setup, dashboard with "Continue learning", lessons (dialogue, key words,
+/* academy.html – two modes:
+   - Thai Learning Academy (ThaiElevate, Phase C): academy.html, academy.html?course=th. Thai is the only target language; Swedish or
+     Thai explanations (saved per learner as adult[pid].thExplain, missing Thai texts fall back to Swedish); its own navigation:
+     Dashboard, Courses, Lessons, Thai Practice, Learning Games, Classroom, Homework, My Progress. Children and adults can learn here.
+     Progress keeps the key ac:th:sv whatever the explanation language, so switching never hides progress.
+   - Other language courses: academy.html?course=sv|en|es – the earlier Adult Language Academy, unchanged.
+   Shared: course setup, dashboard with "Continue learning", lessons (dialogue, key words,
    grammar, exercises), level tests, spaced-repetition review and the learner's own word list. */
 (function () {
   'use strict';
@@ -6,15 +12,22 @@
   const VO = FGH.voice, VUI = FGH.voiceUI;
   const { $, esc, t } = K;
   const params = new URLSearchParams(location.search);
+  const THAI = !params.get('course') || params.get('course') === 'th';   // Thai Learning Academy mode
+  const TABS = ['home', 'courses', 'lessons', 'practice', 'games', 'classroom', 'homework', 'progress'];
   let V = { screen: 'home', pid: params.get('p') || sessionStorage.getItem('fgh.adult') || null, showTr: false, skill: null };
   let R = null;    // running exercises / test
   let RV = null;   // review session
 
   const fam = () => store.get();
   const me = () => V.pid && F.getProfile(fam(), V.pid);
-  const setup = p => fam().adult[p.id] || null;
+  /* in the Thai Academy the learner's setup is seen as the Thai course (their other course choice is kept untouched) */
+  const setup = p => {
+    const s = fam().adult[p.id] || null;
+    if (!THAI || !s) return s;
+    return Object.assign({}, s, { target: 'th', explain: s.thExplain === 'th' ? 'th' : 'sv', level: levelFor(s, 'th') });
+  };
   const crs = p => { const s = setup(p); return s && AC.course(s.target); };
-  const ckey = p => { const s = setup(p); return AC.courseKey(s.target, s.explain); };
+  const ckey = p => { const s = setup(p); return THAI ? AC.courseKey('th', AC.course('th').explain[0]) : AC.courseKey(s.target, s.explain); };
   const prog = p => (fam().learning[p.id] || {})[ckey(p)] || { lessons: {}, tests: [], timeMs: 0, lastAt: 0 };
   const deck = p => fam().srs[p.id] || {};
   const ex = () => setup(me()).explain;
@@ -38,10 +51,13 @@
   function render() {
     document.documentElement.lang = K.ui(); document.body.dataset.area = 'academy';
     const p = me();
-    if (!p || p.kind !== 'adult') { V.pid = null; V.screen = 'who'; }
+    if (!p || (!THAI && p.kind !== 'adult')) { V.pid = null; V.screen = 'who'; }
     else {
       /* a course picked on the home page (academy.html?course=th&explain=sv): offer it in the setup, keeping the learner's other progress */
       const want = params.get('course');
+      /* Thai Academy: ?explain=sv|th from the welcome page becomes the learner's explanation language */
+      if (THAI && !V.wantDone && setup(p)) { const e0 = params.get('explain'); if ((e0 === 'sv' || e0 === 'th') && setup(p).explain !== e0) A.updateLearning(p.id, f => { f.adult[p.id].thExplain = e0; }); }
+      if (THAI && !V.wantDone) V.wantDone = true;
       if (want && !V.wantDone && AC.course(want)) {
         V.wantDone = true;
         const s0 = setup(p), c0 = AC.course(want), ex0 = params.get('explain');
@@ -53,33 +69,49 @@
       if (!setup(p) || !crs(p)) V.screen = 'setup';
     }
     VO.use(V.pid);
-    const S = { who: whoHTML, setup: setupHTML, home: homeHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML };
+    const S = { who: whoHTML, setup: setupHTML, home: THAI ? dashHTML : homeHTML, courses: coursesHTML, lessons: lessonsHTML, practice: practiceHTML, games: gamesHTML,
+      classroom: classroomHTML, homework: homeworkHTML, progress: progressHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML };
     $('app').innerHTML = (S[V.screen] || homeHTML)();
     const inp = document.querySelector('[data-focus]'); if (inp) inp.focus();
   }
   function top(title, back) {
     const p = me();
-    return K.header(title, { back, extra: p ? '<button class="btn small" data-act="who">' + esc(p.avatar) + ' ' + esc(p.name) + ' ⇄</button>' : '' });
+    const who = p ? '<button class="btn small" data-act="who">' + esc(p.avatar) + ' ' + esc(p.name) + ' ⇄</button>' : '';
+    if (!THAI) return K.header(title, { back, extra: who });
+    /* Thai Academy: the explanation language can be switched on every screen */
+    const s = p && setup(p), e = s ? s.explain : null;
+    const exSeg = s ? '<div class="seg exseg" role="group" aria-label="Förklaringsspråk / ภาษาที่ใช้ในการอธิบาย"><span class="exlbl" aria-hidden="true">' + esc(t('tlaExplainShort')) + '</span>' +
+      [['sv', 'SV'], ['th', 'ไทย']].map(([v, l]) => '<button data-act="setExplain" data-v="' + v + '" class="' + (e === v ? 'on' : '') + '" aria-pressed="' + (e === v) + '" title="' + esc(v === 'sv' ? 'Svenska – คำอธิบายภาษาสวีเดน' : 'ภาษาไทย – คำอธิบายภาษาไทย') + '">' + l + '</button>').join('') + '</div>' : '';
+    return K.header(title, { back, extra: exSeg + who }) + (TABS.includes(V.screen) && s ? navHTML() : '');
+  }
+  /* the Academy's own navigation (Thai mode) */
+  function navHTML() {
+    const icons = { home: '🏠', courses: '🎓', lessons: '📖', practice: '🗣️', games: '🧩', classroom: '🏫', homework: '📝', progress: '📈' };
+    return '<nav class="acnav" aria-label="' + esc(t('tlaTitle')) + '">' + TABS.map(k => '<button data-act="tab" data-v="' + k + '" class="' + (V.screen === k ? 'on' : '') + '"' + (V.screen === k ? ' aria-current="page"' : '') + '><span aria-hidden="true">' + icons[k] + '</span> ' + esc(t('tlaNav.' + k)) + '</button>').join('') + '</nav>';
   }
 
   /* ---------- who & setup ---------- */
   function whoHTML() {
-    const list = F.activeProfiles(fam(), 'adult');
-    return K.header(t('acTitle')) + '<p class="tagline">' + esc(t('acTag')) + '</p><h2 class="sec">' + esc(t('acWho')) + '</h2>' +
+    const list = F.activeProfiles(fam(), THAI ? null : 'adult');
+    return K.header(t(THAI ? 'tlaTitle' : 'acTitle')) + (THAI ? tlaIntroHTML() : '<p class="tagline">' + esc(t('acTag')) + '</p>') + '<h2 class="sec">' + esc(t(THAI ? 'tlaWho' : 'acWho')) + '</h2>' +
       (list.length ? '<div class="who-grid">' + list.map(p => '<button class="who-card" data-act="pick" data-v="' + esc(p.id) + '"><span class="av" aria-hidden="true">' + esc(p.avatar) + '</span><span class="nm">' + esc(p.name) + '</span>' +
         (fam().adult[p.id] && AC.course(fam().adult[p.id].target) ? '<span class="muted">' + esc(cname(fam().adult[p.id].target)) + ' · ' + esc(lvShort(AC.course(fam().adult[p.id].target), fam().adult[p.id].level)) + '</span>' : '') + '</button>').join('') + '</div>' : '<p class="muted">' + esc(t('noAdults')) + '</p>') +
       '<h2 class="sec">' + esc(t('acNewLearner')) + '</h2><form class="card row" data-form="newAdult" style="margin-top:0"><label for="an">' + esc(t('acName')) + '</label><input id="an" type="text" maxlength="20" autocomplete="off" style="min-height:48px;border-radius:12px;border:2px solid var(--line);padding:.3rem .7rem;font:inherit">' +
       '<select id="aav" style="min-height:48px;font-size:1.4rem;border-radius:12px">' + ['👩', '👨', '🧑', '👵', '👴', '🧔', '👱‍♀️', '🧕'].map(a => '<option>' + a + '</option>').join('') + '</select><button class="btn primary" type="submit">＋ ' + esc(t('acCreate')) + '</button></form>';
   }
+  /* the welcome page's choice (te.explain) is the starting point for a new Thai learner */
+  const thExplainDefault = () => { const e = params.get('explain') || (() => { try { return localStorage.getItem('te.explain'); } catch (x) { return null; } })(); return e === 'th' ? 'th' : 'sv'; };
   function setupHTML() {
-    const p = me(), s = Object.assign({ target: 'sv', explain: K.ui() === 'th' ? 'th' : 'en', level: 'A1', goal: 'daily', minutes: 15 }, setup(p) || {}, V.draft || {});
-    const c = AC.course(s.target); if (c && !c.explain.includes(s.explain)) s.explain = c.explain[0];
+    const p = me(), s = Object.assign({ target: 'sv', explain: K.ui() === 'th' ? 'th' : 'en', level: 'A1', goal: 'daily', minutes: 15 }, setup(p) || {}, THAI ? { target: 'th', explain: thExplainDefault() } : {}, V.draft || {});
+    if (THAI && !V.draft && setup(p)) s.explain = setup(p).explain;
+    const c = AC.course(s.target); if (!THAI && c && !c.explain.includes(s.explain)) s.explain = c.explain[0];
     if (c && !AC.levelIds(c).includes(s.level)) s.level = levelFor(setup(p), s.target);
     V.draft = s;
     const chips = (act, list, cur, lbl) => '<div class="choices">' + list.map(([v, l]) => '<button class="btn' + (String(cur) === String(v) ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '" aria-pressed="' + (String(cur) === String(v)) + '">' + esc(l) + '</button>').join('') + '</div>';
     return top(t('acSetup'), setup(p) ? 'home' : null) + '<div class="card stack">' +
-      '<div class="field"><label>' + esc(t('acTarget')) + '</label>' + chips('dTarget', Object.keys(AC.courses()).map(k => [k, cname(k)]), s.target) + (c && c.desc ? '<p class="muted" style="margin:.3rem 0 0">' + esc(K.L(c.desc)) + '</p>' : '') + '</div>' +
-      '<div class="field"><label>' + esc(t('acExplain')) + '</label>' + chips('dExplain', (c ? c.explain : []).map(k => [k, t('lang.' + k)]), s.explain) + '</div>' +
+      (THAI ? '' : '<div class="field"><label>' + esc(t('acTarget')) + '</label>' + chips('dTarget', Object.keys(AC.courses()).map(k => [k, cname(k)]), s.target) + (c && c.desc ? '<p class="muted" style="margin:.3rem 0 0">' + esc(K.L(c.desc)) + '</p>' : '') + '</div>') +
+      (THAI ? '<div class="field"><label>Förklaringsspråk / <span lang="th">ภาษาที่ใช้ในการอธิบาย</span></label>' + chips('dExplain', [['sv', 'Svenska – คำอธิบายภาษาสวีเดน'], ['th', 'ภาษาไทย – คำอธิบายภาษาไทย']], s.explain) + '</div>'
+        : '<div class="field"><label>' + esc(t('acExplain')) + '</label>' + chips('dExplain', (c ? c.explain : []).map(k => [k, t('lang.' + k)]), s.explain) + '</div>') +
       '<div class="field"><label>' + esc(t('acLevel')) + '</label>' + chips('dLevel', AC.levelIds(c).map(l => [l, lvShort(c, l) + ' · ' + lvName(c, l)]), s.level) + '</div>' +
       '<div class="field"><label>' + esc(t('acGoal')) + '</label>' + chips('dGoal', ['daily', 'work', 'move', 'family', 'travel'].map(g => [g, t('goal_' + g)]), s.goal) + '</div>' +
       '<div class="field"><label>' + esc(t('acMinutes')) + '</label>' + chips('dMin', [5, 10, 15, 20, 30, 45, 60].map(m => [m, m + ' ' + t('minutes')]), s.minutes) + '</div>' +
@@ -104,6 +136,11 @@
         [K.fmtMin(st.timeMs), t('acStats.time')], [st.lastAt ? K.fmtDate(st.lastAt) : '–', t('acStats.last')], [studyDays + '/7', t('acStats.streak')], [goalDays + '/7', t('acStats.goalMet')]].map(([v, l]) => '<div class="kpi"><div class="v">' + esc(v) + '</div><div class="l">' + esc(l) + '</div></div>').join('') + '</div>' +
       '<div class="meter" style="margin-top:12px"><span style="width:' + st.pct + '%"></span></div></section></div>';
     h += '<div class="card">' + K.barChart(week, { title: t('pdChartMin'), unit: t('minutes') }) + '</div>';
+    return h + lessonsBlock(p);
+  }
+  /* the course's lessons per level with the topic filter and level tests (used by the dashboard of other courses and the Thai "Lessons" screen) */
+  function lessonsBlock(p) {
+    const c = crs(p), pr = prog(p); let h = '';
     const skills = Array.from(new Set([].concat(...c.lessons.map(l => l.skills))));
     h += '<h2 class="sec">' + esc(t('acCourse')) + ' <span class="badge-sample">' + esc(t('sample')) + '</span></h2><div class="row" style="margin:0 0 8px"><button class="btn small' + (!V.skill ? ' on' : '') + '" data-act="skill" data-v="">' + esc(t('allTopics')) + '</button>' +
       skills.map(sk => '<button class="btn small' + (V.skill === sk ? ' on' : '') + '" data-act="skill" data-v="' + sk + '">' + esc(t('skills.' + sk)) + '</button>').join('') + '</div>';
@@ -118,6 +155,109 @@
     return h;
   }
 
+  /* ================= Thai Learning Academy screens (Thai mode) ================= */
+  function tlaIntroHTML() {
+    return '<section class="tla-hero"><h1 class="tla-h">📚 ' + esc(t('tlaTitle')) + '</h1><p lang="sv">Strukturerad undervisning i thailändska.</p><p lang="th">ระบบเรียนการสอนภาษาไทยอย่างเป็นระบบ</p></section>';
+  }
+  const pctOf = (c, pr) => Math.round(100 * c.lessons.filter(l => pr.lessons[l.id] && pr.lessons[l.id].done).length / Math.max(1, c.lessons.length));
+  const studentInfo = pid => { try { const x = JSON.parse(localStorage.getItem('fgh.student') || 'null'); return x && x.pid === pid ? x : null; } catch (e) { return null; } };
+  const recent = (pid, n) => (fam().log || []).filter(e => e.pid === pid).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, n || 5);
+  const laterCard = (icon, title, text) => '<section class="card later"><h3>' + icon + ' ' + esc(title) + '</h3><p class="muted">' + esc(text) + '</p></section>';
+  function thNote() { return setup(me()).explain === 'th' ? '<p class="exnote">ℹ️ ' + esc(t('tlaThNote')) + '</p>' : ''; }
+
+  /* Dashboard */
+  function dashHTML() {
+    const p = me(), s = setup(p), c = crs(p), pr = prog(p), dk = deck(p);
+    const next = AC.nextLesson(c, pr, s.level), st = AC.stats(c, pr, dk, fam().log, p.id);
+    const dueN = SRS.due(dk, Date.now(), c.target + ':').length;
+    const week = F.weekly(fam(), p.id), today = week.length ? week[week.length - 1].minutes : 0;
+    let h = top(t('tlaTitle')) + '<h2 class="welcome">' + esc(t('tlaWelcome', { name: p.name })) + '</h2>' +
+      '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(cname('th')) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote();
+    h += '<div class="dash">';
+    h += '<section class="card dcont stack"><p class="muted" style="margin:0">' + esc(pr.current ? t('acContinue') : t('tlaToday')) + '</p>' +
+      (next ? '<h2>' + next.icon + ' ' + esc(T(next.title)) + '</h2><p class="muted" style="margin:0">' + esc(lvShort(c, next.level)) + ' · ' + esc(T(next.goal)) + '</p><button class="btn primary big" data-act="openLesson" data-v="' + esc(next.id) + '">▶ ' + esc(t('acContinue')) + '</button>'
+        : '<h2>🎉 ' + esc(t('acCompleted')) + '</h2>') +
+      '<p style="margin:.4rem 0 0">' + esc(t('tlaTodayMin', { m: today, g: s.minutes || 15 })) + ' · ' + esc(dueN ? t('acReviewToday', { n: dueN }) : t('acNoReview')) + '</p>' +
+      (dueN ? '<button class="btn" data-act="review">🔁 ' + esc(t('acReviewNow')) + '</button>' : '') + '</section>';
+    h += '<section class="card"><h3>📈 ' + esc(t('tlaNav.progress')) + '</h3><div class="meter"><span style="width:' + st.pct + '%"></span></div><p class="muted">' + esc(t('tlaProgLine', { p: st.pct, d: st.done, n: st.total, w: st.words })) + '</p>' +
+      '<button class="btn small" data-act="tab" data-v="progress">' + esc(t('tlaNav.progress')) + ' →</button></section>';
+    h += '<section class="card"><h3>📝 ' + esc(t('tlaNav.homework')) + '</h3><p class="muted">' + esc(t('tlaHomeworkLater')) + '</p></section>';
+    h += '<section class="card"><h3>💬 ' + esc(t('tlaFeedback')) + '</h3><p class="muted">' + esc(t('tlaFeedbackLater')) + '</p></section>';
+    const rc = recent(p.id, 5);
+    h += '<section class="card wide"><h3>🕒 ' + esc(t('tlaRecent')) + '</h3>' + (rc.length ? '<ul class="recent">' + rc.map(e => '<li><span>' + esc(e.title || e.kind || '') + '</span><span class="muted">' + (e.pct != null ? e.pct + ' % · ' : '') + esc(K.fmtDate(e.ts)) + '</span></li>').join('') + '</ul>' : '<p class="muted">' + esc(t('tlaNoRecent')) + '</p>') + '</section>';
+    return h + '</div>';
+  }
+
+  /* Courses: the Thai course, its levels and the learner's settings */
+  function coursesHTML() {
+    const p = me(), s = setup(p), c = crs(p), pr = prog(p);
+    let h = top(t('tlaNav.courses')) + '<section class="card stack"><h2>🇹🇭 ' + esc(cname('th')) + '</h2><p class="muted" style="margin:0">' + esc(t('tlaCourseDesc')) + '</p>' +
+      '<div class="levels">' + AC.levelIds(c).map(lv => { const st = AC.levelState(c, pr, lv); return '<button class="lvcard' + (lv === s.level ? ' on' : '') + '" data-act="setLevel" data-v="' + lv + '" aria-pressed="' + (lv === s.level) + '"><span class="cefr">' + esc(lvBadge(c, lv)) + '</span><b>' + esc(lvName(c, lv)) + '</b><span class="muted">' + st.done + '/' + st.total + (st.passed ? ' · ✓' : '') + '</span></button>'; }).join('') + '</div>' +
+      '<p class="muted" style="margin:0">' + esc(t('tlaLevelHint')) + '</p></section>';
+    h += '<section class="card stack"><h3>Förklaringsspråk / <span lang="th">ภาษาที่ใช้ในการอธิบาย</span></h3><div class="choices">' +
+      [['sv', 'Svenska – คำอธิบายภาษาสวีเดน'], ['th', 'ภาษาไทย – คำอธิบายภาษาไทย']].map(([v, l]) => '<button class="btn' + (s.explain === v ? ' on' : '') + '" data-act="setExplain" data-v="' + v + '" aria-pressed="' + (s.explain === v) + '">' + esc(l) + '</button>').join('') + '</div>' + thNote() +
+      '<div class="row"><button class="btn small" data-act="go" data-v="setup">⚙️ ' + esc(t('acSettings')) + '</button><a class="btn small" href="academy.html?course=sv">' + esc(t('tlaOtherCourses')) + '</a></div></section>';
+    return h;
+  }
+  function lessonsHTML() { return top(t('tlaNav.lessons')) + thNote() + lessonsBlock(me()); }
+
+  /* Thai Practice: pronunciation lessons, word review, my words, voice */
+  function practiceHTML() {
+    const p = me(), c = crs(p), pr = prog(p), dueN = SRS.due(deck(p), Date.now(), 'th:').length;
+    const pron = c.lessons.filter(l => (l.skills || []).includes('pronunciation') || l.practice);
+    const card = (act, v, icon, title, desc) => '<button class="card game" data-act="' + act + '" data-v="' + esc(v || '') + '"><span class="gicon" aria-hidden="true">' + icon + '</span><span class="gname">' + esc(title) + '</span><span class="gdesc">' + esc(desc) + '</span></button>';
+    let h = top(t('tlaNav.practice')) + '<h2 class="sec">🗣️ ' + esc(t('tlaPron')) + '</h2><div class="games">' +
+      pron.map(l => { const r = pr.lessons[l.id]; return card('openLesson', l.id, l.icon, T(l.title), T(l.goal) + (r && r.done ? ' · ✓' : '')); }).join('') + '</div>';
+    h += '<h2 class="sec">🔁 ' + esc(t('tlaWordsSec')) + '</h2><div class="games">' + card('review', '', '🔁', t('acReviewNow'), dueN ? t('acReviewToday', { n: dueN }) : t('acNoReview')) +
+      card('go', 'words', '⭐', t('acFavorites'), t('tlaWordsDesc')) + card('go', 'voice', '🔊', t('voice.title'), t('tlaVoiceDesc')) + '</div>';
+    return h;
+  }
+
+  /* Learning Games: built from the lessons of the learner's level (and the levels below), so they follow the curriculum */
+  const GAMES = { listen: '🎧', meaning: '🔤', order: '🧱' };
+  function gamePool(p) {
+    const c = crs(p), ids = AC.levelIds(c), upTo = ids.indexOf(setup(p).level);
+    return c.lessons.filter(l => ids.indexOf(l.level) <= Math.max(0, upTo));
+  }
+  function gameQs(p, kind) {
+    const c = crs(p), lessons = gamePool(p), all = [].concat(...lessons.map(l => AC.exercises(c, l, ex(), Math.random)));
+    const pick = kind === 'listen' ? all.filter(q => q.type === 'listen' || (q.word && !q.reverse)).map(q => q.type === 'listen' ? q : Object.assign({}, q, { type: 'listen', reveal: q.prompt, opts: q.opts }))
+      : kind === 'meaning' ? all.filter(q => q.word && q.reverse) : all.filter(q => q.type === 'order');
+    for (let i = pick.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pick[i], pick[j]] = [pick[j], pick[i]]; }
+    return pick.slice(0, 10);
+  }
+  function gamesHTML() {
+    const p = me(), lessons = gamePool(p);
+    let h = top(t('tlaNav.games')) + '<p class="muted">' + esc(t('tlaGamesFrom', { n: lessons.length, l: lvShort(crs(p), setup(p).level) })) + '</p><div class="games">';
+    Object.keys(GAMES).forEach(k => { const n = gameQs(p, k).length;
+      h += '<button class="card game" data-act="game" data-v="' + k + '"' + (n ? '' : ' disabled') + '><span class="gicon" aria-hidden="true">' + GAMES[k] + '</span><span class="gname">' + esc(t('tlaGame.' + k)) + '</span><span class="gdesc">' + esc(t('tlaGame.' + k + 'D')) + '</span><span class="btn primary">▶ ' + esc(t('start')) + '</span></button>'; });
+    return h + '</div><p class="muted" style="font-size:.9rem">' + esc(t('tlaGamesNote')) + '</p>';
+  }
+
+  /* Classroom: the signed-in student's class (Student Mode); live lessons come later */
+  function classroomHTML() {
+    const p = me(), si = studentInfo(p.id);
+    let h = top(t('tlaNav.classroom'));
+    h += si ? '<section class="card stack"><h2>🏫 ' + esc(si.className || '') + '</h2><p class="muted" style="margin:0">' + esc(t('tlaClassIn', { name: si.name || p.name, code: si.classCode || '' })) + '</p></section>'
+      : '<section class="card stack"><h2>🏫 ' + esc(t('tlaNav.classroom')) + '</h2><p style="margin:0">' + esc(t('tlaClassJoin')) + '</p><div class="row"><a class="btn primary" href="student.html">🎒 ' + esc(t('tlaStudentLogin')) + '</a><a class="btn" href="teacher.html">🧑‍🏫 ' + esc(t('tlaTeacherPage')) + '</a></div></section>';
+    return h + laterCard('📡', t('tlaLiveTitle'), t('tlaLiveLater'));
+  }
+  function homeworkHTML() { return top(t('tlaNav.homework')) + laterCard('📝', t('tlaNav.homework'), t('tlaHomeworkLater')) + laterCard('💬', t('tlaFeedback'), t('tlaFeedbackLater')); }
+
+  /* My Progress */
+  function progressHTML() {
+    const p = me(), c = crs(p), pr = prog(p), dk = deck(p), st = AC.stats(c, pr, dk, fam().log, p.id);
+    const week = F.weekly(fam(), p.id).map(d => ({ label: d.day, short: K.fmtDay(d.day), value: d.minutes }));
+    let h = top(t('tlaNav.progress')) + '<section class="card"><div class="kpis">' + [[st.pct + ' %', t('acProgress')], [st.done + '/' + st.total, t('acStats.done')], [st.words, t('acStats.words')], [st.avg == null ? '–' : st.avg + ' %', t('acStats.avg')], [K.fmtMin(st.timeMs), t('acStats.time')]]
+      .map(([v, l]) => '<div class="kpi"><div class="v">' + esc(v) + '</div><div class="l">' + esc(l) + '</div></div>').join('') + '</div></section>';
+    h += '<section class="card"><h3>' + esc(t('tlaPerLevel')) + '</h3>' + AC.levelIds(c).map(lv => { const x = AC.levelState(c, pr, lv), pc = Math.round(100 * x.done / Math.max(1, x.total));
+      return '<div class="barrow"><span class="cefr">' + esc(lvBadge(c, lv)) + '</span><span class="bl">' + esc(lvName(c, lv)) + '</span><span class="meter"><span style="width:' + pc + '%"></span></span><span class="muted">' + x.done + '/' + x.total + (x.passed ? ' ✓' : '') + '</span></div>'; }).join('') + '</section>';
+    const skills = Array.from(new Set([].concat(...c.lessons.map(l => l.skills || []))));
+    h += '<section class="card"><h3>' + esc(t('tlaPerSkill')) + '</h3>' + skills.map(sk => { const ls = c.lessons.filter(l => (l.skills || []).includes(sk)), d = ls.filter(l => pr.lessons[l.id] && pr.lessons[l.id].done).length, pc = Math.round(100 * d / Math.max(1, ls.length));
+      return '<div class="barrow"><span aria-hidden="true"></span><span class="bl">' + esc(t('skills.' + sk)) + '</span><span class="meter"><span style="width:' + pc + '%"></span></span><span class="muted">' + d + '/' + ls.length + '</span></div>'; }).join('') + '</section>';
+    return h + '<div class="card">' + K.barChart(week, { title: t('pdChartMin'), unit: t('minutes') }) + '</div>';
+  }
+
   /* ---------- a lesson ---------- */
   function lessonHTML() {
     const p = me(), c = crs(p), l = AC.lessonById(c, V.lesson);
@@ -126,7 +266,7 @@
     const sayBtns = (act, i) => '<span class="saybtns"><button class="ghost" data-act="' + act + '" data-v="' + i + '" aria-label="' + esc(t('listen')) + '" title="' + esc(t('listen')) + '">🔊</button>' +
       '<button class="ghost" data-act="' + act + 'Slow" data-v="' + i + '" aria-label="' + esc(t('voice.slow')) + '" title="' + esc(t('voice.slow')) + '">🐢</button>' +
       (act === 'sayWord' ? '<button class="ghost" data-act="sayWordRep" data-v="' + i + '" aria-label="' + esc(t('voice.repeat')) + '" title="' + esc(t('voice.repeat')) + '">🔁</button>' : '') + '</span>';
-    let h = top(l.icon + ' ' + T(l.title), 'home') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
+    let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote() : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
     if (l.tones) h += tonesHTML(l);
     h += '<section class="card"><div class="row" style="margin:0 0 8px"><h2>' + esc(l.dialogue[0] && l.dialogue[0].who ? t('acDialogue') : t('skills.reading')) + '</h2><span class="grow"></span><button class="btn small" data-act="playAll">▶ ' + esc(t('acPlayAll')) + '</button><button class="btn small" data-act="toggleTr">' + esc(V.showTr ? t('acHideTr') : t('acShowTr')) + '</button></div><div class="dlg">' +
       l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + sayBtns('sayLine', i) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
@@ -225,18 +365,20 @@
         SRS.addCards(dk, l.vocab.map(w => AC.itemKey(c, l, w)), Date.now());
         R.wrongWords.forEach(k => { if (dk[k]) dk[k] = SRS.grade(dk[k], 'again', Date.now()); });
       });
+    } else if (R.kind === 'game') {
+      A.updateLearning(p.id, f => { const co = F.course(f, p.id, ck); co.timeMs += ms; co.lastAt = Date.now(); });
     } else {
       A.updateLearning(p.id, f => { const co = F.course(f, p.id, ck); co.tests = (co.tests || []).concat([{ level: R.level, pct, passed: pct >= c.passPct, at: Date.now() }]).slice(-50); co.timeMs += ms; co.lastAt = Date.now(); });
     }
-    A.finish(p.id, { key: 'ac:' + R.key, area: 'academy', kind: R.kind === 'lesson' ? 'lesson' : 'test', title: '🎓 ' + R.title, ms, score: R.right, max: R.scored, pct, points: false });
+    A.finish(p.id, { key: 'ac:' + R.key, area: 'academy', kind: R.kind === 'lesson' ? 'lesson' : R.kind === 'game' ? 'game' : 'test', title: '🎓 ' + R.title, ms, score: R.right, max: R.scored, pct, points: false });
     R.result = { pct, passed: pct >= c.passPct };
     V.screen = 'done'; K.sfx.win(); render();
   }
   function doneHTML() {
     const c = crs(me()), r = R.result;
     return top(R.title, 'home') + '<section class="card center stack"><div class="emo pop" aria-hidden="true">' + (r.passed ? '🎉' : '📚') + '</div><h2>' + esc(t('yourScore', { n: R.right, m: R.scored })) + ' · ' + r.pct + ' %</h2>' +
-      '<p>' + esc(R.kind === 'test' ? (r.passed ? t('acTestPassed', { l: R.level }) : t('acTestFailed')) : (r.passed ? t('lessonDone') : t('acPassMark', { p: c.passPct }))) + '</p>' +
-      '<div class="row" style="justify-content:center">' + (R.kind === 'lesson' ? '<button class="btn" data-act="openLesson" data-v="' + esc(R.lesson.id) + '">↻ ' + esc(t('again')) + '</button>' : '') + '<button class="btn primary big" data-act="go" data-v="home">' + esc(t('acContinue')) + ' →</button></div></section>';
+      '<p>' + esc(R.kind === 'game' ? t('tlaGameDone') : R.kind === 'test' ? (r.passed ? t('acTestPassed', { l: R.level }) : t('acTestFailed')) : (r.passed ? t('lessonDone') : t('acPassMark', { p: c.passPct }))) + '</p>' +
+      '<div class="row" style="justify-content:center">' + (R.kind === 'lesson' ? '<button class="btn" data-act="openLesson" data-v="' + esc(R.lesson.id) + '">↻ ' + esc(t('again')) + '</button>' : R.kind === 'game' ? '<button class="btn" data-act="game" data-v="' + esc(R.game) + '">↻ ' + esc(t('again')) + '</button>' : '') + '<button class="btn primary big" data-act="go" data-v="' + (THAI && R.kind === 'game' ? 'games' : THAI && R.kind === 'lesson' && V.from ? V.from : 'home') + '">' + esc(t('acContinue')) + ' →</button></div></section>';
   }
 
   /* ---------- spaced repetition review ---------- */
@@ -287,12 +429,22 @@
     dTarget(v) { V.draft.target = v; V.draft.level = levelFor(setup(me()), v); render(); }, dExplain(v) { V.draft.explain = v; render(); }, dLevel(v) { V.draft.level = v; render(); }, dGoal(v) { V.draft.goal = v; render(); }, dMin(v) { V.draft.minutes = +v; render(); },
     saveSetup() {
       const p = me(), d = V.draft;
+      if (THAI) {
+        A.updateLearning(p.id, f => { const old = f.adult[p.id]; f.adult[p.id] = Object.assign({ started: Date.now(), own: [], target: 'th', explain: 'sv', level: d.level }, old || {}, { thExplain: d.explain, goal: d.goal, minutes: d.minutes }); const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { th: d.level }); if (s2.target === 'th') s2.level = d.level; });
+        A.saveProfile(p.id, { goalMin: d.minutes }); V.draft = null; V.screen = 'home'; render(); return;
+      }
       A.updateLearning(p.id, f => { f.adult[p.id] = Object.assign({ started: Date.now(), own: [] }, f.adult[p.id] || {}, { target: d.target, explain: d.explain, level: d.level, goal: d.goal, minutes: d.minutes }); const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { [d.target]: d.level }); });
       A.saveProfile(p.id, { goalMin: d.minutes });
       V.draft = null; V.screen = 'home'; render();
     },
     skill(v) { V.skill = v || null; render(); },
-    openLesson(v) { V.lesson = v; V.screen = 'lesson'; const p = me(); A.updateLearning(p.id, f => F.startLesson(f, p.id, ckey(p), v)); render(); window.scrollTo(0, 0); },
+    /* Thai Academy */
+    tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; render(); window.scrollTo(0, 0); } },
+    setExplain(v) { if (v !== 'sv' && v !== 'th') return; const p = me(); A.updateLearning(p.id, f => { f.adult[p.id].thExplain = v; }); try { localStorage.setItem('te.explain', v); } catch (e) { /* ignore */ } render(); },
+    setLevel(v) { const p = me(); A.updateLearning(p.id, f => { const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { th: v }); if (s2.target === 'th') s2.level = v; }); render(); },
+    game(v) { const p = me(), qs = gameQs(p, v); if (qs.length) startRun('game', qs, { game: v, title: GAMES[v] + ' ' + t('tlaGame.' + v) }); },
+    backFromLesson() { V.screen = V.from && TABS.includes(V.from) ? V.from : 'lessons'; R = null; render(); },
+    openLesson(v) { if (TABS.includes(V.screen)) V.from = V.screen; V.lesson = v; V.screen = 'lesson'; const p = me(); A.updateLearning(p.id, f => F.startLesson(f, p.id, ckey(p), v)); render(); window.scrollTo(0, 0); },
     toggleTr() { V.showTr = !V.showTr; render(); },
     sayLine(v) { const l = AC.lessonById(crs(me()), V.lesson); speak(l.dialogue[+v].t); },
     sayLineSlow(v) { const l = AC.lessonById(crs(me()), V.lesson); speak(l.dialogue[+v].t, null, false, { slow: true }); },

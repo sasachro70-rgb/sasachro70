@@ -4,6 +4,17 @@
   const FGH = G.FGH = G.FGH || {};
   FGH.FT = {
     en: {
+      tlaTitle: 'Thai Learning Academy', tlaWho: 'Who is learning Thai?', tlaExplainShort: 'Explanations',
+      tlaNav: { home: 'Dashboard', courses: 'Courses', lessons: 'Lessons', practice: 'Thai Practice', games: 'Learning Games', classroom: 'Classroom', homework: 'Homework', progress: 'My Progress' },
+      tlaWelcome: 'Welcome, {name}!', tlaToday: "Today's lesson", tlaTodayMin: '{m} of {g} minutes today', tlaProgLine: '{p} % · {d} of {n} lessons · {w} words',
+      tlaFeedback: 'Teacher feedback', tlaHomeworkLater: 'Homework from your teacher will appear here. Hand-in and grading come in a later update.', tlaFeedbackLater: 'Comments from your teacher will appear here in a later update.',
+      tlaRecent: 'Recent activity', tlaNoRecent: 'Nothing yet – start your first lesson.', tlaThNote: 'Thai explanations are being written. Where a text has none yet, the Swedish explanation is shown.',
+      tlaCourseDesc: 'Thai is the language you learn. Pick the level that fits you – your ability counts, not your age.', tlaLevelHint: 'Tap a level to make it your current level. Lessons from every level stay open.', tlaOtherCourses: 'Other language courses',
+      tlaPron: 'Pronunciation and reading', tlaWordsSec: 'Words', tlaWordsDesc: 'Your Thai words with meanings and review status', tlaVoiceDesc: 'Choose the Thai voice and speed (0.5×–1.25×)',
+      tlaGame: { listen: 'Listen and choose', listenD: 'Hear Thai and pick the meaning', meaning: 'Find the Thai word', meaningD: 'See the meaning, pick the Thai word', order: 'Build the sentence', orderD: 'Put the Thai words in the right order' },
+      tlaGamesFrom: 'Built from {n} lessons up to {l}.', tlaGamesNote: 'The games use the words and sentences of your lessons. A finished game counts as study time; it does not change lesson results.', tlaGameDone: 'Game finished – well played!',
+      tlaClassIn: 'Signed in as {name} · class code {code}', tlaClassJoin: 'Join your class with the class code, your student number and the PIN from your teacher.', tlaStudentLogin: 'Student login', tlaTeacherPage: 'Teacher page',
+      tlaLiveTitle: 'Live lessons', tlaLiveLater: 'Following a lesson live with your teacher comes in a later update.', tlaPerLevel: 'Progress per level', tlaPerSkill: 'Lessons per skill',
       hub: 'ThaiElevate', playZone: 'Play Zone', back: 'Back', home: 'Home', open: 'Open', close: 'Close', save: 'Save', saved: 'Saved', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', yes: 'Yes', no: 'No',
       menuLang: 'Menu language', points: 'points', pointsCap: 'Points', minutes: 'min', today: 'today', none: 'Nothing yet', sample: 'Sample content', sampleNote: 'These lessons are sample content to show how the course works. They are not a complete curriculum.',
       saveFailed: 'This browser blocks storage, so progress will be lost when the page closes.',
@@ -77,6 +88,17 @@
       pdSecurityNote: 'On this device the PIN keeps children out of the dashboard. With the family account, the server checks every points change and reward decision.'
     },
     sv: {
+      tlaTitle: 'Thai Learning Academy', tlaWho: 'Vem lär sig thailändska?', tlaExplainShort: 'Förklaringar',
+      tlaNav: { home: 'Översikt', courses: 'Kurser', lessons: 'Lektioner', practice: 'Öva thailändska', games: 'Lärspel', classroom: 'Klassrum', homework: 'Läxor', progress: 'Mina framsteg' },
+      tlaWelcome: 'Välkommen, {name}!', tlaToday: 'Dagens lektion', tlaTodayMin: '{m} av {g} minuter i dag', tlaProgLine: '{p} % · {d} av {n} lektioner · {w} ord',
+      tlaFeedback: 'Lärarens kommentarer', tlaHomeworkLater: 'Läxor från din lärare visas här. Inlämning och bedömning kommer i en senare uppdatering.', tlaFeedbackLater: 'Kommentarer från din lärare visas här i en senare uppdatering.',
+      tlaRecent: 'Senaste aktivitet', tlaNoRecent: 'Inget än – börja din första lektion.', tlaThNote: 'Förklaringar på thai håller på att skrivas. Där en text saknar dem visas den svenska förklaringen.',
+      tlaCourseDesc: 'Du lär dig thailändska. Välj den nivå som passar dig – det är din förmåga som räknas, inte din ålder.', tlaLevelHint: 'Tryck på en nivå för att göra den till din nivå. Lektioner på alla nivåer är öppna.', tlaOtherCourses: 'Andra språkkurser',
+      tlaPron: 'Uttal och läsning', tlaWordsSec: 'Ord', tlaWordsDesc: 'Dina thailändska ord med betydelse och repetition', tlaVoiceDesc: 'Välj thailändsk röst och hastighet (0,5×–1,25×)',
+      tlaGame: { listen: 'Lyssna och välj', listenD: 'Hör thailändska och välj betydelsen', meaning: 'Hitta det thailändska ordet', meaningD: 'Se betydelsen, välj det thailändska ordet', order: 'Bygg meningen', orderD: 'Sätt de thailändska orden i rätt ordning' },
+      tlaGamesFrom: 'Byggda av {n} lektioner till och med {l}.', tlaGamesNote: 'Spelen använder orden och meningarna från dina lektioner. Ett spel räknas som studietid men ändrar inte lektionsresultat.', tlaGameDone: 'Spelet är klart – bra jobbat!',
+      tlaClassIn: 'Inloggad som {name} · klasskod {code}', tlaClassJoin: 'Gå med i din klass med klasskoden, ditt elevnummer och PIN-koden från din lärare.', tlaStudentLogin: 'Elevinloggning', tlaTeacherPage: 'Lärarsidan',
+      tlaLiveTitle: 'Lektioner live', tlaLiveLater: 'Att följa en lektion live med läraren kommer i en senare uppdatering.', tlaPerLevel: 'Framsteg per nivå', tlaPerSkill: 'Lektioner per färdighet',
       hub: 'ThaiElevate', playZone: 'Play Zone', back: 'Tillbaka', home: 'Hem', open: 'Öppna', close: 'Stäng', save: 'Spara', saved: 'Sparat', cancel: 'Avbryt', delete: 'Ta bort', edit: 'Ändra', add: 'Lägg till', yes: 'Ja', no: 'Nej',
       menuLang: 'Menyspråk', points: 'poäng', pointsCap: 'Poäng', minutes: 'min', today: 'idag', none: 'Inget än', sample: 'Exempelinnehåll', sampleNote: 'Lektionerna är exempelinnehåll som visar hur kursen fungerar. De är inte en komplett kursplan.',
       saveFailed: 'Webbläsaren blockerar lagring, så framstegen försvinner när sidan stängs.',
@@ -145,6 +167,17 @@
       pdSecurityNote: 'På den här enheten håller PIN barnen borta från föräldravyn. Med familjekontot kollar servern varje poängändring och beslut om belöningar.'
     },
     th: {
+      tlaTitle: 'Thai Learning Academy', tlaWho: 'ใครกำลังเรียนภาษาไทย', tlaExplainShort: 'คำอธิบาย',
+      tlaNav: { home: 'ภาพรวม', courses: 'คอร์สเรียน', lessons: 'บทเรียน', practice: 'ฝึกภาษาไทย', games: 'เกมเพื่อการเรียน', classroom: 'ห้องเรียน', homework: 'การบ้าน', progress: 'ความก้าวหน้าของฉัน' },
+      tlaWelcome: 'ยินดีต้อนรับ {name}!', tlaToday: 'บทเรียนวันนี้', tlaTodayMin: 'วันนี้เรียนแล้ว {m} จาก {g} นาที', tlaProgLine: '{p} % · {d} จาก {n} บทเรียน · {w} คำ',
+      tlaFeedback: 'ครูแสดงความคิดเห็น', tlaHomeworkLater: 'การบ้านจากครูจะแสดงที่นี่ การส่งงานและการให้คะแนนจะมาในการอัปเดตครั้งต่อไป', tlaFeedbackLater: 'ความคิดเห็นจากครูจะแสดงที่นี่ในการอัปเดตครั้งต่อไป',
+      tlaRecent: 'กิจกรรมล่าสุด', tlaNoRecent: 'ยังไม่มี – เริ่มบทเรียนแรกได้เลย', tlaThNote: 'คำอธิบายภาษาไทยกำลังจัดทำ ส่วนที่ยังไม่มีจะแสดงคำอธิบายภาษาสวีเดนแทน',
+      tlaCourseDesc: 'ภาษาที่เรียนคือภาษาไทย เลือกระดับที่เหมาะกับตัวเอง – ดูจากความสามารถ ไม่ใช่อายุ', tlaLevelHint: 'แตะระดับเพื่อตั้งเป็นระดับปัจจุบัน บทเรียนทุกระดับยังเปิดเรียนได้', tlaOtherCourses: 'คอร์สภาษาอื่น',
+      tlaPron: 'การออกเสียงและการอ่าน', tlaWordsSec: 'คำศัพท์', tlaWordsDesc: 'คำศัพท์ภาษาไทยของคุณ พร้อมความหมายและการทบทวน', tlaVoiceDesc: 'เลือกเสียงภาษาไทยและความเร็ว (0.5×–1.25×)',
+      tlaGame: { listen: 'ฟังแล้วเลือก', listenD: 'ฟังภาษาไทยแล้วเลือกความหมาย', meaning: 'หาคำภาษาไทย', meaningD: 'ดูความหมาย แล้วเลือกคำภาษาไทย', order: 'เรียงประโยค', orderD: 'เรียงคำภาษาไทยให้ถูกลำดับ' },
+      tlaGamesFrom: 'สร้างจาก {n} บทเรียน ถึง {l}', tlaGamesNote: 'เกมใช้คำและประโยคจากบทเรียนของคุณ เล่นจบนับเป็นเวลาเรียน แต่ไม่เปลี่ยนผลบทเรียน', tlaGameDone: 'จบเกมแล้ว – เก่งมาก!',
+      tlaClassIn: 'เข้าสู่ระบบเป็น {name} · รหัสห้อง {code}', tlaClassJoin: 'เข้าห้องเรียนด้วยรหัสห้อง เลขที่นักเรียน และ PIN จากครู', tlaStudentLogin: 'นักเรียนเข้าสู่ระบบ', tlaTeacherPage: 'หน้าครู',
+      tlaLiveTitle: 'เรียนสด', tlaLiveLater: 'การเรียนสดพร้อมครูจะมาในการอัปเดตครั้งต่อไป', tlaPerLevel: 'ความก้าวหน้าแต่ละระดับ', tlaPerSkill: 'บทเรียนแต่ละทักษะ',
       hub: 'ThaiElevate', playZone: 'Play Zone', back: 'กลับ', home: 'หน้าแรก', open: 'เปิด', close: 'ปิด', save: 'บันทึก', saved: 'บันทึกแล้ว', cancel: 'ยกเลิก', delete: 'ลบ', edit: 'แก้ไข', add: 'เพิ่ม', yes: 'ใช่', no: 'ไม่',
       menuLang: 'ภาษาเมนู', points: 'คะแนน', pointsCap: 'คะแนน', minutes: 'นาที', today: 'วันนี้', none: 'ยังไม่มี', sample: 'เนื้อหาตัวอย่าง', sampleNote: 'บทเรียนเหล่านี้เป็นเนื้อหาตัวอย่างเพื่อแสดงวิธีการทำงานของหลักสูตร ยังไม่ใช่หลักสูตรที่สมบูรณ์',
       saveFailed: 'เบราว์เซอร์นี้ปิดการจัดเก็บข้อมูล ความก้าวหน้าจะหายเมื่อปิดหน้า',

@@ -200,3 +200,38 @@ ul.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
   .logincards { grid-template-columns: repeat(3, 1fr); }
   .logincard { border-color: #999; }
 }
+
+/* ---------- Thai Learning Academy (ThaiElevate Phase C): deep indigo navigation, teal for progress, Thai in a looped font ---------- */
+body[data-area="academy"] { --tla: #232A6B; --tla-teal: #0E8C80; --font: "Noto Sans", "Noto Sans Thai Looped", -apple-system, BlinkMacSystemFont, "Segoe UI", "Leelawadee UI", "Thonburi", Roboto, sans-serif; }
+@media (prefers-color-scheme: dark) { body[data-area="academy"] { --tla: #8C96F2; --tla-teal: #4FD1C0; } }
+body[data-area="academy"] [lang="th"], body[data-area="academy"] .tw, body[data-area="academy"] .tl { font-family: "Noto Sans Thai Looped", "Thonburi", "Leelawadee UI", sans-serif; }
+.acnav { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: -4px 0 16px; padding: 4px 2px 8px; border-bottom: 1px solid var(--line); -webkit-overflow-scrolling: touch; }
+.acnav::-webkit-scrollbar { display: none; }
+.acnav button { flex: none; min-height: 44px; border: 1px solid transparent; background: transparent; color: inherit; font: inherit; font-size: .95rem; font-weight: 600; padding: .35rem .85rem; border-radius: 12px; cursor: pointer; white-space: nowrap; }
+.acnav button:hover { background: color-mix(in srgb, var(--tla) 8%, transparent); }
+.acnav button.on { background: var(--tla); color: #fff; }
+@media (prefers-color-scheme: dark) { .acnav button.on { color: #0E1230; } }
+.exseg { align-items: center; }
+.exseg .exlbl { font-size: .8rem; color: var(--muted); padding: 0 .4rem 0 .5rem; }
+.exnote { margin: 0 0 12px; padding: .5rem .8rem; border-left: 3px solid #F2A13B; background: color-mix(in srgb, #F2A13B 10%, var(--surface)); border-radius: 0 10px 10px 0; font-size: .92rem; }
+.tla-hero { margin: 4px 0 8px; }
+.tla-hero .tla-h { color: var(--tla); font-size: clamp(1.6rem, 4.5vw, 2.3rem); margin: 0 0 .3rem; }
+.tla-hero p { margin: 0; color: var(--muted); }
+.welcome { margin: 0 0 .2rem; font-size: 1.5rem; }
+.course-line { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: 0 0 14px; }
+.dash { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.dash > .card { margin: 0; }
+.dash .dcont { grid-row: span 2; border-top: 4px solid var(--tla-teal); }
+.dash .wide { grid-column: 1 / -1; }
+.dash h3, .later h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+.recent { list-style: none; margin: 0; padding: 0; }
+.recent li { display: flex; justify-content: space-between; gap: 12px; padding: .45rem 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.recent li:last-child { border-bottom: 0; }
+.levels { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 10px; }
+.lvcard { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; text-align: left; font: inherit; color: inherit; padding: .8rem; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; min-height: 96px; }
+.lvcard.on { border-color: var(--tla-teal); background: color-mix(in srgb, var(--tla-teal) 10%, var(--surface)); }
+.barrow { display: grid; grid-template-columns: auto minmax(90px, 1.2fr) 2fr auto; align-items: center; gap: 10px; padding: .35rem 0; }
+.barrow .meter { margin: 0; }
+.later { border-style: dashed; }
+.card.game[disabled] { opacity: .5; cursor: default; }
+@media (max-width: 700px) { .dash { grid-template-columns: 1fr; } .dash .dcont { grid-row: auto; } .barrow { grid-template-columns: auto 1fr auto; } .barrow .bl { grid-column: 2; } .barrow .meter { grid-column: 1 / -1; grid-row: 2; } }
