@@ -22,8 +22,11 @@ Limits: no sync between devices; a child who knows browser developer tools could
 ## 3. With a family account (Supabase) – sync between iPad, iPhone, tablet and computer
 
 1. Create a project at supabase.com (free tier is enough). *Authentication → Providers*: enable **Email** and **Anonymous sign-ins** (for guest rooms).
-2. Run both migrations in order: `supabase db push`, or paste `supabase/migrations/0001_family_hub_security.sql`, then
-   `0002_points_rewards_learning.sql` into *SQL Editor* and run them.
+2. Run the migrations in order: `supabase db push`, or paste `supabase/migrations/0001_family_hub_security.sql`, then
+   `0002_points_rewards_learning.sql`, then `0003_accounts_access_control.sql` into *SQL Editor* and run each once.
+   After 0003: create your own account in the app (`online.html` → New account, confirm the e-mail), then run once in the
+   SQL Editor `select private.set_system_owner('your-email');` – that account becomes the System Creator (Super Admin).
+   The same command moves ownership later. Undo 0003 only with `supabase/rollback/0003_rollback.sql`.
 3. *Settings → API*: copy the **Project URL** and the **anon / publishable** key into `js/online/config.js`.
    Never use the `service_role` / secret key; the app refuses it.
 4. *Authentication → URL Configuration*: add `https://sasachro70-rgb.github.io/sasachro70/` as Site URL / redirect URL.

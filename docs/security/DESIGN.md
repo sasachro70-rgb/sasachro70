@@ -192,3 +192,44 @@ browser developer tools could change local data. The PIN then only keeps childre
 
 `supabase/tests/points.test.js` (11 tests) and `supabase/tests/family-sync.test.js` (two devices, upload, earn,
 redeem, approve, merge) run the migrations in PostgreSQL as the real `authenticated` role. See `docs/TEST_REPORT.md`.
+
+## 9. Accounts, approval, roles and permissions (migration 0003)
+
+Additive: no table, policy or function from 0001/0002 is changed. Tests: `supabase/tests/accounts.test.js` (A1–A8).
+
+**Tables.** `app_accounts` (one row per person = auth user id; `account_no` is the short Account ID; `role`
+super_admin / admin / teacher / parent / student / user; `status` pending / approved / rejected / suspended / deactivated),
+`permissions` (catalogue of 14 keys), `admin_permissions` (per Admin), `invitations` (only a SHA-256 hash of the token is
+stored; single use; 1–30 days; revocable), `account_audit` (append-only: a trigger blocks UPDATE, DELETE and TRUNCATE, also
+for SECURITY DEFINER functions and the table owner), `private.system_owner` (exactly one), `private.invite_attempts`.
+
+**Who can do what.**
+
+| Action | Needs |
+|---|---|
+| Create account (request access) | signed in, not a guest → status *pending* |
+| Approve / reject a request | `users.approve` + the permission for the role (`families.manage`, `teachers.manage`, `students.manage`, `users.create`); Admin role never this way |
+| Invite | permission for the role; Admin invitations only by the System Creator |
+| Suspend / re-activate / deactivate | `users.suspend` |
+| Change role | `users.edit` + permission for the new role; to/from Admin only the System Creator |
+| Set an Admin's permissions | System Creator only; `admins.manage` can never be granted |
+| Read accounts / invitations | own row, or `users.view` (token hash never readable) |
+| Read the security log | `security.manage` (System Creator always) |
+| Set or move the System Creator | only `private.set_system_owner(email)` in the Supabase SQL Editor |
+
+Always: nobody acts on their own account (except name/language), nobody acts on the System Creator through the API,
+Admins never act on other Admins, permissions are re-read from the tables on every call, so suspending an Admin removes
+their rights at the next request. Invitation guessing: 5 wrong tokens per 15 minutes per user.
+
+**Existing data.** Every adult already in `family_members` gets an *approved* `parent` account during the migration.
+
+**Not yet enforced (next step, needs its own approval).** The 0001/0002 functions (families, rooms, points, rewards,
+learning) do not check `is_approved()` yet, so a signed-in but unapproved account can still create its own family.
+Enforcing it means adding `public.is_approved()` to those functions and policies.
+
+**Limits.** Supabase Auth itself handles passwords (bcrypt), sign-in rate limits and failed-login logs (Dashboard →
+Logs → Auth); `record_login()` adds a "login" entry to `account_audit` at most every 10 minutes. Ending the sessions of a
+suspended account in Supabase Auth needs the service key; the database already refuses everything at the next request.
+
+**Rollback.** `supabase/rollback/0003_rollback.sql` drops only what 0003 created (export `app_accounts` and
+`account_audit` first if you need them). Tested in A8: families, profiles and points keep working, and 0003 can be applied again.

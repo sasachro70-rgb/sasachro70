@@ -167,10 +167,11 @@ test('the app refuses keys that would bypass the database rules', () => {
   assert.equal(keyProblem('sb_publishable_abc'), null);
   assert.equal(keyProblem(''), 'missing');
   assert.equal(configured({ supabaseUrl: '', supabaseAnonKey: '' }), false);
-  // the shipped config is empty, so online play is off until a parent sets it up
+  // the shipped config holds at most the public publishable key (Phase 0) – never a secret or service_role key
   const cfg = fs.readFileSync(path.join(__dirname, '..', '..', 'js', 'online', 'config.js'), 'utf8');
-  assert.match(cfg, /supabaseAnonKey: ''/);
-  assert.doesNotMatch(cfg.replace(/\/\*[\s\S]*?\*\//, ''), /service_role|sb_secret_|eyJ/, 'no key in the shipped config');
+  const key = (cfg.match(/supabaseAnonKey:\s*'([^']*)'/) || [])[1];
+  assert.ok(key === '' || /^sb_publishable_/.test(key), 'only an empty or publishable key');
+  assert.doesNotMatch(cfg.replace(/\/\*[\s\S]*?\*\//, ''), /service_role|sb_secret_|eyJ/, 'no secret key in the shipped config');
 });
 
 test('auth service: guest sign-in, keeping progress, checks and sign-out', async () => {
