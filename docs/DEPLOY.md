@@ -48,9 +48,11 @@ Limits: no sync between devices; a child who knows browser developer tools could
 | `cdn.jsdelivr.net` (supabase-js 2.45.4) | loaded only when Supabase is configured | with Supabase |
 | Google Fonts (Fredoka, Mali) | KeyKids look; falls back to system fonts | no |
 | Browser Web Speech API – speech synthesis | reading words aloud; depends on the voices installed on the device (Thai, Swedish, English, Spanish) | no – the word is shown when a voice is missing |
+| Google Cloud Text-to-Speech (through the Supabase Edge Function `tts`) | natural Thai voice on devices without a Thai voice | recommended – see "Thai cloud voice" below; the key stays on the server |
+| Google Fonts (Noto Sans, Noto Sans Thai Looped) | Pasathai look; falls back to system fonts | no |
 | Browser Web Speech API – speech recognition | “Speak and repeat” check (Chrome, Edge, Safari 14.5+ partly) | no – “I said it” button otherwise; it compares text, it does not grade pronunciation |
 
-No paid API, no AI service and no analytics are used. Nothing is sent anywhere unless a family account is configured.
+No AI service and no analytics are used. Nothing is sent anywhere unless Supabase is configured. The only service that can cost money is Google Cloud Text-to-Speech, and only above its monthly free amount; the Edge Function has daily limits so it stays inside it (see below).
 
 ## 5. After deploying – checklist
 
@@ -76,3 +78,57 @@ No paid API, no AI service and no analytics are used. Nothing is sent anywhere u
 1. SQL Editor → paste `supabase/migrations/0006_content_manager.sql` → Run (needs 0005). It creates the private bucket `course-media`.
 2. Teachers open **teacher.html → 📚 Course content** (`content.html`).
 3. Undo: `supabase/rollback/0006_rollback.sql` (published courses stay).
+
+
+## Migration 0007 and the Thai cloud voice (important: Thai audio on every device)
+
+Many computers (Windows, Chromebooks, some Android tablets) have **no Thai voice**. Without one, Thai words cannot be read aloud.
+Pasathai therefore asks Google Cloud Text-to-Speech for a natural Thai voice through a small server function. The Google key is
+kept on the server, every sentence is generated once and then reused for everybody, and daily limits stop unexpected costs.
+Devices that already have a good Thai voice (iPad/iPhone "Kanya", Microsoft Edge "Premwadee/Niwat") keep using it.
+
+1. **Database:** SQL Editor → paste `supabase/migrations/0007_thai_cloud_voice.sql` → Run. It creates the usage counter and the
+   private Storage bucket `tts-cache` (only the server function can read or write it).
+2. **Google key:**
+   1. Go to console.cloud.google.com → create a project (e.g. "pasathai") → attach a billing account (Google requires one,
+      even for the free amount).
+   2. *APIs & Services → Library* → **Cloud Text-to-Speech API** → *Enable*.
+   3. *APIs & Services → Credentials → Create credentials → API key*. Then *Edit key → API restrictions → Restrict key* →
+      choose only **Cloud Text-to-Speech API** → Save. Never put this key in the website or in GitHub.
+   4. Recommended: *Billing → Budgets & alerts* → a small budget (e.g. 5 USD) with e-mail alerts.
+3. **Server function:** with the Supabase CLI (`npm i -g supabase` or `brew install supabase/tap/supabase`), from this folder:
+   ```
+   supabase login
+   supabase link --project-ref fgnczbpqkopxemybmtij
+   supabase secrets set GOOGLE_TTS_API_KEY=the-key-from-step-2
+   supabase functions deploy tts --no-verify-jwt
+   ```
+   (Without the CLI: Supabase Dashboard → *Edge Functions → Deploy a new function* → name `tts` → paste
+   `supabase/functions/tts/index.ts` → turn **off** "Verify JWT" → Deploy; then *Edge Functions → Secrets* → add `GOOGLE_TTS_API_KEY`.)
+4. **Check:** open `admin.html` → *System check* → "Thai cloud voice" must be ✓ and shows the voice used
+   (for example `th-TH-Chirp3-HD-Achernar`). In the Academy, *Practice → Voice settings → Thai voice* → "Listen to the cloud voice".
+5. **Optional secrets:** `TTS_ALLOWED_ORIGINS` (other web addresses than https://sasachro70-rgb.github.io), `TTS_VOICE_TYPES`
+   (default `Chirp3-HD,Neural2,Wavenet,Standard`), `TTS_VOICE` (one fixed voice), `TTS_USER_DAILY` (new characters per user/visitor
+   per day, default 6000), `TTS_TOTAL_DAILY` (new characters per day for everybody, default 30000 ≈ 900 000 a month).
+   Already generated sentences are free and do not count.
+6. **Cost (check Google's pricing page, it can change):** Google lists a monthly free amount of 1 million characters for Chirp 3 HD
+   and Neural2 voices and 4 million for Standard/WaveNet voices. The default total limit stays below 1 million a month. To make sure
+   it can never pass the free amount, use `TTS_VOICE_TYPES=Standard` (4 million free) or lower `TTS_TOTAL_DAILY`.
+7. Undo: `supabase/rollback/0007_rollback.sql` and `supabase functions delete tts`. The app then uses the device voices only.
+
+Per device, *Voice settings → Thai voice* chooses **Automatic** (device voice, cloud when there is none – default),
+**Natural cloud voice** (always) or **This device only**. When neither works, lesson pages show how to add a Thai voice for that
+kind of device (iPad/iPhone, Android, Windows, Mac, Chromebook).
+
+
+## Full setup order (new Supabase project)
+
+1. Authentication → Providers: Email ON, **Anonymous sign-ins ON** (student login and guest rooms). Rate limits for anonymous
+   sign-ins raised for school networks.
+2. SQL Editor, in this order, each once: `0001` → `0002` → `0003` (then `select private.set_system_owner('your-email');`) → `0004`
+   → `0005` → `0006` → `0007`.
+3. Storage: `submissions`, `course-media`, `tts-cache` exist and are **private**.
+4. The protected BOOK 42 course: run the separate SQL file (not in this repository).
+5. Edge Function `tts` + secret `GOOGLE_TTS_API_KEY` (section above).
+6. `js/online/config.js`: Project URL + publishable key. Authentication → URL Configuration: the GitHub Pages address.
+7. `admin.html` → System check: everything ✓.

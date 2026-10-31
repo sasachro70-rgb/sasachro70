@@ -296,7 +296,20 @@
         genderNote: 'Browsers do not report a voice’s gender. It is shown when the voice’s name is a known female or male voice, otherwise “not stated”.',
         none: 'This device has no voice for {lang}.', install: 'Add one in the device settings: Windows – Settings › Time & language › Speech; iPhone/iPad/Mac – Accessibility › Spoken content › Voices; Android – Settings › Text-to-speech (Google). Then reload this page.',
         noTTS: 'This browser cannot read text aloud. Words are shown as text.', substitute: 'The voice chosen on another device ({name}) is not on this device, so the closest one is used.',
-        saved: 'Voice saved: {name}', gone: 'That voice is no longer available on this device.'
+        saved: 'Voice saved: {name}', gone: 'That voice is no longer available on this device.',
+        thTitle: 'Thai voice', thMode: 'Where the Thai voice comes from', mode: { auto: 'Automatic', cloud: 'Natural cloud voice', device: 'This device only' },
+        modeHelp: { auto: 'Uses this device’s Thai voice; if it has none, the natural cloud voice.', cloud: 'Always the natural cloud voice (needs internet).', device: 'Only this device’s own voices, never the cloud.' },
+        cloudPreview: 'Listen to the cloud voice', cloudOk: '🔊 Thai is read by a natural cloud voice. It needs internet.', cloudTesting: 'Checking the cloud voice…',
+        cloudDown: { setup: 'The cloud voice is not set up yet on the server.', limit: 'The cloud voice has reached today’s limit. It works again tomorrow.', offline: 'No internet – the cloud voice cannot be reached right now.', error: 'The cloud voice did not answer. Trying again shortly.', not_configured: 'The cloud voice is not set up.', device_mode: 'The cloud voice is switched off on this device.' },
+        noThai: 'This device has no Thai voice, so Thai words cannot be read aloud right now.', noThaiOk: 'This device has no Thai voice of its own – the cloud voice is used instead.',
+        howTitle: 'Add a Thai voice to this device',
+        how: { ios: 'iPhone/iPad: Settings › Accessibility › Spoken Content › Voices › Thai › download a voice (e.g. Kanya). Then reload this page.',
+          android: 'Android: Settings › System › Languages & input › Text-to-speech output › Preferred engine “Speech Services by Google” › ⚙ › Install voice data › Thai. Then reload this page.',
+          windows: 'Windows: Settings › Time & language › Speech › Add voices › Thai (ไทย). Tip: in Microsoft Edge, Thai natural voices (Premwadee, Niwat) are available without installing anything.',
+          mac: 'Mac: System Settings › Accessibility › Spoken Content › System voice › Manage Voices › Thai › Kanya. Then reload this page.',
+          chromeos: 'Chromebook: Settings › Accessibility › Text-to-speech › Speech engine › Google › add Thai voices. Then reload this page.',
+          other: 'Use Chrome or Microsoft Edge and add a Thai voice in the device’s text-to-speech settings. Then reload this page.' },
+        voiceSettings: 'Voice settings'
       }
     },
     sv: {
@@ -311,7 +324,20 @@
         genderNote: 'Webbläsare anger inte rösternas kön. Det visas när röstens namn är en känd kvinno- eller mansröst, annars ”anges inte”.',
         none: 'Enheten har ingen röst för {lang}.', install: 'Lägg till en i enhetens inställningar: Windows – Inställningar › Tid och språk › Tal; iPhone/iPad/Mac – Hjälpmedel › Uppläst innehåll › Röster; Android – Inställningar › Text till tal (Google). Ladda sedan om sidan.',
         noTTS: 'Den här webbläsaren kan inte läsa upp text. Orden visas som text.', substitute: 'Rösten som valdes på en annan enhet ({name}) finns inte här, så den som liknar mest används.',
-        saved: 'Röst sparad: {name}', gone: 'Den rösten finns inte längre på enheten.'
+        saved: 'Röst sparad: {name}', gone: 'Den rösten finns inte längre på enheten.',
+        thTitle: 'Thailändsk röst', thMode: 'Var den thailändska rösten kommer ifrån', mode: { auto: 'Automatiskt', cloud: 'Naturlig molnröst', device: 'Bara den här enheten' },
+        modeHelp: { auto: 'Använder enhetens thailändska röst; om den saknas, den naturliga molnrösten.', cloud: 'Alltid den naturliga molnrösten (kräver internet).', device: 'Bara enhetens egna röster, aldrig molnet.' },
+        cloudPreview: 'Lyssna på molnrösten', cloudOk: '🔊 Thailändska läses av en naturlig molnröst. Den kräver internet.', cloudTesting: 'Kontrollerar molnrösten…',
+        cloudDown: { setup: 'Molnrösten är inte installerad på servern ännu.', limit: 'Molnrösten har nått dagens gräns. Den fungerar igen i morgon.', offline: 'Inget internet – molnrösten kan inte nås just nu.', error: 'Molnrösten svarade inte. Försöker igen strax.', not_configured: 'Molnrösten är inte inställd.', device_mode: 'Molnrösten är avstängd på den här enheten.' },
+        noThai: 'Enheten har ingen thailändsk röst, så thailändska ord kan inte läsas upp just nu.', noThaiOk: 'Enheten har ingen egen thailändsk röst – molnrösten används i stället.',
+        howTitle: 'Lägg till en thailändsk röst på enheten',
+        how: { ios: 'iPhone/iPad: Inställningar › Hjälpmedel › Uppläst innehåll › Röster › Thailändska › ladda ner en röst (t.ex. Kanya). Ladda sedan om sidan.',
+          android: 'Android: Inställningar › System › Språk och inmatning › Text till tal › Önskad motor ”Taltjänster från Google” › ⚙ › Installera röstdata › Thailändska. Ladda sedan om sidan.',
+          windows: 'Windows: Inställningar › Tid och språk › Tal › Lägg till röster › Thailändska (ไทย). Tips: i Microsoft Edge finns naturliga thailändska röster (Premwadee, Niwat) utan installation.',
+          mac: 'Mac: Systeminställningar › Hjälpmedel › Uppläst innehåll › Systemröst › Hantera röster › Thailändska › Kanya. Ladda sedan om sidan.',
+          chromeos: 'Chromebook: Inställningar › Tillgänglighet › Text till tal › Talmotor › Google › lägg till thailändska röster. Ladda sedan om sidan.',
+          other: 'Använd Chrome eller Microsoft Edge och lägg till en thailändsk röst i enhetens text till tal-inställningar. Ladda sedan om sidan.' },
+        voiceSettings: 'Röstinställningar'
       }
     },
     th: {
@@ -326,7 +352,20 @@
         genderNote: 'เบราว์เซอร์ไม่บอกเพศของเสียง จะแสดงเพศเมื่อชื่อเสียงเป็นเสียงหญิงหรือชายที่รู้จัก นอกนั้นแสดงว่า “ไม่ระบุเพศ”',
         none: 'เครื่องนี้ไม่มีเสียงอ่านภาษา{lang}', install: 'เพิ่มเสียงได้ในการตั้งค่าเครื่อง: Windows – การตั้งค่า › เวลาและภาษา › คำพูด; iPhone/iPad/Mac – การช่วยการเข้าถึง › เนื้อหาที่พูด › เสียง; Android – การตั้งค่า › การอ่านออกเสียง (Google) แล้วโหลดหน้านี้ใหม่',
         noTTS: 'เบราว์เซอร์นี้อ่านออกเสียงไม่ได้ จะแสดงเป็นตัวหนังสือแทน', substitute: 'เสียงที่เลือกไว้ในเครื่องอื่น ({name}) ไม่มีในเครื่องนี้ จึงใช้เสียงที่ใกล้เคียงที่สุด',
-        saved: 'บันทึกเสียงแล้ว: {name}', gone: 'เสียงนี้ไม่มีในเครื่องแล้ว'
+        saved: 'บันทึกเสียงแล้ว: {name}', gone: 'เสียงนี้ไม่มีในเครื่องแล้ว',
+        thTitle: 'เสียงภาษาไทย', thMode: 'เสียงภาษาไทยมาจากที่ไหน', mode: { auto: 'อัตโนมัติ', cloud: 'เสียงธรรมชาติจากคลาวด์', device: 'เฉพาะเสียงในเครื่องนี้' },
+        modeHelp: { auto: 'ใช้เสียงไทยของเครื่องนี้ ถ้าไม่มีจะใช้เสียงธรรมชาติจากคลาวด์', cloud: 'ใช้เสียงธรรมชาติจากคลาวด์เสมอ (ต้องมีอินเทอร์เน็ต)', device: 'ใช้เฉพาะเสียงของเครื่อง ไม่ใช้คลาวด์' },
+        cloudPreview: 'ฟังเสียงจากคลาวด์', cloudOk: '🔊 ภาษาไทยอ่านด้วยเสียงธรรมชาติจากคลาวด์ (ต้องมีอินเทอร์เน็ต)', cloudTesting: 'กำลังตรวจเสียงจากคลาวด์…',
+        cloudDown: { setup: 'ยังไม่ได้ติดตั้งเสียงจากคลาวด์บนเซิร์ฟเวอร์', limit: 'เสียงจากคลาวด์ใช้ครบโควตาของวันนี้แล้ว พรุ่งนี้ใช้ได้อีก', offline: 'ไม่มีอินเทอร์เน็ต – ตอนนี้เชื่อมต่อเสียงจากคลาวด์ไม่ได้', error: 'เสียงจากคลาวด์ไม่ตอบ กำลังลองใหม่', not_configured: 'ยังไม่ได้ตั้งค่าเสียงจากคลาวด์', device_mode: 'ปิดเสียงจากคลาวด์ไว้ในเครื่องนี้' },
+        noThai: 'เครื่องนี้ไม่มีเสียงภาษาไทย ตอนนี้จึงอ่านคำภาษาไทยออกเสียงไม่ได้', noThaiOk: 'เครื่องนี้ไม่มีเสียงไทยในตัว – ใช้เสียงจากคลาวด์แทน',
+        howTitle: 'เพิ่มเสียงภาษาไทยให้เครื่องนี้',
+        how: { ios: 'iPhone/iPad: การตั้งค่า › การช่วยการเข้าถึง › เนื้อหาที่พูด › เสียง › ไทย › ดาวน์โหลดเสียง (เช่น Kanya) แล้วโหลดหน้านี้ใหม่',
+          android: 'Android: การตั้งค่า › ระบบ › ภาษาและการป้อนข้อมูล › เอาต์พุตการอ่านออกเสียง › เครื่องมือที่ต้องการ “บริการเสียงพูดโดย Google” › ⚙ › ติดตั้งข้อมูลเสียง › ไทย แล้วโหลดหน้านี้ใหม่',
+          windows: 'Windows: การตั้งค่า › เวลาและภาษา › คำพูด › เพิ่มเสียง › ไทย  เคล็ดลับ: ใน Microsoft Edge มีเสียงไทยธรรมชาติ (Premwadee, Niwat) ใช้ได้ทันทีโดยไม่ต้องติดตั้ง',
+          mac: 'Mac: การตั้งค่าระบบ › การช่วยการเข้าถึง › เนื้อหาที่พูด › เสียงระบบ › จัดการเสียง › ไทย › Kanya แล้วโหลดหน้านี้ใหม่',
+          chromeos: 'Chromebook: การตั้งค่า › การช่วยการเข้าถึง › การอ่านออกเสียง › เครื่องมือเสียงพูด › Google › เพิ่มเสียงไทย แล้วโหลดหน้านี้ใหม่',
+          other: 'ใช้ Chrome หรือ Microsoft Edge และเพิ่มเสียงไทยในการตั้งค่าการอ่านออกเสียงของเครื่อง แล้วโหลดหน้านี้ใหม่' },
+        voiceSettings: 'ตั้งค่าเสียง'
       }
     }
   };

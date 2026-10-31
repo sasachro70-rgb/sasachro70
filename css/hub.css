@@ -1,13 +1,18 @@
-/* Family Game Hub – tablet first: big touch targets (≥ 48 px), works in portrait and landscape, light and dark. */
+/* Pasathai (Play Zone and shared pages) – tablet first: big touch targets (≥ 48 px), works in portrait and landscape, light and dark. */
 :root {
-  --bg: #EEF3F8; --surface: #FFFFFF; --ink: #17212B; --muted: #5A6A78; --line: #D3DEE8;
-  --accent: #2463D1; --accent-ink: #FFFFFF; --good: #17945A; --bad: #D9483B; --sun: #F2B111; --shade: rgba(23, 33, 43, .07);
-  --font: ui-rounded, "SF Pro Rounded", "Avenir Next", "Thonburi", "Leelawadee UI", "Segoe UI", system-ui, sans-serif;
+  /* Pasathai palette (same as the welcome page, css/welcome.css): warm paper background, deep indigo, teal for learning */
+  --bg: #F7F4EE; --surface: #FFFFFF; --ink: #161A33; --muted: #5B6078; --line: #E3DED3;
+  --accent: #343E9A; --accent-ink: #FFFFFF; --good: #17945A; --bad: #D9483B; --sun: #F2B111; --shade: rgba(22, 26, 51, .07);
+  --tla: #232A6B; --tla-teal: #0E8C80;
+  --font: "Noto Sans", "Noto Sans Thai Looped", ui-rounded, "Avenir Next", "Thonburi", "Leelawadee UI", "Segoe UI", system-ui, sans-serif;
+  --thai: "Noto Sans Thai Looped", "Noto Sans", "Thonburi", "Leelawadee UI", system-ui, sans-serif;
   --r: 18px;
 }
 @media (prefers-color-scheme: dark) { :root {
-  --bg: #0F151C; --surface: #18222C; --ink: #E7EEF4; --muted: #9AABBA; --line: #2A3946;
-  --accent: #6FA3FF; --accent-ink: #0B1626; --good: #46C786; --bad: #FF7B6B; --sun: #FFCB45; --shade: rgba(255, 255, 255, .06); color-scheme: dark; } }
+  --bg: #0E1230; --surface: #171C44; --ink: #EEEAF6; --muted: #A9ADCB; --line: #2A3068;
+  --accent: #8C96F2; --accent-ink: #0B1033; --good: #46C786; --bad: #FF7B6B; --sun: #FFCB45; --shade: rgba(255, 255, 255, .06);
+  --tla: #8C96F2; --tla-teal: #4FD1C0; color-scheme: dark; } }
+[lang="th"] { font-family: var(--thai); }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }

@@ -7,6 +7,7 @@
      so another device picks the same voice if it has it, otherwise the closest one (same accent and gender).
    - Long text is split into sentences with short pauses; Thai is never given extra spaces (the "|" word marks in content are removed).
    - A recorded audio file is used instead of the synthetic voice when content/audio lists one for that exact text.
+   - Thai can also come from the cloud (js/family/cloud-voice.js): when the device has no Thai voice, or when the device is set to "cloud".
    The logic part (no DOM) is tested in Node: tests/voice.test.js. */
 (function (G) {
   'use strict';
@@ -121,24 +122,54 @@
   const current = (lang, pid) => choose(voices(), lang, prefFor(fam(), pid || activePid, lang));
   const audioFor = (text, lang) => { const m = G.FGH_CONTENT && G.FGH_CONTENT.audio && G.FGH_CONTENT.audio[lang]; return m ? m[tidy(text)] || null : null; };
   function stop() { playToken++; try { if (hasTTS) G.speechSynthesis.cancel(); } catch (e) { /* ignore */ } if (audioEl) { try { audioEl.pause(); } catch (e) { /* ignore */ } audioEl = null; } }
-  /* plays a queue of { text, lang, voice } pieces with pauses; a new call stops the old one */
+  /* plays a queue of pieces with pauses: { text, voice } (device voice) or { cloud: Promise<url> } (cloud Thai voice); a new call stops the old one */
   function playQueue(queue, rate, token, onDone) {
     let i = 0;
     const next = () => {
       if (token !== playToken) return;
       if (i >= queue.length) { if (onDone) onDone(); return; }
       const q = queue[i++];
+      let ended = false;
+      const fin = () => { if (ended) return; ended = true; if (token === playToken) setTimeout(next, q.pause); };
+      if (q.cloud) {
+        q.cloud.then(url => {
+          if (token !== playToken) return;
+          if (!url || typeof G.Audio === 'undefined') return fin();
+          try {
+            audioEl = new G.Audio(url); audioEl.playbackRate = rate; audioEl.preservesPitch = true;
+            audioEl.onended = fin; audioEl.onerror = fin;
+            const p = audioEl.play(); if (p && p.catch) p.catch(fin);
+          } catch (e) { fin(); }
+        }, fin);
+        return;
+      }
       try {
         const u = new G.SpeechSynthesisUtterance(q.text);
         u.voice = q.voice.voice; u.lang = q.voice.lang; u.rate = rate;
-        let ended = false;
-        const fin = () => { if (ended) return; ended = true; setTimeout(next, q.pause); };
         u.onend = fin; u.onerror = fin;
         G.speechSynthesis.speak(u);
       } catch (e) { setTimeout(next, 0); }
     };
     next();
   }
+  /* Thai goes to the cloud voice when it is switched on and either chosen ("cloud") or the device has no Thai voice ("auto") */
+  const CV = () => FGH.cloudVoice;
+  function cloudFor(lang, pid) {
+    const cv = CV(); if (lang !== 'th' || !cv || !cv.available()) return false;
+    return cv.mode() === 'cloud' || !current('th', pid);
+  }
+  /* cloud pieces: whole lines (fewer requests, natural phrasing); a line longer than the limit is cut at phrase borders */
+  function cloudPieces(text) {
+    const max = (CV() && CV().MAX) || 400, out = [];
+    tidy(text).split('\n').map(l => l.trim()).filter(Boolean).forEach(line => {
+      if (line.length <= max) return out.push(line);
+      let cur = '';
+      chunks(line, 'th').forEach(c => { if (cur && cur.length + c.length + 1 > max) { out.push(cur); cur = ''; } cur = cur ? cur + ' ' + c : c.slice(0, max); });
+      if (cur) out.push(cur);
+    });
+    return out;
+  }
+  const cloudGender = pid => { const p = prefFor(fam(), pid, 'th'); return p && p.gender === 'male' ? 'male' : 'female'; };
   /* reads text aloud for the active learner; false when the device has no voice for that language (the caller then shows the text).
      opts: { rate, pid, voice (a voice entry from listFor, for preview), times (repeat), onDone } */
   function say(text, lang, opts) {
@@ -153,13 +184,18 @@
     }
     return sayTTS();
     function sayTTS() {
-      if (!hasTTS) return false;
-      const main = opts.voice || current(lang, pid); if (!main) return false;
       const queue = [];
       const times = Math.max(1, Math.min(5, opts.times || 1));
+      let main = opts.voice || null;
       for (let r = 0; r < times; r++) {
         segments(text, lang).forEach(seg => {
-          const v = seg.lang === lang ? main : current(seg.lang, pid);
+          if (!opts.voice && cloudFor(seg.lang, pid)) {
+            const g = cloudGender(pid);
+            cloudPieces(seg.text).forEach(c => queue.push({ cloud: CV().get(c, g), pause: pauseAfter(c, rate) }));
+            return;
+          }
+          if (!hasTTS) return;
+          const v = seg.lang === lang ? (main = main || current(lang, pid)) : current(seg.lang, pid);
           if (!v) return;   // a Thai word inside Swedish text with no Thai voice: skipped rather than read by the wrong voice
           chunks(seg.text, seg.lang).forEach(c => queue.push({ text: c, voice: v, pause: pauseAfter(c, rate) }));
         });
@@ -171,6 +207,28 @@
       return true;
     }
   }
+  /* fetches cloud audio for the Thai texts of an open lesson in the background, so ▶ plays at once (only when the cloud voice is in use) */
+  function prefetch(texts, pid) {
+    if (!cloudFor('th', pid || activePid)) return;
+    const g = cloudGender(pid || activePid), seen = new Set();
+    (texts || []).forEach(x => cloudPieces(x).forEach(c => { if (!seen.has(c) && !audioFor(c, 'th') && seen.size < 40) { seen.add(c); CV().get(c, g); } }));
+  }
+  /* can this device read the language aloud at all (its own voice or the cloud Thai voice)? */
+  const canSpeak = (lang, pid) => !!(hasTTS && current(lang, pid)) || cloudFor(lang, pid);
+  /* for the "Thai voice" notice: does the device have a Thai voice, is the cloud voice set up, and which platform is this */
+  function platform() {
+    const ua = String((G.navigator && G.navigator.userAgent) || ''), touch = G.navigator && G.navigator.maxTouchPoints > 1;
+    if (/iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && touch)) return 'ios';
+    if (/Android/.test(ua)) return 'android';
+    if (/Windows/.test(ua)) return 'windows';
+    if (/Macintosh|Mac OS X/.test(ua)) return 'mac';
+    if (/CrOS/.test(ua)) return 'chromeos';
+    return 'other';
+  }
+  function thaiStatus(pid) {
+    const cv = CV();
+    return { device: !!(hasTTS && listFor(voices(), 'th').length), cloud: cv ? cv.status() : { state: 'off', why: 'not_loaded' }, mode: cv ? cv.mode() : 'device', platform: platform(), speaks: canSpeak('th', pid) };
+  }
   if (hasTTS) { try { G.speechSynthesis.getVoices(); } catch (e) { /* ignore */ } }
   const listeners = [];
   if (hasTTS && G.speechSynthesis.addEventListener) { try { G.speechSynthesis.addEventListener('voiceschanged', () => listeners.forEach(fn => { try { fn(); } catch (e) { /* ignore */ } })); } catch (e) { /* ignore */ } }
@@ -178,5 +236,5 @@
 
   FGH.voice = { LOCALE, RATES, DEFAULT_RATE, SAMPLE, genderOf, regionOf, langOf, listFor, regions, choose, chunks, segments, tidy, clampRate, pauseAfter,
     prefsOf, prefFor, setVoice, resetVoice, setRate, used, rateOf, merge,
-    hasTTS, voices, use, current, say, stop, audioFor, onVoices, active: () => activePid };
+    hasTTS, voices, use, current, say, stop, audioFor, onVoices, active: () => activePid, canSpeak, thaiStatus, platform, cloudPieces, prefetch };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,6 +1,6 @@
 /* Family pages (kids area, Adult Language Academy, Parent Dashboard). Loaded after hub.css and reuses its colours. */
-:root { --chart: #2463D1; --kid1: #FF8A3D; --kid2: #7C5CFF; --kid3: #15A67A; --kid4: #E5484D; }
-@media (prefers-color-scheme: dark) { :root { --chart: #6FA3FF; --kid1: #FFA266; --kid2: #A08CFF; --kid3: #3CCB9B; --kid4: #FF7B6B; } }
+:root { --chart: #0E8C80; --kid1: #FF8A3D; --kid2: #7C5CFF; --kid3: #15A67A; --kid4: #E5484D; }
+@media (prefers-color-scheme: dark) { :root { --chart: #4FD1C0; --kid1: #FFA266; --kid2: #A08CFF; --kid3: #3CCB9B; --kid4: #FF7B6B; } }
 .ptitle { font-size: 1.35rem; }
 .top .btn.small { min-height: 44px; }
 .pill { display: inline-flex; align-items: center; gap: .3rem; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: .25rem .8rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -281,3 +281,16 @@ textarea { width: 100%; border-radius: 12px; border: 1px solid var(--line); padd
 .pill.okp { background: color-mix(in srgb, #17945A 18%, var(--surface)); color: #0f6b40; }
 .pill.badp { background: color-mix(in srgb, #D9483B 18%, var(--surface)); color: #a3281d; }
 @media (prefers-color-scheme: dark) { .pill.okp { color: #7be3ad; } .pill.badp { color: #ffb3a8; } }
+
+/* Thai voice card and notice (js/family/voice-ui.js) */
+.vthai .row { flex-wrap: wrap; gap: 6px; }
+.vthai .btn.on { background: var(--tla, #232A6B); color: #fff; border-color: transparent; }
+.vstate { margin: .4rem 0; font-size: .92rem; }
+.vstate.ok { color: #1b7a43; }
+.vstate.warn { color: #9a4b00; }
+.vhow { margin: .4rem 0 0; font-size: .92rem; }
+.vhow summary { cursor: pointer; font-weight: 600; }
+.vhow p { margin: .4rem 0 0; line-height: 1.5; }
+.vbanner { margin: .6rem 0; line-height: 1.5; }
+.vbanner .btn { margin-top: .4rem; }
+@media (prefers-color-scheme: dark) { .vstate.ok { color: #6fd39a; } .vstate.warn { color: #ffb86b; } }

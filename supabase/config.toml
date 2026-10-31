@@ -1,0 +1,4 @@
+# Supabase CLI settings used when deploying the Edge Function: supabase functions deploy tts
+# The function checks the caller itself (publishable keys are not JWTs), so the gateway JWT check is off.
+[functions.tts]
+verify_jwt = false

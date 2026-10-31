@@ -1,5 +1,24 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase I–J: Admin Panel, natural Thai cloud voice, one design, deploy guide
+
+* **Thai voice on every device.** New Supabase Edge Function `supabase/functions/tts` asks Google Cloud Text-to-Speech for a natural
+  Thai voice (best available: Chirp 3 HD → Neural2 → WaveNet → Standard, female or male). The Google key stays on the server.
+  Each sentence is generated once, stored in the private bucket `tts-cache` and reused; daily limits per user/visitor and in total
+  (migration `0007_thai_cloud_voice.sql`). In the browser (`js/family/cloud-voice.js`): automatic when the device has no Thai voice,
+  or always / never per device; sentences are cached in the browser too; lesson audio is fetched in the background when a lesson
+  opens. If the function is missing, offline or over the limit, the device voice is used and nothing breaks.
+  Recorded audio from the Content Manager still comes first.
+* **Thai voice notice.** When a device cannot read Thai at all, the Academy shows why and how to add a Thai voice for that device
+  (iPad/iPhone, Android, Windows, Mac, Chromebook). Voice settings has a new "Thai voice" card. The voice list no longer shows course ids.
+* **Admin Panel** (`admin.html`, System Creator and Admins): access requests, users (role, status, permissions), invitations with a
+  one-time link (`teacher.html?invite=…`), all classes, published courses, security log, and a system check of migrations 0001–0007,
+  Storage buckets, BOOK 42 and the cloud voice. Everything is checked by the database, not by the page.
+* **One design.** All pages use the Pasathai palette (warm paper, deep indigo, teal) and Noto Sans / Noto Sans Thai Looped, light and
+  dark. KeyKids keeps its own fonts. Checked at 390, 820 and 1280 px wide, light and dark: no sideways scrolling on any page.
+* **Docs:** `docs/DEPLOY.md` has the full setup order and step-by-step Google/Supabase instructions for the Thai voice.
+* Tests: `tests/cloud-voice.test.js`, `supabase/tests/tts.test.js`, `supabase/tests/tts-function.test.js`.
+
 ## 31 Oct 2026 – New name: Pasathai
 
 * The product is now called **Pasathai** (ภาษาไทย) instead of ThaiElevate, on every page title, the brand top left

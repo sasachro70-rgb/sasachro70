@@ -18,7 +18,8 @@
       courses: 'Publicerade kurser', version: 'Version', openContent: 'Öppna kursinnehåll', builtIn: 'Inbyggda kurser (i appen)',
       when: 'Tid', who: 'Vem', what: 'Händelse', target: 'Gäller',
       sysTitle: 'Är databasen uppdaterad?', sysHelp: 'Kontrollerar att varje databasuppdatering (migration) är körd och att lagringsplatserna finns. Kör saknade filer i Supabase → SQL Editor i nummerordning.',
-      runCheck: 'Kontrollera nu', ok: 'OK', missing: 'Saknas', mig: { m1: 'Familjer, rum och spel', m2: 'Poäng, belöningar, lärande', m3: 'Konton, roller och behörigheter', m4: 'Klasser och elevinloggning', m5: 'Läxor och skyddat kursinnehåll', m6: 'Kursinnehåll för lärare' },
+      runCheck: 'Kontrollera nu', ok: 'OK', missing: 'Saknas', mig: { m1: 'Familjer, rum och spel', m2: 'Poäng, belöningar, lärande', m3: 'Konton, roller och behörigheter', m4: 'Klasser och elevinloggning', m5: 'Läxor och skyddat kursinnehåll', m6: 'Kursinnehåll för lärare', m7: 'Naturlig thailändsk molnröst' },
+      ttsCheck: 'Thailändsk molnröst (Edge Function "tts")',
       bucket: 'Lagring: {b}', config: 'Supabase-adress och publik nyckel i js/online/config.js', bookContent: 'BOOK 42 i databasen', settings: 'Kontrollera även i Supabase: Authentication → Anonymous sign-ins PÅ (elevinloggning), Rate limits för anonyma inloggningar höjda för skolnätverk, Storage-buckets "submissions" och "course-media" är privata.'
     } },
     en: { adm: {
@@ -36,7 +37,8 @@
       courses: 'Published courses', version: 'Version', openContent: 'Open course content', builtIn: 'Built-in courses (in the app)',
       when: 'Time', who: 'Who', what: 'Event', target: 'Concerns',
       sysTitle: 'Is the database up to date?', sysHelp: 'Checks that every database update (migration) has been run and that the storage buckets exist. Run missing files in Supabase → SQL Editor in number order.',
-      runCheck: 'Check now', ok: 'OK', missing: 'Missing', mig: { m1: 'Families, rooms and games', m2: 'Points, rewards, learning', m3: 'Accounts, roles and permissions', m4: 'Classes and student login', m5: 'Homework and protected content', m6: 'Course content for teachers' },
+      runCheck: 'Check now', ok: 'OK', missing: 'Missing', mig: { m1: 'Families, rooms and games', m2: 'Points, rewards, learning', m3: 'Accounts, roles and permissions', m4: 'Classes and student login', m5: 'Homework and protected content', m6: 'Course content for teachers', m7: 'Natural Thai cloud voice' },
+      ttsCheck: 'Thai cloud voice (Edge Function "tts")',
       bucket: 'Storage: {b}', config: 'Supabase address and public key in js/online/config.js', bookContent: 'BOOK 42 in the database', settings: 'Also check in Supabase: Authentication → Anonymous sign-ins ON (student login), anonymous sign-in rate limits raised for school networks, Storage buckets "submissions" and "course-media" are private.'
     } },
     th: { adm: {
@@ -54,7 +56,8 @@
       courses: 'คอร์สที่เผยแพร่', version: 'ฉบับ', openContent: 'เปิดหน้าจัดการเนื้อหา', builtIn: 'คอร์สในแอป',
       when: 'เวลา', who: 'ผู้ทำ', what: 'เหตุการณ์', target: 'เกี่ยวกับ',
       sysTitle: 'ฐานข้อมูลอัปเดตครบหรือยัง', sysHelp: 'ตรวจว่ารัน migration ครบทุกไฟล์และมีที่เก็บไฟล์ครบ ถ้าขาดไฟล์ไหนให้รันใน Supabase → SQL Editor ตามลำดับเลข',
-      runCheck: 'ตรวจเดี๋ยวนี้', ok: 'เรียบร้อย', missing: 'ยังไม่มี', mig: { m1: 'ครอบครัว ห้องเกม และเกม', m2: 'คะแนน รางวัล การเรียน', m3: 'บัญชี บทบาท และสิทธิ์', m4: 'ห้องเรียนและการเข้าสู่ระบบของนักเรียน', m5: 'การบ้านและเนื้อหาที่ป้องกัน', m6: 'จัดการเนื้อหาสำหรับครู' },
+      runCheck: 'ตรวจเดี๋ยวนี้', ok: 'เรียบร้อย', missing: 'ยังไม่มี', mig: { m1: 'ครอบครัว ห้องเกม และเกม', m2: 'คะแนน รางวัล การเรียน', m3: 'บัญชี บทบาท และสิทธิ์', m4: 'ห้องเรียนและการเข้าสู่ระบบของนักเรียน', m5: 'การบ้านและเนื้อหาที่ป้องกัน', m6: 'จัดการเนื้อหาสำหรับครู', m7: 'เสียงไทยธรรมชาติจากคลาวด์' },
+      ttsCheck: 'เสียงไทยจากคลาวด์ (Edge Function "tts")',
       bucket: 'ที่เก็บไฟล์: {b}', config: 'ที่อยู่ Supabase และคีย์สาธารณะใน js/online/config.js', bookContent: 'หนังสือ BOOK 42 ในฐานข้อมูล', settings: 'ตรวจใน Supabase ด้วย: Authentication → Anonymous sign-ins เปิด (สำหรับนักเรียน), เพิ่ม Rate limit ของ anonymous sign-in สำหรับเครือข่ายโรงเรียน, Storage bucket "submissions" และ "course-media" เป็น private'
     } }
   };

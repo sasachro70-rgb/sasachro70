@@ -246,7 +246,7 @@
     const dueN = SRS.due(dk, Date.now(), c.target + ':').length;
     const week = F.weekly(fam(), p.id), today = week.length ? week[week.length - 1].minutes : 0;
     let h = top(t('tlaTitle')) + '<h2 class="welcome">' + esc(t('tlaWelcome', { name: p.name })) + '</h2>' +
-      '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(K.L(c.name)) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote();
+      '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(K.L(c.name)) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote() + VUI.thaiBannerHTML(p.id);
     h += '<div class="dash">';
     h += '<section class="card dcont stack"><p class="muted" style="margin:0">' + esc(pr.current ? t('acContinue') : t('tlaToday')) + '</p>' +
       (next ? '<h2>' + next.icon + ' ' + esc(T(next.title)) + '</h2><p class="muted" style="margin:0">' + esc(lvShort(c, next.level)) + ' · ' + esc(T(next.goal)) + '</p><button class="btn primary big" data-act="openLesson" data-v="' + esc(next.id) + '">▶ ' + esc(t('acContinue')) + '</button>'
@@ -350,7 +350,8 @@
     const sayBtns = (act, i) => '<span class="saybtns"><button class="ghost" data-act="' + act + '" data-v="' + i + '" aria-label="' + esc(t('listen')) + '" title="' + esc(t('listen')) + '">🔊</button>' +
       '<button class="ghost" data-act="' + act + 'Slow" data-v="' + i + '" aria-label="' + esc(t('voice.slow')) + '" title="' + esc(t('voice.slow')) + '">🐢</button>' +
       (act === 'sayWord' ? '<button class="ghost" data-act="sayWordRep" data-v="' + i + '" aria-label="' + esc(t('voice.repeat')) + '" title="' + esc(t('voice.repeat')) + '">🔁</button>' : '') + '</span>';
-    let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote(l) : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
+    if (c.target === 'th' && VO.prefetch) VO.prefetch((l.dialogue || []).map(d => d.t).concat((l.vocab || []).map(w => w.t)), p.id);
+    let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote(l) + VUI.thaiBannerHTML(p.id) : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
     if (l.tones) h += tonesHTML(l);
     h += '<section class="card"><div class="row" style="margin:0 0 8px"><h2>' + esc(l.dialogue[0] && l.dialogue[0].who ? t('acDialogue') : t('skills.reading')) + '</h2><span class="grow"></span><button class="btn small" data-act="playAll">▶ ' + esc(t('acPlayAll')) + '</button><button class="btn small" data-act="toggleTr">' + esc(V.showTr ? t('acHideTr') : t('acShowTr')) + '</button></div><div class="dlg">' +
       l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + sayBtns('sayLine', i) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
@@ -397,7 +398,7 @@
   const Q = () => R.qs[R.i];
   function runHTML() {
     const q = Q(), st = R.st, target = setup(me()).target;
-    let h = top(R.title, 'home') + VUI.speedHTML(me().id, true) + '<div class="row" style="margin:0 0 8px"><span class="muted">' + esc(t('question', { i: R.i + 1, n: R.qs.length })) + '</span><span class="grow"></span><span class="pill">✓ ' + R.right + '</span></div><div class="meter"><span style="width:' + Math.round(100 * R.i / R.qs.length) + '%"></span></div><div class="stage stack">';
+    let h = top(R.title, 'home') + (THAI ? VUI.thaiBannerHTML(me().id) : '') + VUI.speedHTML(me().id, true) + '<div class="row" style="margin:0 0 8px"><span class="muted">' + esc(t('question', { i: R.i + 1, n: R.qs.length })) + '</span><span class="grow"></span><span class="pill">✓ ' + R.right + '</span></div><div class="meter"><span style="width:' + Math.round(100 * R.i / R.qs.length) + '%"></span></div><div class="stage stack">';
     const opts = () => '<div class="answers">' + q.opts.map(o => { let cls = ''; if (st.answered) cls = String(o.v) === String(q.answer) ? 'good' : String(o.v) === String(st.picked) ? 'bad' : 'dim'; return '<button class="ans ' + cls + (o.sub ? ' sub' : '') + '" data-act="pickAns" data-v="' + esc(o.v) + '"' + (st.answered ? ' disabled' : '') + '>' + esc(o.text) + (o.sub ? '<small class="rom">' + esc(o.sub) + '</small>' : '') + '</button>'; }).join('') + '</div>';
     const sayBtn = (txt, lbl) => '<button class="btn small" data-act="say" data-v="' + esc(txt) + '">🔊 ' + esc(lbl || t('listen')) + '</button>';
     switch (q.type) {
@@ -502,7 +503,9 @@
   /* ---------- voice settings for this learner: the course language first, then the explanation language ---------- */
   function voiceHTML() {
     const p = me(), s = setup(p);
-    const langs = Array.from(new Set([s.target, s.explain].concat(Object.keys(AC.courses()), ['sv', 'th', 'en', 'es'])));
+    /* languages, not course ids: Thai Academy courses (th, thr, b42, t-…) all read Thai */
+    const langs = Array.from(new Set([s.target, s.explain].concat(THAI ? ['th', 'sv'] : Object.values(AC.courses()).map(c => c.target), ['sv', 'th', 'en', 'es'])))
+      .filter(l => VO.LOCALE[l]);
     return top(t('voice.title'), 'home') + VUI.panelHTML(p.id, langs);
   }
 

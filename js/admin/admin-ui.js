@@ -43,10 +43,15 @@
   }
   async function systemCheck() {
     const probes = [['m1', 'is_family_member', { p_family: '00000000-0000-0000-0000-000000000000' }], ['m2', 'point_balance', { p_profile: '00000000-0000-0000-0000-000000000000' }],
-      ['m3', 'my_account', {}], ['m4', 'can_create_classes', {}], ['m5', 'teaching_access', {}], ['m6', 'can_edit_course', { p_id: 't-check' }]];
+      ['m3', 'my_account', {}], ['m4', 'can_create_classes', {}], ['m5', 'teaching_access', {}], ['m6', 'can_edit_course', { p_id: 't-check' }],
+      ['m7', 'tts_take_quota', { p_who: 'check', p_chars: 1, p_limit: 0, p_total: 0 }]];
     const out = [];
     for (const [k, fn, args] of probes) out.push({ key: k, label: (k.slice(1).padStart(4, '0')) + ' · ' + t('mig.' + k), ok: (await svc.probe(fn, args)).ok });
     for (const b of ['submissions', 'course-media']) out.push({ key: b, label: t('bucket', { b }), ok: (await svc.bucketExists(b)).ok });
+    if (FGH.cloudVoice) {
+      const c = await FGH.cloudVoice.check();
+      out.push({ key: 'tts', label: t('ttsCheck') + (c.voice ? ' – ' + c.voice : c.status ? ' (' + c.status + (c.error ? ' ' + c.error : '') + ')' : c.error ? ' (' + c.error + ')' : ''), ok: c.ok });
+    }
     let book = false; try { book = ((await svc.listCourseContent()) || []).some(c => c.id === 'book42'); } catch (e) { book = false; }
     out.push({ key: 'book', label: t('bookContent'), ok: book });
     out.unshift({ key: 'cfg', label: t('config'), ok: FGH.supabaseClient.configured() });
