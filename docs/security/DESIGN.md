@@ -233,3 +233,26 @@ suspended account in Supabase Auth needs the service key; the database already r
 
 **Rollback.** `supabase/rollback/0003_rollback.sql` drops only what 0003 created (export `app_accounts` and
 `account_audit` first if you need them). Tested in A8: families, profiles and points keep working, and 0003 can be applied again.
+
+## 10. Classes, Student Mode and closed family creation (migration 0004)
+
+Tests: `supabase/tests/classes.test.js` (C1–C7), `tests/school.test.js`.
+
+* **Family creation closed.** `create_family()` now refuses everyone except the System Creator (`family_creation_closed`).
+  Existing families, members, profiles, points, rewards and progress are unchanged. The rollback restores the old function.
+* **Classes.** `create_class(name, count | names)` for approved teachers (role `teacher`), the System Creator and Admins with
+  `classes.manage`. A class gets a unique 6-character code; students get numbers 1, 2, 3 … and a random 4-digit PIN, stored as
+  salt + 1000× SHA-256 (same as the parent PIN). PINs are returned once (login cards); a reset makes a new PIN and ends every
+  device session of that student. Teachers see only their own classes (RLS `can_teach`); PIN columns are never readable.
+* **Student sign-in.** The device signs in anonymously (Supabase), then `student_login(code, number, PIN)` binds that device
+  session to the student (`student_sessions`). Permanent accounts cannot become students. Wrong code, number or PIN all answer
+  `wrong`; 5 wrong PINs for one student or 20 wrong tries from one device in 15 minutes → `too_many_attempts`.
+* **Progress.** `student_save_progress(document, revision)` – a stale revision returns the server copy, which the device merges
+  (best results and newest cards from both) and saves again; `student_record_activity(key, …)` stores each finished lesson once,
+  with clamped numbers. Students never read tables; everything goes through `student_me()` and the functions above.
+* **On the device** (`js/school/student-sync.js`): the student is a normal local learner, so all games and lessons work
+  unchanged; changes are saved automatically; logging out saves, ends the session and removes the student's local copy
+  (shared school iPads).
+* **Supabase setting to check:** anonymous sign-ins are rate limited per IP (Authentication → Rate Limits). A whole class
+  signing in from one school network needs a higher limit than the default.
+* **Rollback:** `supabase/rollback/0004_rollback.sql`.

@@ -14,7 +14,7 @@
       academy: 'Adult Language Academy', academySub: 'Learn a New Language', lessons: '{n} lessons', levels: 'Levels: {l}', skillsTitle: 'What you practise',
       wantLearn: 'I want to learn', myExplain: 'My explanation language', startCourse: 'Start this course', onlyReal: 'Only languages that have lessons are shown. All lessons are sample content.',
       cont: 'Continue Learning', contNone: 'No lessons started yet on this device.', firstLesson: 'Start Your First Lesson', review: '{n} words to review', noReview: 'No words to review today', last: 'Last: {l}', open: 'Continue', go: 'Open',
-      parentZone: 'Parent Zone', parentLocked: 'For parents: points, rewards, requests and progress. Needs the parent PIN.', parentOpen: 'Open Parent Dashboard', parentLogin: 'Parent login',
+      school: 'School', schoolSub: 'Student Mode and classes', studentLogin: 'Student login', studentLoginD: 'Sign in with class code, student ID and PIN – continue where you left off', teacherPage: 'Teacher', teacherPageD: 'Create classes, print login cards, follow every student', parentZone: 'Parent Zone', parentLocked: 'For parents: points, rewards, requests and progress. Needs the parent PIN.', parentOpen: 'Open Parent Dashboard', parentLogin: 'Parent login',
       pending: '{n} reward requests waiting', noPending: 'No reward requests waiting', learners: '{n} learners', totalPts: '{n} points in the family',
       sec: 'Learning & rewards', earned: '{name} +{n} points', kidsCourse: 'Kids language', lang: { sv: 'Swedish', th: 'Thai', en: 'English', es: 'Spanish' },
       skills: { conversation: 'Conversation', vocabulary: 'Vocabulary', grammar: 'Grammar', listening: 'Listening', speaking: 'Speaking', reading: 'Reading', writing: 'Writing', pronunciation: 'Pronunciation', work: 'Work', real: 'Real life' }
@@ -26,7 +26,7 @@
       academy: 'Adult Language Academy', academySub: 'Lär dig ett nytt språk', lessons: '{n} lektioner', levels: 'Nivåer: {l}', skillsTitle: 'Det här tränar du',
       wantLearn: 'Jag vill lära mig', myExplain: 'Mitt förklaringsspråk', startCourse: 'Starta kursen', onlyReal: 'Bara språk som har lektioner visas. Alla lektioner är exempelinnehåll.',
       cont: 'Fortsätt lära dig', contNone: 'Inga lektioner påbörjade på den här enheten än.', firstLesson: 'Börja din första lektion', review: '{n} ord att repetera', noReview: 'Inga ord att repetera i dag', last: 'Senast: {l}', open: 'Fortsätt', go: 'Öppna',
-      parentZone: 'Föräldrazon', parentLocked: 'För föräldrar: poäng, belöningar, önskemål och framsteg. Kräver föräldra-PIN.', parentOpen: 'Öppna föräldrapanelen', parentLogin: 'Föräldrainloggning',
+      school: 'Skola', schoolSub: 'Elevläge och klasser', studentLogin: 'Elevinloggning', studentLoginD: 'Logga in med klasskod, elev-ID och PIN – fortsätt där du slutade', teacherPage: 'Lärare', teacherPageD: 'Skapa klasser, skriv ut inloggningskort, följ varje elev', parentZone: 'Föräldrazon', parentLocked: 'För föräldrar: poäng, belöningar, önskemål och framsteg. Kräver föräldra-PIN.', parentOpen: 'Öppna föräldrapanelen', parentLogin: 'Föräldrainloggning',
       pending: '{n} önskemål om belöningar väntar', noPending: 'Inga önskemål väntar', learners: '{n} elever', totalPts: '{n} poäng i familjen',
       sec: 'Lärande och belöningar', earned: '{name} +{n} poäng', kidsCourse: 'Barnspråk', lang: { sv: 'svenska', th: 'thailändska', en: 'engelska', es: 'spanska' },
       skills: { conversation: 'Samtal', vocabulary: 'Ordförråd', grammar: 'Grammatik', listening: 'Hörförståelse', speaking: 'Tala', reading: 'Läsa', writing: 'Skriva', pronunciation: 'Uttal', work: 'Jobb', real: 'Vardag' }
@@ -38,7 +38,7 @@
       academy: 'Adult Language Academy', academySub: 'เรียนภาษาใหม่', lessons: '{n} บทเรียน', levels: 'ระดับ: {l}', skillsTitle: 'ทักษะที่ได้ฝึก',
       wantLearn: 'ฉันอยากเรียน', myExplain: 'ภาษาที่ใช้อธิบาย', startCourse: 'เริ่มคอร์สนี้', onlyReal: 'แสดงเฉพาะภาษาที่มีบทเรียนจริง บทเรียนทั้งหมดเป็นเนื้อหาตัวอย่าง',
       cont: 'เรียนต่อ', contNone: 'ยังไม่ได้เริ่มบทเรียนในเครื่องนี้', firstLesson: 'เริ่มบทเรียนแรก', review: 'คำศัพท์ที่ต้องทบทวน {n} คำ', noReview: 'วันนี้ไม่มีคำต้องทบทวน', last: 'ล่าสุด: {l}', open: 'เรียนต่อ', go: 'เปิด',
-      parentZone: 'โซนผู้ปกครอง', parentLocked: 'สำหรับผู้ปกครอง: คะแนน รางวัล คำขอ และความก้าวหน้า ต้องใช้ PIN ผู้ปกครอง', parentOpen: 'เปิดหน้าผู้ปกครอง', parentLogin: 'เข้าสู่ระบบผู้ปกครอง',
+      school: 'โรงเรียน', schoolSub: 'โหมดนักเรียนและห้องเรียน', studentLogin: 'นักเรียนเข้าสู่ระบบ', studentLoginD: 'เข้าด้วยรหัสห้อง Student ID และ PIN แล้วเรียนต่อจากครั้งก่อน', teacherPage: 'ครู', teacherPageD: 'สร้างห้องเรียน พิมพ์บัตรเข้าระบบ ติดตามนักเรียนทุกคน', parentZone: 'โซนผู้ปกครอง', parentLocked: 'สำหรับผู้ปกครอง: คะแนน รางวัล คำขอ และความก้าวหน้า ต้องใช้ PIN ผู้ปกครอง', parentOpen: 'เปิดหน้าผู้ปกครอง', parentLogin: 'เข้าสู่ระบบผู้ปกครอง',
       pending: 'มีคำขอแลกรางวัลรออยู่ {n} รายการ', noPending: 'ไม่มีคำขอรออยู่', learners: 'ผู้เรียน {n} คน', totalPts: 'คะแนนรวมของครอบครัว {n}',
       sec: 'เรียนรู้และรางวัล', earned: '{name} +{n} คะแนน', kidsCourse: 'ภาษาสำหรับเด็ก', lang: { sv: 'สวีเดน', th: 'ไทย', en: 'อังกฤษ', es: 'สเปน' },
       skills: { conversation: 'สนทนา', vocabulary: 'คำศัพท์', grammar: 'ไวยากรณ์', listening: 'การฟัง', speaking: 'การพูด', reading: 'การอ่าน', writing: 'การเขียน', pronunciation: 'การออกเสียง', work: 'การทำงาน', real: 'สถานการณ์จริง' }
@@ -144,6 +144,13 @@
     return h;
   }
 
+  /* ---------- School: Student Mode and the teacher page ---------- */
+  function schoolHTML(ui, esc) {
+    const card = (href, icon, name, desc) => '<a class="card game" href="' + href + '"><span class="gicon" aria-hidden="true">' + icon + '</span><span class="gname">' + esc(name) + '</span><span class="gdesc">' + esc(desc) + '</span><span class="btn">' + esc(tx(ui, 'go')) + ' →</span></a>';
+    return '<section id="zone-school" class="zone school"><h2 class="sec">🏫 ' + esc(tx(ui, 'school')) + ' <span class="zsub">' + esc(tx(ui, 'schoolSub')) + '</span></h2><div class="games">' +
+      card('student.html', '🎒', tx(ui, 'studentLogin'), tx(ui, 'studentLoginD')) + card('teacher.html', '🧑‍🏫', tx(ui, 'teacherPage'), tx(ui, 'teacherPageD')) + '</div></section>';
+  }
+
   /* ---------- Parent Zone: a locked entrance for everyone; the summary only after the PIN was entered in this tab ---------- */
   const unlocked = () => { try { return +sessionStorage.getItem('fgh.parentUnlock') > Date.now(); } catch (e) { return false; } };
   function parentHTML(ui, esc) {
@@ -161,5 +168,5 @@
   };
   /* kept for older callers: the learning cards as one section */
   function homeHTML(ui, esc) { return academyHTML(ui, esc) + parentHTML(ui, esc); }
-  FGH.hubBridge = { matchFinished, heroHTML, kidsZoneHTML, academyHTML, continueHTML, parentHTML, homeHTML, progressRows, acts, TXT };
+  FGH.hubBridge = { matchFinished, heroHTML, kidsZoneHTML, academyHTML, continueHTML, schoolHTML, parentHTML, homeHTML, progressRows, acts, TXT };
 })(window);

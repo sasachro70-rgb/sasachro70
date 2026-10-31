@@ -1,5 +1,18 @@
 # Changes in this version
 
+## 31 Oct 2026 – Classes and Student Mode (step A)
+
+* **Database** `supabase/migrations/0004_classes_students.sql` (+ `supabase/rollback/0004_rollback.sql`): classes, students with
+  class code + student ID + PIN, device sessions, progress and activity saved on the server. `create_family()` closed except for the System Creator.
+* **New pages** `teacher.html` (sign in, ask for teacher access, create classes by number or list of names, printable login cards,
+  progress per student, add students, new PIN, rename, archive) and `student.html` (student login, Continue where you left off, log out).
+* **New files** `js/school/school-service.js`, `school-i18n.js`, `teacher-ui.js`, `student-ui.js`, `student-sync.js`; tests
+  `supabase/tests/classes.test.js`, `tests/school.test.js`.
+* **Changed** `kids.html` (saves a signed-in student's progress), `js/online/online-ui.js` + `i18n-online.js` (no "new family" form;
+  links to the teacher and student pages), `js/family/hub-bridge.js` + `js/hub-ui.js` (School section on the home page),
+  `css/family.css` (forms, login cards, print), docs.
+* Not yet: homework PDFs (step B).
+
 ## 31 Oct 2026 – Thai course, voice settings, new home page
 
 Built on `feature/family-game-hub` at 216673a. Existing features, files and saved data are kept; no database migration.

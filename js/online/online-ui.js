@@ -159,7 +159,8 @@
     h += '<h2 class="sec">' + esc(t('on_families')) + '</h2>';
     if (!V.families.length) h += '<p class="muted">' + esc(t('on_noFamily')) + '</p>';
     else h += '<div class="choices">' + V.families.map(f => '<button class="btn ' + (f.id === V.famId ? 'on' : '') + '" data-act="fam" data-v="' + f.id + '">' + esc(f.name) + ' · ' + esc(t('on_role_' + f.role)) + '</button>').join('') + '</div>';
-    h += '<form data-form="family" class="row"><input id="famname" type="text" maxlength="60" placeholder="' + esc(t('on_familyName')) + '" required><button class="btn" type="submit">＋ ' + esc(t('on_newFamily')) + '</button></form>';
+    /* new families are closed (migration 0004); classes are created by teachers on teacher.html */
+    h += '<p class="row"><a class="btn" href="teacher.html">🧑‍🏫 ' + esc(t('on_teacherPage')) + '</a><a class="btn" href="student.html">🎒 ' + esc(t('on_studentPage')) + '</a></p>';
     const fam = V.families.find(f => f.id === V.famId);
     if (!fam || !V.fam) return h;
     const admin = fam.role === 'owner' || fam.role === 'manager';

@@ -27,6 +27,9 @@ Limits: no sync between devices; a child who knows browser developer tools could
    After 0003: create your own account in the app (`online.html` → New account, confirm the e-mail), then run once in the
    SQL Editor `select private.set_system_owner('your-email');` – that account becomes the System Creator (Super Admin).
    The same command moves ownership later. Undo 0003 only with `supabase/rollback/0003_rollback.sql`.
+   Then run `0004_classes_students.sql` once (classes and Student Mode; closes new family creation). Check
+   *Authentication → Rate Limits → anonymous sign-ins*: a whole class signing in from one school network needs more than the default.
+   Teachers: ask for access on `teacher.html`, approve them as *teacher* (or invite them). Students sign in on `student.html`.
 3. *Settings → API*: copy the **Project URL** and the **anon / publishable** key into `js/online/config.js`.
    Never use the `service_role` / secret key; the app refuses it.
 4. *Authentication → URL Configuration*: add `https://sasachro70-rgb.github.io/sasachro70/` as Site URL / redirect URL.

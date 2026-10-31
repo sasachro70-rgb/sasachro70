@@ -121,7 +121,7 @@
     const cards = core.listGames().map(g => '<button class="card game" data-act="setup" data-v="' + g.id + '"><span class="gicon" aria-hidden="true">' + g.icon + '</span><span class="gname">' + esc(L(g.name)) + '</span><span class="gdesc">' + esc(L(g.desc)) + '</span><span class="btn primary">▶ ' + esc(t('play')) + '</span></button>').join('') +
       '<a class="card game" href="keykids.html"><span class="gicon" aria-hidden="true">⌨️</span><span class="gname">' + esc(t('keykidsName')) + '</span><span class="gdesc">' + esc(t('keykidsDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>' +
       '<a class="card game" href="online.html"><span class="gicon" aria-hidden="true">🌐</span><span class="gname">' + esc(t('onlineName')) + '</span><span class="gdesc">' + esc(t('onlineDesc')) + '</span><span class="btn">' + esc(t('open')) + ' →</span></a>';
-    if (B && B.kidsZoneHTML) h += B.kidsZoneHTML(S.ui, esc, cards) + B.academyHTML(S.ui, esc);
+    if (B && B.kidsZoneHTML) h += B.kidsZoneHTML(S.ui, esc, cards) + B.academyHTML(S.ui, esc) + (B.schoolHTML ? B.schoolHTML(S.ui, esc) : '');
     else h += '<h2 class="sec">' + esc(t('games')) + '</h2><div class="games">' + cards + '</div>';
     h += '<h2 class="sec">' + esc(t('players')) + '</h2><div class="card"><p class="chips">' + (S.players.length ? S.players.map(chip).join(' ') : esc(t('noPlayers'))) + '</p>' +
       '<div class="row"><button class="btn" data-act="go" data-v="players">👥 ' + esc(t('players')) + '</button><button class="btn" data-act="newPlayer">＋ ' + esc(t('addPlayer')) + '</button></div></div>';
