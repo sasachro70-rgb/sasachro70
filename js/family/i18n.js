@@ -4,7 +4,7 @@
   const FGH = G.FGH = G.FGH || {};
   FGH.FT = {
     en: {
-      hub: 'Family Game Hub', back: 'Back', home: 'Home', open: 'Open', close: 'Close', save: 'Save', saved: 'Saved', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', yes: 'Yes', no: 'No',
+      hub: 'ThaiElevate', playZone: 'Play Zone', back: 'Back', home: 'Home', open: 'Open', close: 'Close', save: 'Save', saved: 'Saved', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', add: 'Add', yes: 'Yes', no: 'No',
       menuLang: 'Menu language', points: 'points', pointsCap: 'Points', minutes: 'min', today: 'today', none: 'Nothing yet', sample: 'Sample content', sampleNote: 'These lessons are sample content to show how the course works. They are not a complete curriculum.',
       saveFailed: 'This browser blocks storage, so progress will be lost when the page closes.',
       whoPlays: 'Who is learning?', addInParent: 'Ask a parent to add you in the Parent Dashboard.', noChildren: 'No children yet. A parent can add them in the Parent Dashboard.', noAdults: 'No adult learners yet. Add one below or in the Parent Dashboard.',
@@ -77,7 +77,7 @@
       pdSecurityNote: 'On this device the PIN keeps children out of the dashboard. With the family account, the server checks every points change and reward decision.'
     },
     sv: {
-      hub: 'Family Game Hub', back: 'Tillbaka', home: 'Hem', open: 'Öppna', close: 'Stäng', save: 'Spara', saved: 'Sparat', cancel: 'Avbryt', delete: 'Ta bort', edit: 'Ändra', add: 'Lägg till', yes: 'Ja', no: 'Nej',
+      hub: 'ThaiElevate', playZone: 'Play Zone', back: 'Tillbaka', home: 'Hem', open: 'Öppna', close: 'Stäng', save: 'Spara', saved: 'Sparat', cancel: 'Avbryt', delete: 'Ta bort', edit: 'Ändra', add: 'Lägg till', yes: 'Ja', no: 'Nej',
       menuLang: 'Menyspråk', points: 'poäng', pointsCap: 'Poäng', minutes: 'min', today: 'idag', none: 'Inget än', sample: 'Exempelinnehåll', sampleNote: 'Lektionerna är exempelinnehåll som visar hur kursen fungerar. De är inte en komplett kursplan.',
       saveFailed: 'Webbläsaren blockerar lagring, så framstegen försvinner när sidan stängs.',
       whoPlays: 'Vem ska lära sig?', addInParent: 'Be en förälder lägga till dig i föräldravyn.', noChildren: 'Inga barn än. En förälder kan lägga till dem i föräldravyn.', noAdults: 'Inga vuxna elever än. Lägg till en nedan eller i föräldravyn.',
@@ -145,7 +145,7 @@
       pdSecurityNote: 'På den här enheten håller PIN barnen borta från föräldravyn. Med familjekontot kollar servern varje poängändring och beslut om belöningar.'
     },
     th: {
-      hub: 'Family Game Hub', back: 'กลับ', home: 'หน้าแรก', open: 'เปิด', close: 'ปิด', save: 'บันทึก', saved: 'บันทึกแล้ว', cancel: 'ยกเลิก', delete: 'ลบ', edit: 'แก้ไข', add: 'เพิ่ม', yes: 'ใช่', no: 'ไม่',
+      hub: 'ThaiElevate', playZone: 'Play Zone', back: 'กลับ', home: 'หน้าแรก', open: 'เปิด', close: 'ปิด', save: 'บันทึก', saved: 'บันทึกแล้ว', cancel: 'ยกเลิก', delete: 'ลบ', edit: 'แก้ไข', add: 'เพิ่ม', yes: 'ใช่', no: 'ไม่',
       menuLang: 'ภาษาเมนู', points: 'คะแนน', pointsCap: 'คะแนน', minutes: 'นาที', today: 'วันนี้', none: 'ยังไม่มี', sample: 'เนื้อหาตัวอย่าง', sampleNote: 'บทเรียนเหล่านี้เป็นเนื้อหาตัวอย่างเพื่อแสดงวิธีการทำงานของหลักสูตร ยังไม่ใช่หลักสูตรที่สมบูรณ์',
       saveFailed: 'เบราว์เซอร์นี้ปิดการจัดเก็บข้อมูล ความก้าวหน้าจะหายเมื่อปิดหน้า',
       whoPlays: 'ใครจะเรียนวันนี้?', addInParent: 'ให้ผู้ปกครองเพิ่มโปรไฟล์ในหน้าผู้ปกครอง', noChildren: 'ยังไม่มีโปรไฟล์เด็ก ผู้ปกครองเพิ่มได้ในหน้าผู้ปกครอง', noAdults: 'ยังไม่มีผู้เรียนผู้ใหญ่ เพิ่มได้ด้านล่างหรือในหน้าผู้ปกครอง',

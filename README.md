@@ -1,8 +1,10 @@
-# Family Game Hub
+# ThaiElevate
 
-A learning platform for the whole family, as a static site (GitHub Pages) with an optional Supabase family account:
+**Learn Thai. Speak Thai. Understand Thai.** Thai for children and families in Sweden (formerly *Family Game Hub*),
+as a static site (GitHub Pages) with an optional Supabase account. The welcome page `index.html` has two areas:
+🎮 **Play Zone** (`play.html` – games and family activities) and 📚 **Thai Learning Academy** (`academy.html?course=th`).
 
-* **Family games** for one shared iPad (pass the iPad, turns, timer, scores, history) – `index.html`
+* **Family games** for one shared iPad (pass the iPad, turns, timer, scores, history) – `play.html`
 * **KeyKids** – typing, spelling and flags for children aged 3–10 – `keykids.html`
 * **Kids area** – Knowledge & Word Games, Kids Language Learning (5 language pairs) and the Reward shop – `kids.html`
 * **Adult Language Academy** – CEFR A1–C1 lessons, level tests and spaced-repetition word review – `academy.html`
@@ -31,7 +33,8 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 
 | Path | What it is |
 |---|---|
-| `index.html`, `js/hub-core.js`, `js/hub-ui.js`, `js/games/` | Family games hub (unchanged logic; links to the new areas, matches feed the points ledger) |
+| `index.html`, `css/welcome.css`, `js/welcome.js` | ThaiElevate welcome page: the two areas, explanation language, account menu |
+| `play.html`, `js/hub-core.js`, `js/hub-ui.js`, `js/games/` | Play Zone: family games hub (unchanged logic; links to the new areas, matches feed the points ledger) |
 | `keykids.html`, `js/keykids/core.js`, `js/keykids/ui.js`, `css/keykids.css` | KeyKids, split from one 198 KB file into modules; behaviour unchanged |
 | `kids.html`, `academy.html`, `parent.html` | The three new areas |
 | `js/family/ledger.js` | Points ledger, rewards, redemptions (pure logic) |

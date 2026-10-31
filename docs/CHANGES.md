@@ -1,5 +1,26 @@
 # Changes in this version
 
+## 31 Oct 2026 – ThaiElevate, Phase B: new name and two main areas
+
+Built on `feature/family-game-hub` at 043009f. Approved scope: branding + two entry areas. No database change, no saved data renamed,
+no file deleted. Audit and plan: "ThaiElevate – Phase 0 audit report".
+
+* **New welcome page** `index.html` (+ `css/welcome.css`, `js/welcome.js`): ThaiElevate brand top left, "ยินดีต้อนรับสู่ ThaiElevate"
+  with the English and Swedish subtitles, two doors – 🎮 **Play Zone** and 📚 **Thai Learning Academy** – the explanation language
+  (Svenska / ภาษาไทย, saved on the device as `te.explain`, sent to the Academy as `?explain=`), account menu (sign in, student, teacher,
+  parent) and menu language th / sv / en (shared with the Play Zone). Noto Sans / Noto Sans Thai Looped / Noto Serif Thai (OFL) from
+  Google Fonts; system fonts when offline.
+* **Play Zone** `play.html` = the former `index.html`, same scripts and the same saved data (`fgh.v1`, `keykids.v1`, `fgh.family.v1`).
+  Its home shows the games, KeyKids, kids area, Family Online, players, history and Parent Zone. The language-course picker and the
+  School section are no longer on this page (they belong to the Academy / welcome page; nothing was removed from the code).
+* **Branding:** page titles, header brand, `FGH.FT.*.hub` and the hub hero say ThaiElevate. KeyKids, Family Online and the kids area
+  lead back to the Play Zone (`<body data-home="play.html">`); Academy, parent, teacher and student pages lead to the welcome page.
+* **Kept reachable:** Swedish, English and Spanish courses (footer link "Other language courses" → `academy.html`); all five kids
+  language pairs stay in the Play Zone. Thai explanations are not written yet: choosing ภาษาไทย shows a note and the lessons fall back to Swedish.
+* **Tests:** `tests/welcome.test.js` (6 tests); `tests/family.test.js` now also checks `play.html`, `student.html`, `teacher.html`.
+* **Rollback:** `git revert` of this commit, or `git mv play.html index.html` and restore the old `index.html` – no data to undo.
+* **Note:** home-screen icons and bookmarks to `index.html` now open the welcome page; one tap more to the games.
+
 ## 31 Oct 2026 – Classes and Student Mode (step A)
 
 * **Database** `supabase/migrations/0004_classes_students.sql` (+ `supabase/rollback/0004_rollback.sql`): classes, students with

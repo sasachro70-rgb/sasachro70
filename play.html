@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Play Zone">
+<meta name="theme-color" content="#EEF3F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F151C" media="(prefers-color-scheme: dark)">
+<title>Play Zone · ThaiElevate</title>
+<link rel="stylesheet" href="css/hub.css">
+</head>
+<body>
+<!-- Play Zone (ThaiElevate): the family games, KeyKids, kids area, Family Online and the reward shop. This was index.html before Phase B; saved data (fgh.v1) is the same. -->
+<div id="app"></div>
+<div id="toast" aria-live="polite"></div>
+<noscript>Play Zone needs JavaScript. / ต้องเปิด JavaScript / Kräver JavaScript.</noscript>
+<!-- Order matters: shared data and core first, then each game registers itself, then the screens. -->
+<script src="js/i18n.js"></script>
+<script src="js/data/countries.js"></script>
+<script src="js/hub-core.js"></script>
+<script src="js/games/flag-quiz.js"></script>
+<script src="js/family/ledger.js"></script>
+<script src="js/family/store.js"></script>
+<!-- for the home page's language courses and Continue Learning (read only) -->
+<script src="content/academy-sv.js"></script>
+<script src="content/academy-en-es.js"></script>
+<script src="content/academy-th.js"></script>
+<script src="content/kids-language.js"></script>
+<script src="js/family/srs.js"></script>
+<script src="js/family/academy.js"></script>
+<script src="js/family/kids-language.js"></script>
+<script src="js/family/hub-bridge.js"></script>
+<script src="js/hub-ui.js"></script>
+</body>
+</html>

@@ -124,7 +124,7 @@
   }
   function topHTML() {
     const st = auth && auth.state();
-    return '<header class="top"><a class="btn small" href="index.html">🏠 ' + esc(t('on_hub')) + '</a><span class="brand">🌐 ' + esc(t('on_title')) + '</span><span class="grow"></span>' + langSeg() +
+    return '<header class="top"><a class="btn small" href="play.html">🏠 ' + esc(t('on_hub')) + '</a><span class="brand">🌐 ' + esc(t('on_title')) + '</span><span class="grow"></span>' + langSeg() +
       (st && st.signedIn ? '<span class="pchip">' + (st.user.guest ? '🎈 ' + esc(t('on_guestBadge')) : esc(t('on_signedInAs', { who: st.user.email || '' }))) + '</span><button class="btn small" data-act="signOut">' + esc(t('on_signOut')) + '</button>' : '') + '</header>' +
       (V.err ? '<div class="warn" role="alert">' + esc(V.err) + '</div>' : '') + (V.msg ? '<div class="note" role="status">' + esc(V.msg) + '</div>' : '');
   }

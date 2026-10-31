@@ -8,7 +8,8 @@
   const AC = () => FGH.academy, SRS = () => FGH.srs, KL = () => FGH.kidsLanguage;
   const TXT = {
     en: {
-      heroTitle: 'Family Game Hub', heroSub: 'Learn, Play & Grow Together', heroDesc: 'A fun place for children and adults to learn languages, play games and discover new things.',
+      playTitle: 'Play Zone', playSub: 'Play, explore and learn through fun activities.', playDesc: 'Family games, KeyKids, quizzes and the reward shop – the Thai Learning Academy is a separate area.', toAcademy: 'Thai Learning Academy', toHome: 'ThaiElevate home',
+      heroTitle: 'ThaiElevate', heroSub: 'Learn, Play & Grow Together', heroDesc: 'A fun place for children and adults to learn languages, play games and discover new things.',
       startLearning: 'Start Learning', playGames: 'Play Games', exploreLangs: 'Explore Languages',
       kidsZone: 'Kids Zone', kidsZoneSub: 'Kids Learning & Games', kidsArea: 'Kids learning area', kidsAreaD: 'Knowledge games, word guessing, language lessons and the reward shop',
       academy: 'Adult Language Academy', academySub: 'Learn a New Language', lessons: '{n} lessons', levels: 'Levels: {l}', skillsTitle: 'What you practise',
@@ -20,7 +21,8 @@
       skills: { conversation: 'Conversation', vocabulary: 'Vocabulary', grammar: 'Grammar', listening: 'Listening', speaking: 'Speaking', reading: 'Reading', writing: 'Writing', pronunciation: 'Pronunciation', work: 'Work', real: 'Real life' }
     },
     sv: {
-      heroTitle: 'Family Game Hub', heroSub: 'Lär, lek och väx tillsammans', heroDesc: 'En rolig plats där barn och vuxna lär sig språk, spelar spel och upptäcker nya saker.',
+      playTitle: 'Play Zone', playSub: 'Spela, upptäck och lär genom roliga aktiviteter.', playDesc: 'Familjespel, KeyKids, frågesporter och belöningsbutiken – Thai Learning Academy är en egen del.', toAcademy: 'Thai Learning Academy', toHome: 'ThaiElevate start',
+      heroTitle: 'ThaiElevate', heroSub: 'Lär, lek och väx tillsammans', heroDesc: 'En rolig plats där barn och vuxna lär sig språk, spelar spel och upptäcker nya saker.',
       startLearning: 'Börja lära dig', playGames: 'Spela spel', exploreLangs: 'Utforska språk',
       kidsZone: 'Barnens zon', kidsZoneSub: 'Lärande och spel för barn', kidsArea: 'Barnens lärsida', kidsAreaD: 'Kunskapsspel, gissa ordet, språklektioner och belöningar',
       academy: 'Adult Language Academy', academySub: 'Lär dig ett nytt språk', lessons: '{n} lektioner', levels: 'Nivåer: {l}', skillsTitle: 'Det här tränar du',
@@ -32,7 +34,8 @@
       skills: { conversation: 'Samtal', vocabulary: 'Ordförråd', grammar: 'Grammatik', listening: 'Hörförståelse', speaking: 'Tala', reading: 'Läsa', writing: 'Skriva', pronunciation: 'Uttal', work: 'Jobb', real: 'Vardag' }
     },
     th: {
-      heroTitle: 'Family Game Hub', heroSub: 'เรียนรู้ เล่น และเติบโตไปด้วยกัน', heroDesc: 'พื้นที่สนุก ๆ ให้เด็กและผู้ใหญ่ได้เรียนภาษา เล่นเกม และค้นพบสิ่งใหม่',
+      playTitle: 'Play Zone', playSub: 'เล่น สำรวจ และเรียนรู้ผ่านกิจกรรมสนุก ๆ', playDesc: 'เกมครอบครัว KeyKids เกมตอบคำถาม และร้านแลกรางวัล – Thai Learning Academy แยกเป็นอีกส่วนหนึ่ง', toAcademy: 'Thai Learning Academy', toHome: 'หน้าแรก ThaiElevate',
+      heroTitle: 'ThaiElevate', heroSub: 'เรียนรู้ เล่น และเติบโตไปด้วยกัน', heroDesc: 'พื้นที่สนุก ๆ ให้เด็กและผู้ใหญ่ได้เรียนภาษา เล่นเกม และค้นพบสิ่งใหม่',
       startLearning: 'เริ่มเรียน', playGames: 'เล่นเกม', exploreLangs: 'สำรวจภาษา',
       kidsZone: 'โซนเด็ก', kidsZoneSub: 'การเรียนรู้และเกมสำหรับเด็ก', kidsArea: 'พื้นที่เรียนรู้ของเด็ก', kidsAreaD: 'เกมความรู้ ทายคำศัพท์ บทเรียนภาษา และแลกรางวัล',
       academy: 'Adult Language Academy', academySub: 'เรียนภาษาใหม่', lessons: '{n} บทเรียน', levels: 'ระดับ: {l}', skillsTitle: 'ทักษะที่ได้ฝึก',
@@ -74,6 +77,13 @@
   function heroHTML(ui, esc) {
     return '<section class="hero"><div class="hero-text"><h1>' + esc(tx(ui, 'heroTitle')) + '</h1><p class="hero-sub">' + esc(tx(ui, 'heroSub')) + '</p><p class="hero-desc">' + esc(tx(ui, 'heroDesc')) + '</p>' +
       '<div class="row hero-btns"><a class="btn primary big" href="#zone-learn">📚 ' + esc(tx(ui, 'startLearning')) + '</a><a class="btn big" href="#zone-kids">🎲 ' + esc(tx(ui, 'playGames')) + '</a><a class="btn big" href="#zone-langs">🌍 ' + esc(tx(ui, 'exploreLangs')) + '</a></div></div>' + HERO_SVG + '</section>';
+  }
+
+  /* ---------- Play Zone hero (play.html): what this area is, and the way to the other area ---------- */
+  function playHeroHTML(ui, esc) {
+    return '<section class="hero play-hero"><div class="hero-text"><h1>🎮 ' + esc(tx(ui, 'playTitle')) + '</h1><p class="hero-sub" lang="sv">' + esc(TXT.sv.playSub) + '</p>' +
+      (ui === 'sv' ? '' : '<p class="hero-sub">' + esc(tx(ui, 'playSub')) + '</p>') + '<p class="hero-desc">' + esc(tx(ui, 'playDesc')) + '</p>' +
+      '<div class="row hero-btns"><a class="btn big" href="index.html">🏠 ' + esc(tx(ui, 'toHome')) + '</a><a class="btn big" href="academy.html?course=th">📚 ' + esc(tx(ui, 'toAcademy')) + ' →</a></div></div></section>';
   }
 
   /* ---------- Kids Zone: the hub's own game cards plus the kids learning area ---------- */
@@ -168,5 +178,5 @@
   };
   /* kept for older callers: the learning cards as one section */
   function homeHTML(ui, esc) { return academyHTML(ui, esc) + parentHTML(ui, esc); }
-  FGH.hubBridge = { matchFinished, heroHTML, kidsZoneHTML, academyHTML, continueHTML, schoolHTML, parentHTML, homeHTML, progressRows, acts, TXT };
+  FGH.hubBridge = { matchFinished, heroHTML, playHeroHTML, kidsZoneHTML, academyHTML, continueHTML, schoolHTML, parentHTML, homeHTML, progressRows, acts, TXT };
 })(window);

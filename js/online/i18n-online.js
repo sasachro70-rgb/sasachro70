@@ -8,7 +8,7 @@
   add('en', {
     err_bad_login: 'Wrong email or password.', err_email_taken: 'There is already an account with that email. Sign in instead.',
     err_email_not_confirmed: 'Confirm the email address first (check your inbox).', err_too_many_requests: 'Too many tries. Wait a moment and try again.',
-    on_title: 'Family Online', on_hub: 'Game Hub', on_notSetup: 'Online play is not set up yet.',
+    on_title: 'Family Online', on_hub: 'Play Zone', on_notSetup: 'Online play is not set up yet.',
     on_notSetupHelp: 'A parent adds the Supabase project address and its public (anon) key in js/online/config.js. The steps are in docs/security/DESIGN.md. The games on this iPad work without it.',
     on_adult: 'Adult sign-in', on_createTab: 'New account', on_guestTab: 'Play as guest',
     on_email: 'Email', on_password: 'Password', on_pwHint: 'At least 8 characters', on_signIn: 'Sign in', on_signUp: 'Create account',
@@ -49,7 +49,7 @@
   add('sv', {
     err_bad_login: 'Fel e-post eller lösenord.', err_email_taken: 'Det finns redan ett konto med den e-posten. Logga in i stället.',
     err_email_not_confirmed: 'Bekräfta e-postadressen först (titta i inkorgen).', err_too_many_requests: 'För många försök. Vänta en stund och försök igen.',
-    on_title: 'Familj online', on_hub: 'Spelhubben', on_notSetup: 'Onlinespel är inte inställt än.',
+    on_title: 'Familj online', on_hub: 'Play Zone', on_notSetup: 'Onlinespel är inte inställt än.',
     on_notSetupHelp: 'En förälder lägger in Supabase-projektets adress och dess publika (anon) nyckel i js/online/config.js. Stegen finns i docs/security/DESIGN.md. Spelen på den här iPaden fungerar ändå.',
     on_adult: 'Logga in (vuxen)', on_createTab: 'Nytt konto', on_guestTab: 'Spela som gäst',
     on_email: 'E-post', on_password: 'Lösenord', on_pwHint: 'Minst 8 tecken', on_signIn: 'Logga in', on_signUp: 'Skapa konto',
@@ -90,7 +90,7 @@
   add('th', {
     err_bad_login: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง', err_email_taken: 'อีเมลนี้มีบัญชีอยู่แล้ว ลองเข้าสู่ระบบแทน',
     err_email_not_confirmed: 'ยืนยันอีเมลก่อน (ดูในกล่องจดหมาย)', err_too_many_requests: 'ลองหลายครั้งเกินไป รอสักครู่แล้วลองใหม่',
-    on_title: 'ครอบครัวออนไลน์', on_hub: 'หน้าเกม', on_notSetup: 'ยังไม่ได้ตั้งค่าการเล่นออนไลน์',
+    on_title: 'ครอบครัวออนไลน์', on_hub: 'Play Zone', on_notSetup: 'ยังไม่ได้ตั้งค่าการเล่นออนไลน์',
     on_notSetupHelp: 'ผู้ปกครองต้องใส่ที่อยู่โปรเจกต์ Supabase และคีย์สาธารณะ (anon) ในไฟล์ js/online/config.js ดูขั้นตอนใน docs/security/DESIGN.md เกมบน iPad เครื่องนี้ยังเล่นได้ตามปกติ',
     on_adult: 'ผู้ใหญ่เข้าสู่ระบบ', on_createTab: 'สร้างบัญชี', on_guestTab: 'เล่นแบบผู้เยี่ยมชม',
     on_email: 'อีเมล', on_password: 'รหัสผ่าน', on_pwHint: 'อย่างน้อย 8 ตัวอักษร', on_signIn: 'เข้าสู่ระบบ', on_signUp: 'สร้างบัญชี',

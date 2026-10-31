@@ -150,7 +150,9 @@
   }
   function header(title, opts) {
     opts = opts || {};
-    return '<header class="top"><a class="btn small" href="' + (opts.home || 'index.html') + '">🏠 ' + esc(t('hub')) + '</a>' + (opts.back ? '<button class="btn small" data-act="' + opts.back + '">← ' + esc(t('back')) + '</button>' : '') +
+    /* Home: the welcome page, or the Play Zone for pages that belong to it (<body data-home="play.html">) */
+    const home = opts.home || (typeof document !== 'undefined' && document.body && document.body.dataset.home) || 'index.html';
+    return '<header class="top"><a class="btn small" href="' + home + '">🏠 ' + esc(t(home === 'play.html' ? 'playZone' : 'hub')) + '</a>' + (opts.back ? '<button class="btn small" data-act="' + opts.back + '">← ' + esc(t('back')) + '</button>' : '') +
       '<h1 class="ptitle">' + esc(title) + '</h1><span class="grow"></span>' + (opts.extra || '') + langSeg() + '</header>' +
       (store.saveOk() ? '' : '<div class="warn" role="alert">⚠️ ' + esc(t('saveFailed')) + '</div>');
   }

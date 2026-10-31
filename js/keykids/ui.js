@@ -270,7 +270,7 @@
     const cards = ROOT.profiles.map(p => '<div class="pwrap"><button class="cap pcard' + (p.kind === 'adult' ? ' adultcard' : '') + '" data-act="pickProfile" data-v="' + p.id + '"><span class="av" aria-hidden="true">' + esc(p.avatar) + '</span><span class="nm">' + esc(p.name) + '</span>' +
       '<span class="meta">' + (p.kind === 'adult' && EXT.adultMeta ? EXT.adultMeta(p) : esc(t('practisingLevel', { n: levelOf(p) })) + ' · ' + esc(t('lang_' + p.lang))) + '</span><span class="meta">★ ' + starsOf(p) + ' · ' + esc(t('lastSeen', { d: fmtDay(p.lastSeen) })) + '</span></button>' +
       '<button class="cap small edit" data-act="editProfile" data-v="' + p.id + '" aria-label="' + esc(t('editProfile') + ': ' + p.name) + '" title="' + esc(t('editProfile')) + '">✏️</button></div>').join('');
-    return '<header class="top"><span class="brand"><span class="k">K</span>KeyKids</span><span class="grow"></span>' + uiSeg + '<a class="cap small" href="index.html">🏠 Family Game Hub</a></header>' + saveWarnHTML() + buddyHTML() +
+    return '<header class="top"><span class="brand"><span class="k">K</span>KeyKids</span><span class="grow"></span>' + uiSeg + '<a class="cap small" href="play.html">🏠 Play Zone</a></header>' + saveWarnHTML() + buddyHTML() +
       '<h1 style="margin-bottom:16px">' + esc(t('whoLearns')) + '</h1><div class="profiles">' + cards +
       '<button class="cap pcard add" data-act="newProfile"><span class="av" aria-hidden="true">＋</span><span class="nm">' + esc(t('addLearner')) + '</span></button></div>';
   }
@@ -287,7 +287,7 @@
     const tog = (k, lbl) => '<div class="row"><label for="ed-' + k + '">' + esc(t(lbl)) + '</label><input id="ed-' + k + '" type="checkbox" data-ed="' + k + '"' + (ED[k] ? ' checked' : '') + '></div>';
     const p = ED.id && ROOT.profiles.find(x => x.id === ED.id);
     return '<div class="setup"><header class="top"><span class="brand"><span class="k">K</span>KeyKids</span><span class="grow"></span>' +
-      (ROOT.profiles.length ? '<button class="cap small" data-act="go" data-v="profiles">← ' + esc(t('back')) + '</button>' : '<a class="cap small" href="index.html">🏠 Family Game Hub</a>') + '</header>' + saveWarnHTML() + buddyHTML() +
+      (ROOT.profiles.length ? '<button class="cap small" data-act="go" data-v="profiles">← ' + esc(t('back')) + '</button>' : '<a class="cap small" href="play.html">🏠 Play Zone</a>') + '</header>' + saveWarnHTML() + buddyHTML() +
       '<div class="panel"><h1>' + esc(ED.id ? t('editProfile') : t('newProfile')) + '</h1><p class="muted" style="margin:0">' + esc(t('profileHint')) + '</p>' +
       '<div class="field"><label for="nm">' + esc(t('nickname')) + '</label><input id="nm" type="text" maxlength="20" autocomplete="off" placeholder="' + esc(t('namePh')) + '" value="' + esc(ED.name) + '"></div>' +
       (EXT.kindField ? EXT.kindField(ED) : '') +

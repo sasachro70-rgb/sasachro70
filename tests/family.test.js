@@ -234,7 +234,7 @@ test('texts: every family-page text exists in Thai, Swedish and English', () => 
 
 test('pages: every script a page loads exists, and the KeyKids page keeps its scripts in order', () => {
   const root = path.join(__dirname, '..');
-  for (const page of ['index.html', 'keykids.html', 'kids.html', 'academy.html', 'parent.html', 'online.html']) {
+  for (const page of ['index.html', 'play.html', 'keykids.html', 'kids.html', 'academy.html', 'parent.html', 'online.html', 'student.html', 'teacher.html']) {
     const html = fs.readFileSync(path.join(root, page), 'utf8');
     assert.ok(/^<!doctype html>/i.test(html), page + ' has a doctype');
     for (const m of html.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"#:]+)"/g)) assert.ok(fs.existsSync(path.join(root, m[1])), page + ' → ' + m[1]);
