@@ -1,5 +1,25 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase D: Thai audio and pronunciation
+
+* **Research** of Thai voices (Google, Azure, Amazon Polly, ElevenLabs, NECTEC Vaja, iApp, browser voices, licensed recordings):
+  `docs/THAI_AUDIO.md`, with the official sources and what could not be verified. Amazon Polly has no Thai.
+* **Audio priority as the spec asks:** teacher recording → natural neural cloud voice (Google, via the Edge Function `tts`) →
+  the device's own Thai voice (only a real Thai voice; never Swedish or English reading Thai). A sentence the cloud cannot give
+  is read by the device's Thai voice. Per device: Automatic / Natural cloud voice / This device only.
+* **Listening controls on every Thai word and sentence** in the Academy and the pronunciation module: 🔊 play (learner's speed),
+  🐢 slow (0.5×), 1× normal, 🔁 three times, 🧩 word by word (content word marks or the browser's Thai word breaker; the words
+  appear as buttons). Speed bar 0.5× – 1.5×, 0.85× default.
+* **Pronunciation module** (Academy → Practice → Pronunciation): all 44 consonants (class, start and end sound, filter by class),
+  vowels (short/long pairs and special vowels, with examples), the five tones (minimal set คา ข่า ค่า ค้า ขา, tone marks, tone
+  rule table), the eight final-consonant groups, live and dead syllables, true and false clusters, leading consonants, words,
+  sentence rhythm. Swedish or Thai explanations. Listening practice: hear the consonant, hear the tone, short or long (10 questions).
+* **Teacher audio** (Content Manager): one row per word **and per sentence** – ▶ preview, ⬆ upload/replace, ✕ remove; bulk
+  upload stays. Uploading needs a tick that the teacher has the right to use the recordings; a source/licence note is saved with
+  the lesson and shown to students. Files are stored per lesson: `course-media/<course>/audio/<lesson>/…`.
+* Tests: `tests/pronunciation.test.js`, new cases in `tests/cloud-voice.test.js`; browser tests for the module, the controls and
+  per-row audio upload.
+
 ## 31 Oct 2026 – Phase G: Classroom and live lessons
 
 * **Classroom dashboard** (Academy → Classroom, for signed-in students): the class, the teacher, a red "Live now" bar with

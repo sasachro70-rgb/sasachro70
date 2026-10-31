@@ -104,10 +104,23 @@
       field(t('openQ'), '<textarea id="lq" rows="4" lang="th">' + esc(qTxt) + '</textarea>') +
       '<div class="row" style="margin:0"><button class="btn primary" type="submit">' + esc(t('done')) + '</button></div></form>';
     /* media */
+    /* audio (Phase D): one row per word and per reading line – preview, upload or replace, remove. Files go to the private bucket
+       "course-media" under <course>/audio/<lesson>/…; the lesson keeps only the path. Uploading needs the rights tick. */
     const aud = l.audio || {};
+    const rows = (l.vocab || []).map(w => ({ t: w.t, rom: w.rom, kind: 'w' })).concat((l.dialogue || []).map(d => ({ t: d.t, rom: d.rom, kind: 'd' })));
     h += '<section class="card stack"><h2 style="margin:0">🔊 ' + esc(t('audio')) + '</h2><p class="muted" style="margin:0">' + esc(t('audioHelp')) + '</p>' +
-      '<div class="tablewrap"><table><tbody>' + (l.vocab || []).map(w => '<tr><td lang="th"><b>' + esc(w.t) + '</b></td><td class="muted">' + esc(w.rom || '') + '</td><td>' + (aud[w.t] ? '🎵 ' + esc(String(aud[w.t]).split('/').pop()) : '<span class="muted">' + esc(t('noFile')) + '</span>') + '</td></tr>').join('') + '</tbody></table></div>' +
-      '<label class="btn">⬆️ ' + esc(t('uploadAudio')) + '<input type="file" accept="audio/*" multiple data-change="audioFiles" hidden></label></section>';
+      '<label class="field">' + esc(t('audioSource')) + '<input id="lasrc" type="text" maxlength="200" value="' + esc(l.audioSource || '') + '" placeholder="' + esc(t('audioSourcePh')) + '"></label>' +
+      '<label class="row" style="margin:0"><input type="checkbox" data-change="audioOk"' + (V.audioOk ? ' checked' : '') + '> ' + esc(t('audioRights')) + '</label>' +
+      '<div class="tablewrap"><table class="cm-audio"><tbody>' + rows.map((r, k) => {
+        const f = aud[r.t], key = String(k);
+        return '<tr><td>' + (r.kind === 'w' ? '🔤' : '📖') + '</td><td lang="th"><b>' + esc(r.t) + '</b>' + (r.rom ? '<br><span class="muted">' + esc(r.rom) + '</span>' : '') + '</td>' +
+          '<td>' + (f ? '🎵 ' + esc(String(f).split('/').pop().replace(/^[a-z0-9]+-/, '')) : '<span class="muted">' + esc(t('noFileTts')) + '</span>') + '</td>' +
+          '<td class="row" style="margin:0;flex-wrap:nowrap"><button class="btn small" data-act="audPlay" data-v="' + key + '" title="' + esc(t('listen')) + '">▶</button>' +
+          (V.audioOk ? '<label class="btn small" title="' + esc(f ? t('replace') : t('uploadAudio')) + '">⬆ ' + esc(f ? t('replace') : t('upload1')) + '<input type="file" accept="audio/*" data-change="audioOne" data-v="' + key + '" hidden></label>'
+            : '<button class="btn small" disabled title="' + esc(t('audioRights')) + '">⬆</button>') +
+          (f ? '<button class="btn small" data-act="audDel" data-v="' + key + '" title="' + esc(t('remove')) + '">✕</button>' : '') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      (V.audioOk ? '<label class="btn">⬆️ ' + esc(t('uploadAudio')) + '<input type="file" accept="audio/*" multiple data-change="audioFiles" hidden></label>' : '<p class="muted" style="margin:0">🔒 ' + esc(t('audioRightsFirst')) + '</p>') + '</section>';
     h += '<section class="card stack"><h2 style="margin:0">🖼️ ' + esc(t('images')) + '</h2>' + ((l.images || []).length ? '<ul class="plain">' + l.images.map((im, k) => '<li>🖼️ ' + esc(im.caption || String(im.path).split('/').pop()) + ' <button class="btn small" data-act="rmImage" data-v="' + k + '">' + esc(t('remove')) + '</button></li>').join('') + '</ul>' : '') +
       '<label class="btn">⬆️ ' + esc(t('uploadImage')) + '<input type="file" accept="image/*" multiple data-change="imageFiles" hidden></label></section>';
     /* preview with the real Thai voice */
@@ -129,9 +142,12 @@
     const kept = (l.exercises || []).filter(e => !(e.type === 'write') && !(e.type === 'listen' && (e.auto || l.imported)));
     const auto = IC.makeLesson({ id: l.id, level: l.level, words: l.vocab }).exercises.map(e => Object.assign(e, { auto: true }));
     l.exercises = kept.concat(auto, qs.map(q => ({ type: 'write', task: { sv: q }, model: '' })));
-    if (l.audio) for (const w in l.audio) if (!l.vocab.some(v => v.t === w)) delete l.audio[w];
+    if (l.audio) for (const w in l.audio) if (!l.vocab.some(v => v.t === w) && !l.dialogue.some(d => d.t === w)) delete l.audio[w];
+    if ($('lasrc')) { const src = $('lasrc').value.trim(); if (src) l.audioSource = src; else delete l.audioSource; }
     changed();
   }
+  const audioRows = l => (l.vocab || []).map(w => ({ t: w.t })).concat((l.dialogue || []).map(d => ({ t: d.t })));
+  const mediaCache = {};
   /* audio file names → words: same as the word, its romanization, or "1.mp3" = the first word */
   const base = n => String(n).replace(/\.[a-z0-9]+$/i, '').normalize('NFC').toLowerCase().replace(/[_\-\s]+/g, ' ').trim();
   function matchWord(l, name) {
@@ -234,6 +250,16 @@
     editLesson(v) { V.edit = +v; V.screen = 'lesson'; render(); window.scrollTo(0, 0); },
     move(v) { const [i, d] = v.split(':').map(Number), a = V.doc.lessons, j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; changed(); render(); },
     rmImage(v) { readLessonForm(); V.doc.lessons[V.edit].images.splice(+v, 1); changed(); render(); },
+    /* preview: the uploaded recording (a link valid 1 hour from the private bucket), otherwise the Thai voice */
+    audPlay(v) {
+      const l = V.doc.lessons[V.edit], row = audioRows(l)[+v]; if (!row) return;
+      const path = (l.audio || {})[row.t];
+      if (!path) { if (FGH.voice) FGH.voice.say(row.t, 'th'); return; }
+      const play = u => { try { const a = new Audio(u); const p = a.play(); if (p && p.catch) p.catch(() => K.toast('⚠️ ' + t('audioPlayError'))); } catch (e) { K.toast('⚠️ ' + t('audioPlayError')); } };
+      if (mediaCache[path] && mediaCache[path].at > Date.now() - 50 * 60e3) return play(mediaCache[path].url);
+      svc.mediaLinks([path]).then(m => { if (!m[path]) throw new Error('none'); mediaCache[path] = { url: m[path], at: Date.now() }; play(m[path]); }).catch(() => K.toast('⚠️ ' + t('audioPlayError')));
+    },
+    audDel(v) { readLessonForm(); const l = V.doc.lessons[V.edit], row = audioRows(l)[+v]; if (row && l.audio) { delete l.audio[row.t]; if (!Object.keys(l.audio).length) delete l.audio; changed(); render(); } },
     say(v) { const l = V.doc.lessons[V.edit]; readLessonForm(); const x = v[0] === 'd' ? l.dialogue[+v.slice(1)] : l.vocab[+v.slice(1)]; if (x && FGH.voice) FGH.voice.say(x.t, 'th'); },
     addTable() { const r = tableResult(); r.lessons.forEach(l => { l.id = newLessonId(); V.doc.lessons.push(l); }); changed(); V.imp = null; V.screen = 'course'; V.msg = t('result', { n: r.count, m: r.lessons.length }); render(); },
     addBlocks() {
@@ -289,12 +315,18 @@
     if (c === 'role') I.roles[e.target.dataset.i] = e.target.value;
     if (c === 'from') I.from = Math.max(1, +e.target.value || 1);
     if (c === 'to') I.to = Math.max(I.from, +e.target.value || I.from);
+    if (c === 'audioOk') { V.audioOk = e.target.checked; return render(); }
+    if (c === 'audioOne') {
+      readLessonForm(); const l = V.doc.lessons[V.edit], row = audioRows(l)[+e.target.dataset.v], file = e.target.files && e.target.files[0];
+      if (!row || !file || !V.audioOk) return render();
+      return run(async () => { const path = await svc.uploadCourseMedia(V.id, file, 'audio', null, l.id); l.audio = l.audio || {}; l.audio[row.t] = path; delete mediaCache[path]; changed(); });
+    }
     if (c === 'audioFiles' || c === 'imageFiles') {
       readLessonForm(); const l = V.doc.lessons[V.edit], files = Array.from(e.target.files || []);
       return run(async () => {
         const unmatched = [];
         for (const file of files) {
-          if (c === 'audioFiles') { const w = matchWord(l, file.name); if (!w) { unmatched.push(file.name); continue; } const path = await svc.uploadCourseMedia(V.id, file, 'audio'); l.audio = l.audio || {}; l.audio[w.t] = path; }
+          if (c === 'audioFiles') { const w = matchWord(l, file.name); if (!w) { unmatched.push(file.name); continue; } const path = await svc.uploadCourseMedia(V.id, file, 'audio', null, l.id); l.audio = l.audio || {}; l.audio[w.t] = path; }
           else { const path = await svc.uploadCourseMedia(V.id, file, 'img'); l.images = (l.images || []).concat([{ path, caption: base(file.name) }]); }
         }
         changed();

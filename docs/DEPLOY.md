@@ -85,7 +85,8 @@ No AI service and no analytics are used. Nothing is sent anywhere unless Supabas
 Many computers (Windows, Chromebooks, some Android tablets) have **no Thai voice**. Without one, Thai words cannot be read aloud.
 Pasathai therefore asks Google Cloud Text-to-Speech for a natural Thai voice through a small server function. The Google key is
 kept on the server, every sentence is generated once and then reused for everybody, and daily limits stop unexpected costs.
-Devices that already have a good Thai voice (iPad/iPhone "Kanya", Microsoft Edge "Premwadee/Niwat") keep using it.
+Order of Thai audio (Phase D, docs/THAI_AUDIO.md): a teacher's recording first, then this natural cloud voice, then the
+device's own Thai voice (only when the cloud voice is missing, offline or over today's limit).
 
 1. **Database:** SQL Editor → paste `supabase/migrations/0007_thai_cloud_voice.sql` → Run. It creates the usage counter and the
    private Storage bucket `tts-cache` (only the server function can read or write it).
@@ -116,7 +117,7 @@ Devices that already have a good Thai voice (iPad/iPhone "Kanya", Microsoft Edge
    it can never pass the free amount, use `TTS_VOICE_TYPES=Standard` (4 million free) or lower `TTS_TOTAL_DAILY`.
 7. Undo: `supabase/rollback/0007_rollback.sql` and `supabase functions delete tts`. The app then uses the device voices only.
 
-Per device, *Voice settings → Thai voice* chooses **Automatic** (device voice, cloud when there is none – default),
+Per device, *Voice settings → Thai voice* chooses **Automatic** (cloud voice first, the device's Thai voice as fallback – default),
 **Natural cloud voice** (always) or **This device only**. When neither works, lesson pages show how to add a Thai voice for that
 kind of device (iPad/iPhone, Android, Windows, Mac, Chromebook).
 

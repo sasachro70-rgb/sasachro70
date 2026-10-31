@@ -68,7 +68,7 @@
   /* the cloud voice is tried once in the background (a short, cached word) so the page can say whether it works */
   let probed = false, redraw = null;
   function probe(st, card) {
-    const cv = CV(); if (probed || !cv || st.cloud.state !== 'unknown' || (st.device && st.mode !== 'cloud')) return;
+    const cv = CV(); if (probed || !cv || st.cloud.state !== 'unknown' || st.mode === 'device') return;
     probed = true;
     /* redraw only when what is shown changes: always on the voice card, on lesson pages only if the notice must appear or go */
     cv.get('สวัสดี', 'female').then(() => { if (redraw && (card || V.thaiStatus(st.pid).speaks !== st.speaks)) redraw(); });
@@ -81,6 +81,20 @@
     const why = c.state === 'down' || (c.state === 'off' && c.why === 'device_mode') ? ' ' + t('voice.cloudDown.' + c.why) : '';
     return '<div class="notebox vbanner" role="status">🔇 <b>' + esc(t('voice.noThai')) + '</b>' + esc(why) + '<br><small>' + esc(t('voice.how.' + st.platform)) + '</small>' +
       ' <button class="btn small" data-act="go" data-v="voice">' + esc(t('voice.voiceSettings')) + '</button></div>';
+  }
+  /* the listening controls for one Thai word or sentence (Phase D): ▶ at the learner's speed, 🐢 slow, 1× normal, 🔁 three times,
+     🧩 word by word (only when there is more than one word). Pressing ▶ again = listen again. */
+  function controlsHTML(text, lang, opts) {
+    opts = opts || {}; lang = lang || 'th';
+    const clean = String(text == null ? '' : text);
+    const b = (mode, icon, label) => '<button class="ghost" data-act="vSay" data-v="' + esc(mode + '\n' + lang + '\n' + clean) + '" title="' + esc(label) + '" aria-label="' + esc(label) + '">' + icon + '</button>';
+    const multi = V.wordsOf && V.wordsOf(clean, lang).length > 1;
+    return '<span class="saybtns">' + b('n', '🔊', t('voice.play')) + b('s', '🐢', t('voice.slow')) + (opts.compact ? '' : b('1', '1×', t('voice.normal'))) + b('r', '🔁', t('voice.repeat')) +
+      (multi && opts.words !== false ? b('w', '🧩', t('voice.byWord')) : '') + '</span>';
+  }
+  /* word chips under a sentence (after 🧩), each one playable */
+  function chipsHTML(text, lang) {
+    return '<span class="wchips" lang="' + esc(lang) + '">' + V.wordsOf(text, lang).map(w => '<button class="chip" data-act="vSay" data-v="' + esc('n\n' + lang + '\n' + w) + '">' + esc(w) + '</button>').join('') + '</span>';
   }
   const find = v => { const i = v.indexOf('\n'), lang = v.slice(0, i), id = v.slice(i + 1); return { lang, entry: V.listFor(V.voices(), lang).find(x => x.id === id) }; };
 
@@ -97,8 +111,20 @@
       vReset(lang) { const pid = pidOf(); if (!pid) return; A.updateLearning(pid, f => { V.resetVoice(f, pid, lang); }); K.toast('↺ ' + t('voice.resetDone')); rerender(); },
       vMode(m) { const cv = CV(); if (!cv) return; cv.setMode(m); probed = false; rerender(); },
       vCloudPreview() { const cv = CV(); if (!cv) return; if (cv.mode() === 'device') return; const was = cv.mode(); cv.setMode('cloud'); V.say(V.SAMPLE.th, 'th', { pid: pidOf(), onDone: rerender }); cv.setMode(was); setTimeout(rerender, 2500); },
+      vSay(v, el) {
+        const [mode, lang, ...rest] = String(v).split('\n'), text = rest.join('\n'), pid = pidOf();
+        const o = { pid };
+        if (mode === 's') o.rate = V.SLOW; else if (mode === '1') o.rate = 1; else if (mode === 'r') o.times = 3;
+        let ok;
+        if (mode === 'w') {
+          ok = V.say(V.wordsOf(text, lang).join('\n'), lang, o);
+          const host = el && el.closest('.saybtns');
+          if (host && !(host.nextElementSibling && host.nextElementSibling.classList.contains('wchips'))) host.insertAdjacentHTML('afterend', chipsHTML(text, lang));
+        } else ok = V.say(text, lang, o);
+        if (!ok) K.toast('🔇 ' + t('voice.none', { lang: t('lang.' + lang) }));
+      },
       vRate(v) { const pid = pidOf(); if (!pid) return; A.updateLearning(pid, f => { V.setRate(f, pid, +v); }); rerender(); }
     };
   }
-  FGH.voiceUI = { panelHTML, speedHTML, acts, regionName, thaiCardHTML, thaiBannerHTML };
+  FGH.voiceUI = { panelHTML, speedHTML, acts, regionName, thaiCardHTML, thaiBannerHTML, controlsHTML, chipsHTML };
 })(window);

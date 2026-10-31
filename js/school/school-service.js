@@ -105,11 +105,12 @@
       courseHistory: id => rpc('course_history', { p_course: id }),
       restoreCourseVersion: (id, v) => rpc('restore_course_version', { p_course: id, p_version: v }),
       /* lesson audio and images: private bucket "course-media", path "<course id>/<audio|img>/<name>" */
-      async uploadCourseMedia(courseId, file, kind, name) {
+      async uploadCourseMedia(courseId, file, kind, name, lessonId) {
         if (!file) return null;
         if (file.size > 20 * 1024 * 1024) throw Object.assign(new Error('file_too_large'), { code: 'file_too_large' });
         const safe = String(name || file.name || 'fil').normalize('NFC').replace(/[^\w.\-\u0E00-\u0E7F]+/g, '_').slice(-80);
-        const path = courseId + '/' + (kind === 'audio' ? 'audio' : 'img') + '/' + Date.now().toString(36) + '-' + safe;
+        const sub = lessonId ? String(lessonId).replace(/[^\w-]+/g, '_').slice(0, 60) + '/' : '';   // organised by lesson
+        const path = courseId + '/' + (kind === 'audio' ? 'audio' : 'img') + '/' + sub + Date.now().toString(36) + '-' + safe;
         let res;
         try { res = await client.storage.from('course-media').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false }); } catch (e) { throw toError(e); }
         if (res.error) throw toError(res.error);

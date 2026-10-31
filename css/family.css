@@ -364,3 +364,25 @@ button.lv-opt:hover:not([disabled]) { border-color: var(--tla, #232A6B); }
 .cls-ann { white-space: pre-wrap; margin: .2rem 0 0; }
 .cls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .cls-grid > .card { margin: 0; justify-content: flex-start; align-content: start; }
+.saybtns { display: inline-flex; flex-wrap: wrap; gap: 2px; vertical-align: middle; }
+.saybtns .ghost { min-width: 40px; min-height: 40px; font-size: 1rem; }
+.wchips { display: flex; flex-wrap: wrap; gap: 6px; margin: .35rem 0; }
+.wchips .chip { font-family: var(--thai); font-size: 1.1rem; }
+/* pronunciation module (js/academy/pron-ui.js) */
+.pr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0 0 12px; }
+.pr-item { border: 1px solid var(--line); border-radius: 14px; padding: .7rem; background: var(--surface); text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.pr-big { font-family: var(--thai); font-size: 3rem; line-height: 1.3; font-weight: 600; }
+.pr-t { font-family: var(--thai); font-size: 1.6rem; line-height: 1.5; font-weight: 600; }
+.pr-sv { opacity: .9; }
+.pr-meta { font-size: .9rem; }
+.pr-cons.cls-m { border-top: 4px solid var(--tla-teal, #0E8C80); }
+.pr-cons.cls-h { border-top: 4px solid #C62F3B; }
+.pr-cons.cls-l { border-top: 4px solid var(--tla, #232A6B); }
+.pr-cons.old { opacity: .7; }
+.pr-table td, .pr-table th { vertical-align: middle; }
+.pr-table .pr-t { font-size: 1.5rem; }
+.pr-letters { font-size: 1.15rem; letter-spacing: .05em; }
+.pr-live { background: color-mix(in srgb, var(--good) 18%, transparent); }
+.pr-dead { background: color-mix(in srgb, var(--bad) 15%, transparent); }
+.pr-rhythm .pr-w { display: inline-block; padding: 0 .35rem; margin: 0 .15rem .2rem 0; border-bottom: 3px solid var(--tla-teal, #0E8C80); }
+.pr-rhythm .pr-w:last-child { border-bottom-color: var(--sun); }

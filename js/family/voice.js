@@ -14,6 +14,7 @@
   const FGH = G.FGH = G.FGH || {};
   const LOCALE = { th: 'th-TH', sv: 'sv-SE', en: 'en-GB', es: 'es-ES' };
   const RATES = [0.5, 0.75, 0.85, 1, 1.25, 1.5];
+  const SLOW = 0.5;
   const DEFAULT_RATE = 0.85;
   const SAMPLE = { th: 'สวัสดีครับ ยินดีที่ได้รู้จัก', sv: 'Hej! Trevligt att träffas.', en: 'Hello! Nice to meet you.', es: '¡Hola! Encantado de conocerte.' };
 
@@ -131,16 +132,19 @@
       const q = queue[i++];
       let ended = false;
       const fin = () => { if (ended) return; ended = true; if (token === playToken) setTimeout(next, q.pause); };
+      const device = () => {
+        try { const u = new G.SpeechSynthesisUtterance(q.text); u.voice = q.voice.voice; u.lang = q.voice.lang; u.rate = rate; u.onend = fin; u.onerror = fin; G.speechSynthesis.speak(u); } catch (e) { fin(); }
+      };
       if (q.cloud) {
         q.cloud.then(url => {
           if (token !== playToken) return;
-          if (!url || typeof G.Audio === 'undefined') return fin();
+          if (!url || typeof G.Audio === 'undefined') return q.voice && hasTTS ? device() : fin();
           try {
             audioEl = new G.Audio(url); audioEl.playbackRate = rate; audioEl.preservesPitch = true;
             audioEl.onended = fin; audioEl.onerror = fin;
             const p = audioEl.play(); if (p && p.catch) p.catch(fin);
           } catch (e) { fin(); }
-        }, fin);
+        }, () => (q.voice && hasTTS ? device() : fin()));
         return;
       }
       try {
@@ -152,11 +156,13 @@
     };
     next();
   }
-  /* Thai goes to the cloud voice when it is switched on and either chosen ("cloud") or the device has no Thai voice ("auto") */
+  /* Thai audio priority (docs/THAI_AUDIO.md): 1 recorded file, 2 natural neural voice from the cloud, 3 the device's own Thai voice.
+     "auto" and "cloud" use the cloud voice whenever it is set up and working; "device" never does. If a cloud sentence cannot be
+     fetched, that sentence is read by the device's Thai voice (never by a voice of another language). */
   const CV = () => FGH.cloudVoice;
   function cloudFor(lang, pid) {
     const cv = CV(); if (lang !== 'th' || !cv || !cv.available()) return false;
-    return cv.mode() === 'cloud' || !current('th', pid);
+    return cv.mode() === 'cloud' || cv.mode() === 'auto';
   }
   /* cloud pieces: whole lines (fewer requests, natural phrasing); a line longer than the limit is cut at phrase borders */
   function cloudPieces(text) {
@@ -191,7 +197,8 @@
         segments(text, lang).forEach(seg => {
           if (!opts.voice && cloudFor(seg.lang, pid)) {
             const g = cloudGender(pid);
-            cloudPieces(seg.text).forEach(c => queue.push({ cloud: CV().get(c, g), pause: pauseAfter(c, rate) }));
+            const dv = CV().mode() === 'auto' && hasTTS ? current('th', pid) : null;   // the fallback for a sentence the cloud cannot give
+            cloudPieces(seg.text).forEach(c => queue.push({ cloud: CV().get(c, g), text: c, voice: dv, pause: pauseAfter(c, rate) }));
             return;
           }
           if (!hasTTS) return;
@@ -206,6 +213,19 @@
       try { const f = fam(); if (pid && FGH.familyStore) { const s = prefsOf(f, pid); if (s.lastLang !== lang) FGH.familyStore.mutate(ff => { used(ff, pid, lang); }); } } catch (e) { /* not important */ }
       return true;
     }
+  }
+  /* the words of a sentence, for word-by-word playback: "|" marks in the content first, else the browser's Thai word breaker, else spaces */
+  function wordsOf(text, lang) {
+    const raw = String(text == null ? '' : text);
+    if (raw.includes('|')) return raw.split(/[|\s]+/).map(x => x.trim()).filter(Boolean);
+    const s = tidy(raw);
+    try {
+      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        const w = Array.from(new Intl.Segmenter(lang || 'th', { granularity: 'word' }).segment(s)).filter(x => x.isWordLike).map(x => x.segment);
+        if (w.length) return w;
+      }
+    } catch (e) { /* older browser */ }
+    return s.split(/\s+/).filter(Boolean);
   }
   /* fetches cloud audio for the Thai texts of an open lesson in the background, so ▶ plays at once (only when the cloud voice is in use) */
   function prefetch(texts, pid) {
@@ -234,7 +254,7 @@
   if (hasTTS && G.speechSynthesis.addEventListener) { try { G.speechSynthesis.addEventListener('voiceschanged', () => listeners.forEach(fn => { try { fn(); } catch (e) { /* ignore */ } })); } catch (e) { /* ignore */ } }
   const onVoices = fn => listeners.push(fn);
 
-  FGH.voice = { LOCALE, RATES, DEFAULT_RATE, SAMPLE, genderOf, regionOf, langOf, listFor, regions, choose, chunks, segments, tidy, clampRate, pauseAfter,
+  FGH.voice = { LOCALE, RATES, SLOW, DEFAULT_RATE, SAMPLE, genderOf, regionOf, langOf, listFor, regions, choose, chunks, segments, tidy, clampRate, pauseAfter,
     prefsOf, prefFor, setVoice, resetVoice, setRate, used, rateOf, merge,
-    hasTTS, voices, use, current, say, stop, audioFor, onVoices, active: () => activePid, canSpeak, thaiStatus, platform, cloudPieces, prefetch };
+    hasTTS, voices, use, current, say, stop, audioFor, onVoices, active: () => activePid, canSpeak, thaiStatus, platform, cloudPieces, prefetch, wordsOf };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -12,7 +12,7 @@ function load({ voices = [], fetchImpl, config = { supabaseUrl: 'https://x.supab
   const ls = { getItem: k => mem[k] ?? null, setItem: (k, v) => { mem[k] = String(v); }, removeItem: k => { delete mem[k]; }, key: i => Object.keys(mem)[i], get length() { return Object.keys(mem).length; } };
   class Audio { constructor(u) { this.src = u; played.push(u); } play() { setTimeout(() => this.onended && this.onended(), 1); return Promise.resolve(); } pause() {} }
   class Utt { constructor(t) { this.text = t; } }
-  const ctx = { console, Math, Date, Set, Map, JSON, Array, Object, String, Number, Boolean, Error, Promise, RegExp, setTimeout, clearTimeout, URL: { createObjectURL: b => 'blob:' + b.text },
+  const ctx = { console, Math, Date, Set, Map, JSON, Array, Object, String, Number, Boolean, Error, Promise, RegExp, Intl, setTimeout, clearTimeout, URL: { createObjectURL: b => 'blob:' + b.text },
     localStorage: ls, FGH_CONFIG: config, Audio, SpeechSynthesisUtterance: Utt, navigator: { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', maxTouchPoints: 0 },
     speechSynthesis: { getVoices: () => voices, speak: u => { spoken.push(u.text); setTimeout(() => u.onend && u.onend(), 1); }, cancel() {}, addEventListener() {} },
     fetch: async (url, o) => { calls.push({ url, body: JSON.parse(o.body), headers: o.headers }); return fetchImpl ? fetchImpl(url, o) : { ok: true, status: 200, blob: async () => ({ size: 10, text: JSON.parse(o.body).text }) }; } };
@@ -43,16 +43,42 @@ test('the same sentence is fetched only once', async () => {
   assert.equal(calls.length, 1);
 });
 
-test('device has a Thai voice: automatic mode uses it; "cloud" mode uses the cloud; "device" mode never calls the cloud', async () => {
+test('priority (docs/THAI_AUDIO.md): automatic and cloud use the natural cloud voice first; "device" never calls the cloud', async () => {
   let r = load({ voices: [TH] });
   r.V.say('แมว', 'th'); await wait(10);
-  assert.equal(r.calls.length, 0); assert.deepEqual(r.spoken, ['แมว']);
+  assert.equal(r.calls.length, 1); assert.deepEqual(r.spoken, []);
   r = load({ voices: [TH], mode: 'cloud' });
   r.V.say('แมว', 'th'); await wait(10);
   assert.equal(r.calls.length, 1); assert.deepEqual(r.spoken, []);
+  r = load({ voices: [TH], mode: 'device' });
+  r.V.say('แมว', 'th'); await wait(10);
+  assert.equal(r.calls.length, 0); assert.deepEqual(r.spoken, ['แมว']);
   r = load({ voices: [], mode: 'device' });
   assert.equal(r.V.say('แมว', 'th'), false); assert.equal(r.calls.length, 0);
   assert.equal(r.V.canSpeak('th'), false);
+});
+
+test('a sentence the cloud cannot give is read by the device Thai voice (automatic), never by another language', async () => {
+  let r = load({ voices: [TH, SV], fetchImpl: async () => ({ ok: false, status: 404 }) });
+  assert.equal(r.V.say('แมว', 'th'), true); await wait(30);
+  assert.deepEqual(r.spoken, ['แมว']);
+  r.V.say('หมา', 'th'); await wait(30);   // the cloud is now switched off for a while: straight to the device voice
+  assert.deepEqual(r.spoken, ['แมว', 'หมา']); assert.equal(r.calls.length, 1);
+  r = load({ voices: [SV], fetchImpl: async () => ({ ok: false, status: 404 }) });
+  r.V.say('แมว', 'th'); await wait(30);
+  assert.deepEqual(r.spoken, []);   // a Swedish voice never reads Thai
+  r = load({ voices: [TH], mode: 'cloud', fetchImpl: async () => ({ ok: false, status: 503 }) });
+  r.V.say('แมว', 'th'); await wait(30);
+  assert.deepEqual(r.spoken, []);   // "cloud only" does not fall back
+});
+
+test('word by word: content marks first, then the Thai word breaker', () => {
+  const { V } = load({ voices: [] });
+  assert.deepEqual(JSON.parse(JSON.stringify(V.wordsOf('ผม|ชื่อ|ต้น|ครับ', 'th'))), ['ผม', 'ชื่อ', 'ต้น', 'ครับ']);
+  const w = JSON.parse(JSON.stringify(V.wordsOf('ขอบคุณมากครับ', 'th')));
+  assert.ok(w.length >= 2 && w.join('') === 'ขอบคุณมากครับ', JSON.stringify(w));
+  assert.deepEqual(JSON.parse(JSON.stringify(V.wordsOf('Hej på dig', 'sv'))), ['Hej', 'på', 'dig']);
+  assert.equal(V.SLOW, 0.5); assert.ok(V.RATES.includes(0.85) && V.RATES.includes(0.5) && V.RATES.includes(1.25));
 });
 
 test('a Thai word inside Swedish text goes to the cloud voice, the Swedish to the Swedish voice', async () => {

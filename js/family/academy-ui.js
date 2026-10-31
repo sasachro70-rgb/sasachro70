@@ -76,7 +76,7 @@
     }
     VO.use(V.pid);
     const S = { who: whoHTML, setup: setupHTML, home: THAI ? dashHTML : homeHTML, courses: coursesHTML, lessons: lessonsHTML, practice: practiceHTML, games: gamesHTML,
-      classroom: classroomHTML, homework: homeworkHTML, hwThread: hwThreadHTML, progress: progressHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML };
+      classroom: classroomHTML, homework: homeworkHTML, hwThread: hwThreadHTML, progress: progressHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML, pron: () => (PR ? PR.html() : homeHTML()) };
     $('app').innerHTML = (S[V.screen] || homeHTML)();
     const inp = document.querySelector('[data-focus]'); if (inp) inp.focus();
   }
@@ -289,7 +289,7 @@
     const pron = c.lessons.filter(l => (l.skills || []).includes('pronunciation') || l.practice);
     const card = (act, v, icon, title, desc) => '<button class="card game" data-act="' + act + '" data-v="' + esc(v || '') + '"><span class="gicon" aria-hidden="true">' + icon + '</span><span class="gname">' + esc(title) + '</span><span class="gdesc">' + esc(desc) + '</span></button>';
     let h = top(t('tlaNav.practice')) + '<h2 class="sec">🗣️ ' + esc(t('tlaPron')) + '</h2><div class="games">' +
-      pron.map(l => { const r = pr.lessons[l.id]; return card('openLesson', l.id, l.icon, T(l.title), T(l.goal) + (r && r.done ? ' · ✓' : '')); }).join('') + '</div>';
+      (PR ? card('pronOpen', '', '🗣️', t('pron.title'), t('pron.desc')) : '') + pron.map(l => { const r = pr.lessons[l.id]; return card('openLesson', l.id, l.icon, T(l.title), T(l.goal) + (r && r.done ? ' · ✓' : '')); }).join('') + '</div>';
     h += '<h2 class="sec">🔁 ' + esc(t('tlaWordsSec')) + '</h2><div class="games">' + card('review', '', '🔁', t('acReviewNow'), dueN ? t('acReviewToday', { n: dueN }) : t('acNoReview')) +
       card('go', 'words', '⭐', t('acFavorites'), t('tlaWordsDesc')) + card('go', 'voice', '🔊', t('voice.title'), t('tlaVoiceDesc')) + '</div>';
     return h;
@@ -387,15 +387,16 @@
       (act === 'sayWord' ? '<button class="ghost" data-act="sayWordRep" data-v="' + i + '" aria-label="' + esc(t('voice.repeat')) + '" title="' + esc(t('voice.repeat')) + '">🔁</button>' : '') + '</span>';
     if (c.target === 'th' && VO.prefetch) VO.prefetch((l.dialogue || []).map(d => d.t).concat((l.vocab || []).map(w => w.t)), p.id);
     let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote(l) + VUI.thaiBannerHTML(p.id) : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
+    if (l.audioSource && l.audio) h += '<p class="muted" style="font-size:.85rem">🎙 ' + esc(l.audioSource) + '</p>';
     if (l.tones) h += tonesHTML(l);
     h += '<section class="card"><div class="row" style="margin:0 0 8px"><h2>' + esc(l.dialogue[0] && l.dialogue[0].who ? t('acDialogue') : t('skills.reading')) + '</h2><span class="grow"></span><button class="btn small" data-act="playAll">▶ ' + esc(t('acPlayAll')) + '</button><button class="btn small" data-act="toggleTr">' + esc(V.showTr ? t('acHideTr') : t('acShowTr')) + '</button></div><div class="dlg">' +
-      l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + sayBtns('sayLine', i) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
+      l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + (c.target === 'th' ? VUI.controlsHTML(d.t, 'th') : sayBtns('sayLine', i)) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
     /* pictures of an imported lesson (private links made after the access check) */
     const media = (window.FGH_CONTENT && window.FGH_CONTENT.media) || {};
     if (l.images && l.images.some(im => media[im.path])) h += '<section class="card"><div class="lesson-images">' + l.images.filter(im => media[im.path]).map(im => '<figure><img src="' + esc(media[im.path]) + '" alt="' + esc(im.caption || '') + '" loading="lazy">' + (im.caption ? '<figcaption lang="th">' + esc(im.caption) + '</figcaption>' : '') + '</figure>').join('') + '</div></section>';
     h += '<section class="card"><h2>' + esc(t('acVocab')) + '</h2><div class="tablewrap"><table class="vocab"><tbody>' + l.vocab.map((w, i) => {
       const k = AC.itemKey(c, l, w), on = fav.includes(k), st = SRS.status(deck(p)[k]);
-      return '<tr><td><b lang="' + c.target + '" class="tw">' + esc(w.t) + '</b>' + romHTML(w.rom) + sayBtns('sayWord', i) + '</td><td>' + esc(T(w.tr)) + (w.note ? '<br><small class="muted">💡 ' + esc(T(w.note)) + '</small>' : '') + '</td><td><span class="muted" style="font-size:.85rem">' + esc(st === 'known' ? t('acKnown') : st === 'weak' ? t('acWeak') : '') + '</span></td>' +
+      return '<tr><td><b lang="' + c.target + '" class="tw">' + esc(w.t) + '</b>' + romHTML(w.rom) + (c.target === 'th' ? VUI.controlsHTML(w.t, 'th', { compact: true }) : sayBtns('sayWord', i)) + '</td><td>' + esc(T(w.tr)) + (w.note ? '<br><small class="muted">💡 ' + esc(T(w.note)) + '</small>' : '') + '</td><td><span class="muted" style="font-size:.85rem">' + esc(st === 'known' ? t('acKnown') : st === 'weak' ? t('acWeak') : '') + '</span></td>' +
         '<td><button class="ghost" data-act="fav" data-v="' + esc(k) + '" aria-pressed="' + on + '" title="' + esc(on ? t('acUnfav') : t('acFav')) + '">' + (on ? '★' : '☆') + '</button></td></tr>';
     }).join('') + '</tbody></table></div></section>';
     /* table cells with Thai script get a listen button (consonant, vowel and number tables); only the Thai part is read */
@@ -611,6 +612,10 @@
     }
   };
   Object.assign(ACT, VUI.acts(() => V.pid, render));
+  /* pronunciation module (Phase D, js/academy/pron-ui.js) */
+  const PR = FGH.pronUI && THAI ? FGH.pronUI.create({ top, explain: () => { const p = me(), s = p && setup(p); return s ? s.explain : 'sv'; }, pid: () => V.pid, render,
+    leave: () => { V.screen = 'practice'; render(); window.scrollTo(0, 0); } }) : null;
+  if (PR) Object.assign(ACT, PR.acts, { pronOpen() { PR.reset(); V.screen = 'pron'; render(); window.scrollTo(0, 0); } });
   K.bindActs(ACT);
   if (VO.onVoices) VO.onVoices(() => { if (V.screen === 'voice' || V.screen === 'lesson') render(); });
   document.addEventListener('submit', e => {
