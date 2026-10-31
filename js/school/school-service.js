@@ -54,6 +54,40 @@
       studentMe: () => rpc('student_me'),
       studentLogout: () => rpc('student_logout'),
       saveProgress: (data, rev) => rpc('student_save_progress', { p_data: data, p_rev: rev }),
+      /* ---------- teaching material and homework (migration 0005) ---------- */
+      teachingAccess: () => rpc('teaching_access'),
+      listCourseContent: () => rpc('list_course_content'),
+      getCourseContent: id => rpc('get_course_content', { p_id: id }),
+      saveCourseContent: (id, title, doc) => rpc('save_course_content', { p_id: id, p_title: title, p_doc: doc }),
+      createAssignment: x => rpc('create_assignment', { p_class: x.classId, p_title: x.title, p_instructions: x.instructions || '', p_due: x.due || null,
+        p_course: x.course || null, p_lesson: x.lesson || null, p_max_score: x.maxScore == null ? 10 : x.maxScore, p_allow_resubmit: x.allowResubmit !== false }),
+      archiveAssignment: (id, archived) => rpc('set_assignment_archived', { p_id: id, p_archived: !!archived }),
+      teacherAssignments: classId => rpc('teacher_assignments', { p_class: classId }),
+      teacherSubmissions: id => rpc('teacher_submissions', { p_assignment: id }),
+      teacherThread: (id, studentId) => rpc('teacher_thread', { p_assignment: id, p_student: studentId }),
+      reviewSubmission: (subId, status, score, comment) => rpc('review_submission', { p_submission: subId, p_status: status, p_score: score == null || score === '' ? null : parseInt(score, 10), p_comment: comment || null }),
+      teacherComment: (id, studentId, body) => rpc('teacher_comment', { p_assignment: id, p_student: studentId, p_body: body }),
+      studentAssignments: () => rpc('student_assignments'),
+      studentThread: id => rpc('student_thread', { p_assignment: id }),
+      studentSubmit: (id, answer, file) => rpc('student_submit', { p_assignment: id, p_answer: answer || '', p_file_path: file ? file.path : null, p_file_name: file ? file.name : null, p_file_type: file ? file.type : null }),
+      studentComment: (id, body) => rpc('student_comment', { p_assignment: id, p_body: body }),
+      /* files of hand-ins: private bucket "submissions", path "<student id>/<assignment id>/<time>-<name>"; read through a link valid 1 hour */
+      async uploadSubmissionFile(studentId, assignmentId, file) {
+        if (!file) return null;
+        if (file.size > 10 * 1024 * 1024) throw Object.assign(new Error('file_too_large'), { code: 'file_too_large' });
+        const safe = String(file.name || 'fil').normalize('NFC').replace(/[^\w.\-\u0E00-\u0E7F]+/g, '_').slice(-80);
+        const path = studentId + '/' + assignmentId + '/' + Date.now() + '-' + safe;
+        let res;
+        try { res = await client.storage.from('submissions').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false }); } catch (e) { throw toError(e); }
+        if (res.error) throw toError(res.error);
+        return { path, name: String(file.name || safe).slice(0, 160), type: file.type || '' };
+      },
+      async fileLink(path) {
+        let res;
+        try { res = await client.storage.from('submissions').createSignedUrl(path, 3600); } catch (e) { throw toError(e); }
+        if (res.error) throw toError(res.error);
+        return res.data && res.data.signedUrl;
+      },
       recordActivity: a => rpc('student_record_activity', { p_key: a.key, p_area: a.area, p_kind: a.kind, p_title: a.title, p_unit: a.unit || null, p_score: a.score | 0, p_max: a.max | 0, p_ms: a.ms | 0 })
     };
   }

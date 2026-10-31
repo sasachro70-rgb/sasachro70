@@ -247,3 +247,16 @@ body[data-area="academy"] [lang="th"], body[data-area="academy"] .tw, body[data-
 .coursecard b { font-size: 1.15rem; }
 .coursecard .meter { width: 100%; margin: .3rem 0 0; }
 .coursecard.on { border-color: var(--tla-teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tla-teal) 22%, transparent); }
+/* homework (Phase H) */
+.gate { border-top: 4px solid var(--tla, #232A6B); }
+.hwlist { display: grid; gap: 10px; }
+.hwrow { display: flex; align-items: center; gap: .8rem; text-align: left; font: inherit; color: inherit; padding: .8rem 1rem; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; min-height: 64px; }
+.hwrow .hwi { font-size: 1.5rem; } .hwrow .hwt { flex: 1; display: flex; flex-direction: column; gap: .15rem; }
+.hwrow.returned { border-color: #F2A13B; } .hwrow.approved { opacity: .8; }
+.msg { border-radius: 14px; padding: .6rem .8rem; background: var(--shade); }
+.msg.teacher { background: color-mix(in srgb, var(--tla, #232A6B) 9%, var(--surface)); border-left: 4px solid var(--tla, #232A6B); }
+.msg.student { border-left: 4px solid var(--tla-teal, #0E8C80); }
+.msg .mh { display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; font-size: .92rem; }
+.msg p { margin: .3rem 0 0; white-space: pre-wrap; }
+.pill { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .65rem; border-radius: 999px; background: var(--shade); font-size: .88rem; font-weight: 600; }
+.hwgrid { width: 100%; }

@@ -99,3 +99,22 @@ test('Thai Learning Academy (Phase C): own navigation, Thai-only mode, explanati
   assert.equal(FT.th.tlaNav.progress, 'ความก้าวหน้าของฉัน');
   assert.ok(read('index.html').includes('href="academy.html?course=sv" data-t="otherCourses"'), 'other courses stay reachable');
 });
+
+test('Phase H: the Thai Academy is closed until the database says yes; homework screens for students and teachers', () => {
+  const ui = read('js/family/academy-ui.js');
+  assert.ok(ui.includes("if (THAI && !(ACC && ACC.ok)) { $('app').innerHTML = gateHTML(); return; }"), 'gate before any Thai Academy screen');
+  assert.ok(ui.includes('let ACC = THAI ? null : { ok: true };'), 'starts closed in Thai mode');
+  const acc = read('js/academy/access.js');
+  assert.ok(acc.includes("svc.teachingAccess()") && acc.includes('protected: true'));
+  const html = read('academy.html');
+  for (const s of ['js/school/school-service.js', 'js/school/student-sync.js', 'js/academy/access.js']) assert.ok(html.includes(s), s);
+  /* protected content never ships in the repository */
+  for (const f of fs.readdirSync(path.join(root, 'content'))) assert.ok(!/BOOK 42.*(ยายสา|ตาศี)/s.test(read('content/' + f)), f);
+  const svc = read('js/school/school-service.js');
+  for (const fn of ['student_submit', 'review_submission', 'teacher_comment', 'student_comment', 'get_course_content']) assert.ok(svc.includes("'" + fn + "'"), fn);
+  assert.ok(read('js/school/teacher-ui.js').includes('function threadHTML()'));
+  const FT = load(['js/family/i18n.js']).window.FGH.FT;
+  for (const l of ['en', 'sv', 'th']) for (const k of ['submitted', 'returned', 'approved']) assert.ok(FT[l].tlaHw.st[k], l + ' ' + k);
+  assert.equal(FT.th.tlaHw.teacherFb, 'ครูแสดงความคิดเห็น');
+  assert.equal(FT.th.tlaHw.studentCm, 'นักเรียนแสดงความคิดเห็น');
+});

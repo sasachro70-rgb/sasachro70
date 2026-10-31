@@ -59,3 +59,13 @@ No paid API, no AI service and no analytics are used. Nothing is sent anywhere u
 * [ ] A game in the Kids area adds points; a reward request appears under Requests; approving lowers the balance once
 * [ ] On iPad: the voice reads Thai/Swedish/Spanish words (install voices in *Settings → Accessibility → Spoken Content → Voices* if missing)
 * [ ] With Supabase: a second device signed in to the family shows the same balance after a few seconds
+
+
+## Migration 0005 (homework and protected course content)
+
+1. Supabase Dashboard → **SQL Editor** → paste `supabase/migrations/0005_homework_protected_content.sql` → **Run**.
+   (It needs 0001–0004 first.) It also creates the private Storage bucket `submissions` and its two access rules.
+2. Check: Storage → Buckets → `submissions` is **private**.
+3. Protected course content (for example the BOOK 42 course) is loaded separately with a SQL file that is **not** in this repository
+   (the repository is public). Paste that file into the SQL Editor and run it; run it again to update the content.
+4. Undo: `supabase/rollback/0005_rollback.sql` (export the homework tables first if you want to keep them).

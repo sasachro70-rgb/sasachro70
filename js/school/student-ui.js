@@ -56,7 +56,7 @@
       ? '<p style="margin:0"><b>' + esc(row.course.startsWith('kids:') ? K.t('lang.' + row.course.slice(5)) : row.course) + '</b>' + (row.curName || row.lesson ? ' · ' + esc(row.curName ? K.L(row.curName) : row.lesson) : '') + '</p>' +
         '<div class="meter"><span style="width:' + row.pct + '%"></span></div><p class="muted" style="margin:0">' + row.pct + ' %</p><a class="btn primary huge" href="' + esc(row.href) + '">▶ ' + esc(t('continue')) + '</a>'
       : '<p class="muted" style="margin:0">' + esc(t('noProgress')) + '</p><a class="btn primary huge" href="kids.html?p=' + encodeURIComponent(pid || '') + '#lang">🚀 ' + esc(t('start')) + '</a>') + '</section>';
-    h += '<div class="grid"><a class="tile" href="kids.html?p=' + encodeURIComponent(pid || '') + '"><span class="ic" aria-hidden="true">🧠</span><span class="nm">' + esc(t('kidsArea')) + '</span></a></div>';
+    h += '<div class="grid"><a class="tile" href="academy.html"><span class="ic" aria-hidden="true">📚</span><span class="nm">Thai Learning Academy</span></a><a class="tile" href="kids.html?p=' + encodeURIComponent(pid || '') + '"><span class="ic" aria-hidden="true">🧠</span><span class="nm">' + esc(t('kidsArea')) + '</span></a></div>';
     if (V.recent.length) h += '<section class="card"><h2>' + esc(t('recentMine')) + '</h2><ul class="plain">' + V.recent.slice(0, 8).map(a => '<li>' + esc(K.fmtDate(a.at, true)) + ' · ' + esc(a.title) + (a.max ? ' · ' + a.pct + ' %' : '') + '</li>').join('') + '</ul></section>';
     h += '<section class="card"><p class="muted" style="margin-top:0">' + esc(t('logoutInfo')) + '</p><button class="btn" data-act="logout">🚪 ' + esc(t('logout')) + '</button></section>';
     return h;

@@ -15,6 +15,8 @@
   const THAI = !params.get('course') || params.get('course') === 'th';   // Thai Learning Academy mode
   const TABS = ['home', 'courses', 'lessons', 'practice', 'games', 'classroom', 'homework', 'progress'];
   let V = { screen: 'home', pid: params.get('p') || sessionStorage.getItem('fgh.adult') || null, showTr: false, skill: null };
+  /* Thai Academy access (js/academy/access.js): null while checking, then { ok, kind, … } or { ok: false, reason } */
+  let ACC = THAI ? null : { ok: true };
   let R = null;    // running exercises / test
   let RV = null;   // review session
 
@@ -53,6 +55,7 @@
 
   function render() {
     document.documentElement.lang = K.ui(); document.body.dataset.area = 'academy';
+    if (THAI && !(ACC && ACC.ok)) { $('app').innerHTML = gateHTML(); return; }
     const p = me();
     if (!p || (!THAI && p.kind !== 'adult')) { V.pid = null; V.screen = 'who'; }
     else {
@@ -73,7 +76,7 @@
     }
     VO.use(V.pid);
     const S = { who: whoHTML, setup: setupHTML, home: THAI ? dashHTML : homeHTML, courses: coursesHTML, lessons: lessonsHTML, practice: practiceHTML, games: gamesHTML,
-      classroom: classroomHTML, homework: homeworkHTML, progress: progressHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML };
+      classroom: classroomHTML, homework: homeworkHTML, hwThread: hwThreadHTML, progress: progressHTML, lesson: lessonHTML, run: runHTML, done: doneHTML, review: reviewHTML, words: wordsHTML, voice: voiceHTML };
     $('app').innerHTML = (S[V.screen] || homeHTML)();
     const inp = document.querySelector('[data-focus]'); if (inp) inp.focus();
   }
@@ -95,7 +98,8 @@
 
   /* ---------- who & setup ---------- */
   function whoHTML() {
-    const list = F.activeProfiles(fam(), THAI ? null : 'adult');
+    const own = studentPid();
+    const list = own ? F.activeProfiles(fam()).filter(p => p.id === own) : F.activeProfiles(fam(), THAI ? null : 'adult');
     return K.header(t(THAI ? 'tlaTitle' : 'acTitle')) + (THAI ? tlaIntroHTML() : '<p class="tagline">' + esc(t('acTag')) + '</p>') + '<h2 class="sec">' + esc(t(THAI ? 'tlaWho' : 'acWho')) + '</h2>' +
       (list.length ? '<div class="who-grid">' + list.map(p => '<button class="who-card" data-act="pick" data-v="' + esc(p.id) + '"><span class="av" aria-hidden="true">' + esc(p.avatar) + '</span><span class="nm">' + esc(p.name) + '</span>' +
         (fam().adult[p.id] && AC.course(fam().adult[p.id].target) ? '<span class="muted">' + esc(cname(fam().adult[p.id].target)) + ' · ' + esc(lvShort(AC.course(fam().adult[p.id].target), fam().adult[p.id].level)) + '</span>' : '') + '</button>').join('') + '</div>' : '<p class="muted">' + esc(t('noAdults')) + '</p>') +
@@ -160,6 +164,65 @@
     return h;
   }
 
+  /* ================= access gate (Thai Academy) ================= */
+  const studentPid = () => { const sc = ACC && ACC.kind === 'student' && FGH.studentSync && FGH.studentSync.current(); return sc ? sc.pid : null; };
+  function gateHTML() {
+    if (!ACC) return K.header(t('tlaTitle')) + tlaIntroHTML() + '<section class="card center"><p class="muted">' + esc(t('tlaGate.checking')) + '</p></section>';
+    const r = ACC.reason || 'error', msg = t('tlaGate.' + r) !== 'tlaGate.' + r ? t('tlaGate.' + r) : t('tlaGate.error');
+    return K.header(t('tlaTitle')) + tlaIntroHTML() + '<section class="card stack gate"><h2>🔒 ' + esc(t('tlaGate.title')) + '</h2><p style="margin:0">' + esc(t('tlaGate.who')) + '</p>' +
+      '<p class="muted" style="margin:0">' + esc(msg) + '</p><div class="row"><a class="btn primary big" href="student.html">🎒 ' + esc(t('tlaStudentLogin')) + '</a>' +
+      '<a class="btn big" href="teacher.html">🧑‍🏫 ' + esc(t('tlaGate.teacher')) + '</a><button class="btn" data-act="gateRetry">↻ ' + esc(t('tlaGate.retry')) + '</button></div>' +
+      '<p class="muted" style="margin:0;font-size:.9rem">' + esc(t('tlaGate.other')) + ' <a href="academy.html?course=sv">' + esc(t('tlaOtherCourses')) + '</a> · <a href="play.html">Play Zone</a></p></section>';
+  }
+  function startAccess() {
+    if (!THAI || !FGH.teachingAccess) { if (THAI) { ACC = { ok: false, reason: 'not_configured' }; render(); } return; }
+    FGH.teachingAccess.check().then(a => {
+      ACC = a;
+      const own = studentPid();
+      if (a.ok && own) { V.pid = own; sessionStorage.setItem('fgh.adult', own); if (!setup(me())) V.screen = 'setup'; else if (!TABS.includes(V.screen)) V.screen = 'home'; }
+      if (a.ok && a.kind === 'student') loadHw();
+      render();
+    }).catch(() => { ACC = { ok: false, reason: 'error' }; render(); });
+  }
+
+  /* ================= homework (student) ================= */
+  const HW_STATUS = { submitted: '⏳', returned: '✏️', approved: '✅' };
+  const fmtTime = ts => ts ? K.fmtDate(Date.parse(ts), true) : '';
+  function loadHw() { if (!(ACC && ACC.kind === 'student')) return Promise.resolve(); return ACC.svc.studentAssignments().then(l => { V.hw = l || []; render(); }).catch(e => { V.hwErr = e.code || 'error'; render(); }); }
+  function hwStatusText(x) { return x.status ? t('tlaHw.st.' + x.status) : (x.due_at && Date.parse(x.due_at) < Date.now() ? t('tlaHw.st.late') : t('tlaHw.st.todo')); }
+  function hwListHTML() {
+    if (V.hwErr) return '<section class="card"><p class="muted">⚠️ ' + esc(t('tlaHw.loadError')) + '</p></section>';
+    if (!V.hw) return '<p class="muted">…</p>';
+    if (!V.hw.length) return '<section class="card"><p class="muted" style="margin:0">' + esc(t('tlaHw.none')) + '</p></section>';
+    return '<div class="hwlist">' + V.hw.map(x => '<button class="hwrow ' + (x.status || 'todo') + '" data-act="hwOpen" data-v="' + esc(x.id) + '"><span class="hwi" aria-hidden="true">' + (HW_STATUS[x.status] || '📝') + '</span><span class="hwt"><b>' + esc(x.title) + '</b>' +
+      '<span class="muted">' + (x.due_at ? esc(t('tlaHw.due', { d: fmtTime(x.due_at) })) + ' · ' : '') + esc(hwStatusText(x)) + (x.score != null ? ' · ' + x.score + '/' + x.max_score : '') + (x.teacher_messages ? ' · 💬 ' + x.teacher_messages : '') + '</span></span><span aria-hidden="true">›</span></button>').join('') + '</div>';
+  }
+  function canSubmit(th) {
+    const l = th.submissions[th.submissions.length - 1];
+    return !l || l.status === 'returned' || (l.status === 'submitted' && th.assignment.allow_resubmit);
+  }
+  function hwThreadHTML() {
+    const th = V.hwThread; if (!th) return top(t('tlaNav.homework'), 'hwBack') + '<p class="muted">…</p>';
+    const a = th.assignment, last = th.submissions[th.submissions.length - 1];
+    const lessonC = a.course_key && AC.course(a.course_key), lesson = lessonC && a.lesson_id && AC.lessonById(lessonC, a.lesson_id);
+    let h = top('📝 ' + a.title, 'hwBack') + '<section class="card stack"><div class="row" style="margin:0">' + (a.due_at ? '<span class="pill">' + esc(t('tlaHw.due', { d: fmtTime(a.due_at) })) + '</span>' : '') +
+      '<span class="pill">' + esc(t('tlaHw.max', { n: a.max_score })) + '</span>' + (last ? '<span class="pill">' + (HW_STATUS[last.status] || '') + ' ' + esc(t('tlaHw.st.' + last.status)) + (last.score != null ? ' · ' + last.score + '/' + a.max_score : '') + '</span>' : '') + '</div>' +
+      (a.instructions ? '<p style="margin:0;white-space:pre-wrap">' + esc(a.instructions) + '</p>' : '') +
+      (lesson ? '<div class="row" style="margin:0"><button class="btn" data-act="hwLesson" data-v="' + esc(a.course_key + '|' + a.lesson_id) + '">📖 ' + esc(t('tlaHw.openLesson')) + ': ' + lesson.icon + ' ' + esc(T(lesson.title)) + '</button></div>' : '') + '</section>';
+    if (th.submissions.length) h += '<h2 class="sec">' + esc(t('tlaHw.myWork')) + '</h2>' + th.submissions.slice().reverse().map(sb => '<section class="card hwver"><div class="row" style="margin:0"><b>' + esc(t('tlaHw.version', { n: sb.version })) + '</b><span class="muted">' + esc(fmtTime(sb.submitted_at)) + (sb.late ? ' · ' + esc(t('tlaHw.late')) : '') + '</span><span class="grow"></span><span class="pill">' + (HW_STATUS[sb.status] || '') + ' ' + esc(t('tlaHw.st.' + sb.status)) + (sb.score != null ? ' · ' + sb.score + '/' + a.max_score : '') + '</span></div>' +
+      (sb.answer ? '<p style="white-space:pre-wrap;margin:.5rem 0 0">' + esc(sb.answer) + '</p>' : '') + (sb.file_path ? '<div class="row"><button class="btn small" data-act="hwFile" data-v="' + esc(sb.file_path) + '">📎 ' + esc(sb.file_name || t('tlaHw.file')) + '</button></div>' : '') + '</section>').join('');
+    h += '<h2 class="sec">💬 ' + esc(t('tlaHw.talk')) + '</h2><section class="card stack">' + (th.messages.length ? th.messages.map(m => '<div class="msg ' + m.kind + '"><div class="mh"><b>' + esc(m.kind === 'teacher' ? '🧑‍🏫 ' + m.name : '🎒 ' + m.name) + '</b><span class="muted">' + esc(m.kind === 'teacher' ? t('tlaHw.teacherFb') : t('tlaHw.studentCm')) + ' · ' + esc(fmtTime(m.at)) + '</span></div><p>' + esc(m.body) + '</p></div>').join('') : '<p class="muted" style="margin:0">' + esc(t('tlaHw.noTalk')) + '</p>') +
+      '<form class="row" data-form="hwComment" style="margin:0"><input id="hwCm" type="text" maxlength="2000" placeholder="' + esc(t('tlaHw.askPh')) + '" style="flex:1;min-height:48px;border-radius:12px;border:1px solid var(--line);padding:0 .8rem"><button class="btn" type="submit">' + esc(t('tlaHw.send')) + '</button></form></section>';
+    if (canSubmit(th)) h += '<h2 class="sec">📤 ' + esc(last ? t('tlaHw.again') : t('tlaHw.handIn')) + '</h2><form class="card stack" data-form="hwSubmit"><label for="hwAns">' + esc(t('tlaHw.answer')) + '</label>' +
+      '<textarea id="hwAns" rows="6" maxlength="8000" lang="th" style="width:100%;border-radius:12px;border:1px solid var(--line);padding:.7rem;font:inherit"></textarea>' +
+      '<label for="hwFile">' + esc(t('tlaHw.attach')) + '</label><input id="hwFile" type="file" accept=".pdf,.docx,.txt,image/*,audio/*">' +
+      '<p class="muted" style="margin:0;font-size:.85rem">' + esc(t('tlaHw.fileRule')) + '</p><div class="row"><button class="btn primary big" type="submit"' + (V.hwBusy ? ' disabled' : '') + '>📤 ' + esc(t('tlaHw.submit')) + '</button></div></form>';
+    else if (last && last.status === 'approved') h += '<section class="card center"><h2>✅ ' + esc(t('tlaHw.doneAll')) + '</h2></section>';
+    else h += '<section class="card"><p class="muted" style="margin:0">' + esc(t('tlaHw.waiting')) + '</p></section>';
+    return h;
+  }
+  async function hwOpen(id) { V.hwId = id; V.hwThread = null; V.screen = 'hwThread'; render(); try { V.hwThread = await ACC.svc.studentThread(id); } catch (e) { K.toast('⚠️ ' + t('tlaHw.loadError')); V.screen = 'homework'; } render(); }
+
   /* ================= Thai Learning Academy screens (Thai mode) ================= */
   function tlaIntroHTML() {
     return '<section class="tla-hero"><h1 class="tla-h">📚 ' + esc(t('tlaTitle')) + '</h1><p lang="sv">Strukturerad undervisning i thailändska.</p><p lang="th">ระบบเรียนการสอนภาษาไทยอย่างเป็นระบบ</p></section>';
@@ -192,8 +255,12 @@
       (dueN ? '<button class="btn" data-act="review">🔁 ' + esc(t('acReviewNow')) + '</button>' : '') + '</section>';
     h += '<section class="card"><h3>📈 ' + esc(t('tlaNav.progress')) + '</h3><div class="meter"><span style="width:' + st.pct + '%"></span></div><p class="muted">' + esc(t('tlaProgLine', { p: st.pct, d: st.done, n: st.total, w: st.words })) + '</p>' +
       '<button class="btn small" data-act="tab" data-v="progress">' + esc(t('tlaNav.progress')) + ' →</button></section>';
-    h += '<section class="card"><h3>📝 ' + esc(t('tlaNav.homework')) + '</h3><p class="muted">' + esc(t('tlaHomeworkLater')) + '</p></section>';
-    h += '<section class="card"><h3>💬 ' + esc(t('tlaFeedback')) + '</h3><p class="muted">' + esc(t('tlaFeedbackLater')) + '</p></section>';
+    const hwOpenN = (V.hw || []).filter(x => x.status !== 'approved' && x.status !== 'submitted').length, fbN = (V.hw || []).reduce((n, x) => n + (x.teacher_messages || 0), 0);
+    h += ACC && ACC.kind === 'student'
+      ? '<section class="card"><h3>📝 ' + esc(t('tlaNav.homework')) + '</h3><p class="muted">' + esc(V.hw ? (hwOpenN ? t('tlaHw.openN', { n: hwOpenN }) : t('tlaHw.noneOpen')) : '…') + '</p><button class="btn small" data-act="tab" data-v="homework">' + esc(t('tlaNav.homework')) + ' →</button></section>' +
+        '<section class="card"><h3>💬 ' + esc(t('tlaFeedback')) + '</h3><p class="muted">' + esc(fbN ? t('tlaHw.fbN', { n: fbN }) : t('tlaHw.noFb')) + '</p></section>'
+      : '<section class="card"><h3>📝 ' + esc(t('tlaNav.homework')) + '</h3><p class="muted">' + esc(t('tlaHw.staffText')) + '</p><a class="btn small" href="teacher.html">' + esc(t('tlaTeacherPage')) + ' →</a></section>' +
+        '<section class="card"><h3>🎓 ' + esc(t('tlaHw.signedInAs')) + '</h3><p class="muted">' + esc(ACC && ACC.name ? ACC.name : '') + '</p></section>';
     const rc = recent(p.id, 5);
     h += '<section class="card wide"><h3>🕒 ' + esc(t('tlaRecent')) + '</h3>' + (rc.length ? '<ul class="recent">' + rc.map(e => '<li><span>' + esc(e.title || e.kind || '') + '</span><span class="muted">' + (e.pct != null ? e.pct + ' % · ' : '') + esc(K.fmtDate(e.ts)) + '</span></li>').join('') + '</ul>' : '<p class="muted">' + esc(t('tlaNoRecent')) + '</p>') + '</section>';
     return h + '</div>';
@@ -250,13 +317,16 @@
 
   /* Classroom: the signed-in student's class (Student Mode); live lessons come later */
   function classroomHTML() {
-    const p = me(), si = studentInfo(p.id);
+    const p = me(), si = studentInfo(p.id) || (ACC && ACC.kind === 'student' ? { className: ACC.className, name: ACC.name, classCode: '' } : null);
     let h = top(t('tlaNav.classroom'));
     h += si ? '<section class="card stack"><h2>🏫 ' + esc(si.className || '') + '</h2><p class="muted" style="margin:0">' + esc(t('tlaClassIn', { name: si.name || p.name, code: si.classCode || '' })) + '</p></section>'
       : '<section class="card stack"><h2>🏫 ' + esc(t('tlaNav.classroom')) + '</h2><p style="margin:0">' + esc(t('tlaClassJoin')) + '</p><div class="row"><a class="btn primary" href="student.html">🎒 ' + esc(t('tlaStudentLogin')) + '</a><a class="btn" href="teacher.html">🧑‍🏫 ' + esc(t('tlaTeacherPage')) + '</a></div></section>';
     return h + laterCard('📡', t('tlaLiveTitle'), t('tlaLiveLater'));
   }
-  function homeworkHTML() { return top(t('tlaNav.homework')) + laterCard('📝', t('tlaNav.homework'), t('tlaHomeworkLater')) + laterCard('💬', t('tlaFeedback'), t('tlaFeedbackLater')); }
+  function homeworkHTML() {
+    if (ACC && ACC.kind === 'student') return top(t('tlaNav.homework')) + hwListHTML();
+    return top(t('tlaNav.homework')) + '<section class="card stack"><h2>🧑‍🏫 ' + esc(t('tlaHw.staffTitle')) + '</h2><p class="muted" style="margin:0">' + esc(t('tlaHw.staffText')) + '</p><div class="row"><a class="btn primary" href="teacher.html">' + esc(t('tlaTeacherPage')) + ' →</a></div></section>';
+  }
 
   /* My Progress */
   function progressHTML() {
@@ -455,7 +525,12 @@
     },
     skill(v) { V.skill = v || null; render(); },
     /* Thai Academy */
-    tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; render(); window.scrollTo(0, 0); } },
+    tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; if (v === 'homework') loadHw(); render(); window.scrollTo(0, 0); } },
+    gateRetry() { if (FGH.teachingAccess) FGH.teachingAccess.reset(); ACC = null; render(); startAccess(); },
+    hwOpen(v) { hwOpen(v); },
+    hwBack() { V.screen = 'homework'; V.hwThread = null; loadHw(); render(); },
+    hwLesson(v) { const [ck, lid] = String(v).split('|'); if (thaiCourseIds().includes(ck) && setup(me()).course !== ck) A.updateLearning(me().id, f => { f.adult[me().id].thCourse = ck; }); V.from = 'homework'; ACT.openLesson(lid); },
+    hwFile(v) { const w = window.open('', '_blank'); ACC.svc.fileLink(v).then(u => { if (w) w.location = u; else location.href = u; }).catch(() => { if (w) w.close(); K.toast('⚠️ ' + t('tlaHw.fileError')); }); },
     setExplain(v) { if (v !== 'sv' && v !== 'th') return; const p = me(); A.updateLearning(p.id, f => { f.adult[p.id].thExplain = v; }); try { localStorage.setItem('te.explain', v); } catch (e) { /* ignore */ } render(); },
     setLevel(v) { const p = me(), k = setup(p).course; A.updateLearning(p.id, f => { const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { [k]: v }); if (s2.target === k) s2.level = v; }); render(); },
     setCourse(v) { if (!thaiCourseIds().includes(v)) return; const p = me(); A.updateLearning(p.id, f => { f.adult[p.id].thCourse = v; }); V.skill = null; render(); },
@@ -500,6 +575,15 @@
   document.addEventListener('submit', e => {
     e.preventDefault();
     const form = e.target.dataset.form;
+    if (form === 'hwComment') { const b = $('hwCm').value.trim(); if (!b) return; ACC.svc.studentComment(V.hwId, b).then(() => hwOpen(V.hwId)).catch(err => K.toast('⚠️ ' + (err.code === 'too_many_messages' ? t('tlaHw.tooMany') : t('tlaHw.sendError')))); }
+    if (form === 'hwSubmit') {
+      const ans = $('hwAns').value, file = $('hwFile').files && $('hwFile').files[0];
+      if (!ans.trim() && !file) { K.toast(t('tlaHw.empty')); return; }
+      V.hwBusy = true; render();
+      (async () => { const up = file ? await ACC.svc.uploadSubmissionFile(ACC.studentId, V.hwId, file) : null; await ACC.svc.studentSubmit(V.hwId, ans, up); })()
+        .then(() => { V.hwBusy = false; K.toast('📤 ' + t('tlaHw.sent')); loadHw(); hwOpen(V.hwId); })
+        .catch(err => { V.hwBusy = false; K.toast('⚠️ ' + (t('tlaHw.err.' + err.code) !== 'tlaHw.err.' + err.code ? t('tlaHw.err.' + err.code) : t('tlaHw.sendError'))); render(); });
+    }
     if (form === 'answer') { const v = $('ans').value; R.st.text = v; answer(AC.check(Q(), v), v); }
     if (form === 'newAdult') { const name = $('an').value; A.saveProfile(null, { name, avatar: $('aav').value, kind: 'adult', age: 30 }).then(r => { if (r.ok) ACT.pick(r.profile.id); else K.toast(t('err_' + r.error)); }); }
     if (form === 'ownWord') {
@@ -511,5 +595,6 @@
   });
   if (FGH.cloud) FGH.cloud.start().then(() => render()).catch(() => {});
   render();
+  startAccess();
   window.__academy = { state: () => ({ V, R, RV }) };
 })();

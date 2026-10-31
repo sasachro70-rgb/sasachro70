@@ -1,5 +1,32 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase H: homework, hand-in, review, feedback; closed Thai Academy; protected course content
+
+**Database** `supabase/migrations/0005_homework_protected_content.sql` (+ `supabase/rollback/0005_rollback.sql`) – additive.
+Run it in the Supabase SQL Editor (or `supabase db push`) **before** using the new parts; until then the Thai Academy shows
+"the school database needs an update" and the teacher page says homework needs the update. Everything else keeps working.
+
+* **Thai Learning Academy is closed** to everyone except approved teachers/admins and devices signed in as a student. The database
+  decides (`teaching_access()`); the page only shows what it returns. Other language courses (`academy.html?course=sv|en|es`) and the
+  Play Zone stay open.
+* **Protected course content** (`course_content`, `get_course_content()`): teaching material that must not be public – for example the
+  full BOOK 42 course – lives only in the database, is read only after the access check and is added to the page in memory
+  (`js/academy/access.js`). It is never committed to this public repository. Only the System Creator / Admins with `classes.manage` save it.
+* **Homework** (`assignments`, `submissions`, `homework_messages`):
+  - Teacher page → class → 📝 Homework: create (title, instructions, due date, linked lesson, max points, resubmit rule), archive,
+    see who handed in / is late / waits for review, open a student's hand-in (all versions, text, file), give points, **Approve** or
+    **Ask for a correction**, write feedback (ครูแสดงความคิดเห็น).
+  - Academy → Homework (signed-in student): list with status, open, read instructions, open the linked lesson, write an answer, attach a
+    file (PDF, Word, photo, audio, ≤ 10 MB), hand in, see versions, points and teacher feedback, write comments (นักเรียนแสดงความคิดเห็น).
+  - Every hand-in is a new version; messages are append-only (a trigger blocks edits and deletes, even for the table owner).
+* **Files:** private Storage bucket `submissions` (created by the migration on Supabase); a student uploads only under their own id and
+  reads only their own files; a teacher reads files of their own classes; links are valid 1 hour.
+* **Tests:** `supabase/tests/homework.test.js` (H1–H5: access, protected content, the whole homework flow, rules and file paths, rollback).
+  Checked here on a real PostgreSQL 16; plus a browser run of the whole flow (teacher signs up and is approved, creates a class and
+  homework; a student signs in, hands in with a file and a question; the teacher returns it with feedback; the student hands in again;
+  the teacher approves 10/10).
+* Student page: new **Thai Learning Academy** tile.
+
 ## 31 Oct 2026 – Thai Learning Academy: "Läsa och skriva thailändska" (อ่านเขียนภาษาไทย), after BOOK 42
 
 * New course `content/academy-th-read.js` (key `thr`, target Thai): **10 chapters in 5 steps**, in the order of the teacher's book

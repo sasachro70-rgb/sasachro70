@@ -5,6 +5,13 @@
   const FGH = G.FGH = G.FGH || {};
   const S = {
     en: { school: {
+      hw: { title: 'Homework', none: 'No homework yet.', create: 'New homework', hTitle: 'Title', instructions: 'Instructions for the students', due: 'Due (optional)', lesson: 'Linked lesson (optional)',
+        noLesson: '– no lesson –', maxScore: 'Max points', resubmit: 'Students may hand in again before review', save: 'Create homework', open: 'Open',
+        counts: '{p} to review · {r} returned · {a} approved · {s} students', archived: 'archived', archive: 'Archive', restore: 'Restore', back: 'Back to the class',
+        studentsTitle: 'Hand-ins', notHanded: 'not handed in', st: { submitted: 'waiting for review', returned: 'returned for correction', approved: 'approved' }, late: 'late',
+        thread: 'Hand-in', versions: 'Versions', answer: 'Answer', file: 'File', noAnswer: '(no text)', talk: 'Teacher feedback and student comments', teacherFb: 'Teacher feedback', studentCm: 'Student comment',
+        review: 'Review the latest version', score: 'Points', comment: 'Feedback to the student (optional)', approve: 'Approve', ret: 'Ask for a correction', commentOnly: 'Send a comment', commentPh: 'Write to the student…',
+        noTalk: 'No messages yet.', backList: 'Back to hand-ins', reviewed: 'Saved.', needsUpdate: 'Homework needs the database update (migration 0005).', fileError: 'The file could not be opened.' },
       teacherTitle: 'Teacher', studentTitle: 'Student', notSetUp: 'Online accounts are not set up on this site yet.',
       email: 'E-mail', password: 'Password', signIn: 'Sign in', signOut: 'Sign out', newAccount: 'Create teacher account', haveAccount: 'I already have an account',
       checkMail: 'Check your e-mail and confirm the address, then sign in here.', name: 'Your name', studentName: 'Name', ask: 'Ask for teacher access', askInfo: 'An administrator must approve your account before you can create classes.',
@@ -29,6 +36,13 @@
       err_email_not_confirmed: 'Confirm your e-mail first.', err_weak_password: 'The password needs at least 8 characters.', err_email_taken: 'That e-mail already has an account.', err_too_many_requests: 'Too many tries. Wait a moment.'
     } },
     sv: { school: {
+      hw: { title: 'Läxor', none: 'Inga läxor än.', create: 'Ny läxa', hTitle: 'Rubrik', instructions: 'Instruktioner till eleverna', due: 'Senast (frivilligt)', lesson: 'Kopplad lektion (frivilligt)',
+        noLesson: '– ingen lektion –', maxScore: 'Maxpoäng', resubmit: 'Eleverna får lämna in igen före granskning', save: 'Skapa läxa', open: 'Öppna',
+        counts: '{p} att granska · {r} tillbaka för rättning · {a} godkända · {s} elever', archived: 'arkiverad', archive: 'Arkivera', restore: 'Återställ', back: 'Tillbaka till klassen',
+        studentsTitle: 'Inlämningar', notHanded: 'inte inlämnad', st: { submitted: 'väntar på granskning', returned: 'tillbaka för rättning', approved: 'godkänd' }, late: 'sen',
+        thread: 'Inlämning', versions: 'Versioner', answer: 'Svar', file: 'Fil', noAnswer: '(ingen text)', talk: 'Lärarens kommentarer och elevens frågor', teacherFb: 'Lärarens kommentar', studentCm: 'Elevens kommentar',
+        review: 'Granska senaste versionen', score: 'Poäng', comment: 'Kommentar till eleven (frivilligt)', approve: 'Godkänn', ret: 'Be om rättning', commentOnly: 'Skicka kommentar', commentPh: 'Skriv till eleven…',
+        noTalk: 'Inga meddelanden än.', backList: 'Tillbaka till inlämningarna', reviewed: 'Sparat.', needsUpdate: 'Läxor kräver databasuppdateringen (migration 0005).', fileError: 'Filen kunde inte öppnas.' },
       teacherTitle: 'Lärare', studentTitle: 'Elev', notSetUp: 'Onlinekonton är inte inställda på den här sidan än.',
       email: 'E-post', password: 'Lösenord', signIn: 'Logga in', signOut: 'Logga ut', newAccount: 'Skapa lärarkonto', haveAccount: 'Jag har redan ett konto',
       checkMail: 'Öppna din e-post och bekräfta adressen, logga sedan in här.', name: 'Ditt namn', studentName: 'Namn', ask: 'Be om lärarbehörighet', askInfo: 'En administratör måste godkänna kontot innan du kan skapa klasser.',
@@ -53,6 +67,13 @@
       err_email_not_confirmed: 'Bekräfta din e-post först.', err_weak_password: 'Lösenordet behöver minst 8 tecken.', err_email_taken: 'Den e-postadressen har redan ett konto.', err_too_many_requests: 'För många försök. Vänta en stund.'
     } },
     th: { school: {
+      hw: { title: 'การบ้าน', none: 'ยังไม่มีการบ้าน', create: 'สร้างการบ้าน', hTitle: 'หัวข้อ', instructions: 'คำชี้แจงสำหรับนักเรียน', due: 'กำหนดส่ง (ถ้ามี)', lesson: 'บทเรียนที่เกี่ยวข้อง (ถ้ามี)',
+        noLesson: '– ไม่มีบทเรียน –', maxScore: 'คะแนนเต็ม', resubmit: 'นักเรียนส่งใหม่ได้ก่อนครูตรวจ', save: 'สร้างการบ้าน', open: 'เปิด',
+        counts: 'รอตรวจ {p} · ส่งกลับแก้ไข {r} · ผ่าน {a} · นักเรียน {s} คน', archived: 'เก็บแล้ว', archive: 'เก็บ', restore: 'นำกลับมา', back: 'กลับไปที่ห้องเรียน',
+        studentsTitle: 'งานที่ส่ง', notHanded: 'ยังไม่ส่ง', st: { submitted: 'รอตรวจ', returned: 'ส่งกลับให้แก้ไข', approved: 'ผ่าน' }, late: 'ส่งช้า',
+        thread: 'งานที่ส่ง', versions: 'ครั้งที่ส่ง', answer: 'คำตอบ', file: 'ไฟล์', noAnswer: '(ไม่มีข้อความ)', talk: 'ครูแสดงความคิดเห็น และนักเรียนแสดงความคิดเห็น', teacherFb: 'ครูแสดงความคิดเห็น', studentCm: 'นักเรียนแสดงความคิดเห็น',
+        review: 'ตรวจงานครั้งล่าสุด', score: 'คะแนน', comment: 'ความคิดเห็นถึงนักเรียน (ถ้ามี)', approve: 'ผ่าน', ret: 'ส่งกลับให้แก้ไข', commentOnly: 'ส่งความคิดเห็น', commentPh: 'เขียนถึงนักเรียน…',
+        noTalk: 'ยังไม่มีข้อความ', backList: 'กลับไปที่งานที่ส่ง', reviewed: 'บันทึกแล้ว', needsUpdate: 'ระบบการบ้านต้องอัปเดตฐานข้อมูล (migration 0005)', fileError: 'เปิดไฟล์ไม่ได้' },
       teacherTitle: 'ครู', studentTitle: 'นักเรียน', notSetUp: 'เว็บไซต์นี้ยังไม่ได้ตั้งค่าบัญชีออนไลน์',
       email: 'อีเมล', password: 'รหัสผ่าน', signIn: 'เข้าสู่ระบบ', signOut: 'ออกจากระบบ', newAccount: 'สร้างบัญชีครู', haveAccount: 'มีบัญชีอยู่แล้ว',
       checkMail: 'เปิดอีเมลและกดยืนยันที่อยู่อีเมล แล้วกลับมาเข้าสู่ระบบที่นี่', name: 'ชื่อของคุณ', studentName: 'ชื่อ', ask: 'ขอสิทธิ์ครู', askInfo: 'ผู้ดูแลระบบต้องอนุมัติบัญชีก่อน จึงจะสร้างห้องเรียนได้',
