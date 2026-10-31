@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="referrer" content="no-referrer">
+<title>Family Online · Play Zone · ThaiElevate</title>
+<link rel="stylesheet" href="css/hub.css">
+</head>
+<body>
+<div id="app"></div>
+<noscript>Family Online needs JavaScript.</noscript>
+<!-- shared game code first, then the online services (auth is separate from games and family data), then the page -->
+<script src="js/i18n.js"></script>
+<script src="js/data/countries.js"></script>
+<script src="js/hub-core.js"></script>
+<script src="js/games/flag-quiz.js"></script>
+<script src="js/online/config.js"></script>
+<script src="js/online/i18n-online.js"></script>
+<script src="js/online/supabase-client.js"></script>
+<script src="js/online/auth-service.js"></script>
+<script src="js/online/online-service.js"></script>
+<script src="js/online/online-ui.js"></script>
+</body>
+</html>
