@@ -12,7 +12,7 @@
   const T = {
     en: {
       skip: 'Skip to the two areas', menuLang: 'Menu language', navPlay: 'Play Zone', navAcademy: 'Thai Learning Academy',
-      account: 'Account', accSignIn: 'Sign in · family account', accStudent: 'Student login', accTeacher: 'Teacher', accParent: 'Parent Dashboard',
+      account: 'Account', accSignIn: 'Sign in · family account', accStudent: 'Student login', accTeacher: 'Teacher', accParent: 'Parent Dashboard', accAdmin: 'Administration',
       confident: 'Learn Thai with confidence.',
       playKicker: 'Games & family', playDesc: 'Explore games and family activities.', playC1: 'Family games', playC2: 'Flag Quiz', playC3: 'Reward shop', playGo: 'Go to Play Zone',
       acKicker: 'Structured learning', acDesc: 'Learn Thai through structured lessons, teachers and practice.',
@@ -23,7 +23,7 @@
     },
     sv: {
       skip: 'Hoppa till de två delarna', menuLang: 'Menyspråk', navPlay: 'Play Zone', navAcademy: 'Thai Learning Academy',
-      account: 'Konto', accSignIn: 'Logga in · familjekonto', accStudent: 'Elevinloggning', accTeacher: 'Lärare', accParent: 'Föräldrapanel',
+      account: 'Konto', accSignIn: 'Logga in · familjekonto', accStudent: 'Elevinloggning', accTeacher: 'Lärare', accParent: 'Föräldrapanel', accAdmin: 'Administration',
       confident: 'Lär dig thailändska med självförtroende.',
       playKicker: 'Spel och familj', playDesc: 'Utforska spel och familjeaktiviteter.', playC1: 'Familjespel', playC2: 'Flaggquiz', playC3: 'Belöningsbutik', playGo: 'Till Play Zone',
       acKicker: 'Strukturerat lärande', acDesc: 'Lär dig thailändska med strukturerade lektioner, lärare och övningar.',
@@ -34,7 +34,7 @@
     },
     th: {
       skip: 'ข้ามไปยังสองส่วนหลัก', menuLang: 'ภาษาเมนู', navPlay: 'Play Zone', navAcademy: 'Thai Learning Academy',
-      account: 'บัญชี', accSignIn: 'เข้าสู่ระบบ · บัญชีครอบครัว', accStudent: 'นักเรียนเข้าสู่ระบบ', accTeacher: 'ครู', accParent: 'แดชบอร์ดผู้ปกครอง',
+      account: 'บัญชี', accSignIn: 'เข้าสู่ระบบ · บัญชีครอบครัว', accStudent: 'นักเรียนเข้าสู่ระบบ', accTeacher: 'ครู', accParent: 'แดชบอร์ดผู้ปกครอง', accAdmin: 'ผู้ดูแลระบบ',
       confident: 'เรียนภาษาไทยอย่างมั่นใจ',
       playKicker: 'เกมและครอบครัว', playDesc: 'สำรวจเกมและกิจกรรมสำหรับครอบครัว', playC1: 'เกมครอบครัว', playC2: 'ทายธงชาติ', playC3: 'ร้านแลกรางวัล', playGo: 'ไปที่ Play Zone',
       acKicker: 'การเรียนอย่างเป็นระบบ', acDesc: 'เรียนภาษาไทยผ่านบทเรียนที่เป็นระบบ ครูผู้สอน และแบบฝึกหัด',

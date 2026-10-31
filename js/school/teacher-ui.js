@@ -71,7 +71,7 @@
   function top() {
     const a = V.acc;
     return K.header(t('teacherTitle'), { back: V.screen === 'class' || V.screen === 'cards' ? 'toClasses' : V.screen === 'hw' ? 'toClass' : V.screen === 'thread' ? 'toHw' : null,
-      extra: a && a.signed_in && !a.guest ? '<a class="btn small" href="content.html">📚 ' + esc(K.t('cm.title')) + '</a><span class="pill">🧑‍🏫 ' + esc(a.display_name || '') + '</span><button class="btn small" data-act="signOut">' + esc(t('signOut')) + '</button>' : '' });
+      extra: a && a.signed_in && !a.guest ? ((a.approved && (a.role === 'admin' || a.role === 'super_admin' || a.system_owner)) ? '<a class="btn small" href="admin.html">🛡️ ' + esc(K.t('adm.title')) + '</a>' : '') + '<a class="btn small" href="content.html">📚 ' + esc(K.t('cm.title')) + '</a><span class="pill">🧑‍🏫 ' + esc(a.display_name || '') + '</span><button class="btn small" data-act="signOut">' + esc(t('signOut')) + '</button>' : '' });
   }
   function confirmHTML() {
     if (!V.confirm) return '';
@@ -87,7 +87,9 @@
       '<div class="row"><button class="btn primary big" type="submit">' + esc(create ? t('newAccount') : t('signIn')) + '</button>' +
       '<button class="btn" type="button" data-act="mode" data-v="' + (create ? 'signin' : 'create') + '">' + esc(create ? t('haveAccount') : t('newAccount')) + '</button></div></form>';
   }
-  const askHTML = () => '<form class="card stack" data-form="ask" style="max-width:460px"><h2>' + esc(t('ask')) + '</h2><p class="muted">' + esc(t('askInfo')) + '</p>' +
+  /* an invitation link from the Admin Panel (teacher.html?invite=…): accepting it gives the invited role at once */
+  const INVITE = new URLSearchParams(location.search).get('invite');
+  const askHTML = () => '<form class="card stack" data-form="ask" style="max-width:460px"><h2>' + esc(INVITE ? '✉️ ' + K.t('school.inviteTitle') : t('ask')) + '</h2><p class="muted">' + esc(INVITE ? K.t('school.inviteInfo') : t('askInfo')) + '</p>' +
     '<label class="field">' + esc(t('name')) + '<input id="nm" type="text" maxlength="40" required></label><div class="row"><button class="btn primary" type="submit">' + esc(t('ask')) + '</button></div></form>';
   function statusHTML() {
     const s = V.acc && V.acc.status;
@@ -262,7 +264,11 @@
       if (V.mode === 'create') { const r = await auth.signUp(em, pw); if (r.needsConfirmation) { V.msg = t('checkMail'); V.mode = 'signin'; } }
       else await auth.signIn(em, pw);
     });
-    if (form === 'ask') run(async () => { await svc.requestAccess($('nm').value, K.ui(), 'teacher'); await refresh(); });
+    if (form === 'ask') run(async () => {
+      if (INVITE) { await svc.acceptInvitation(INVITE, $('nm').value, K.ui()); history.replaceState(null, '', location.pathname); }
+      else await svc.requestAccess($('nm').value, K.ui(), 'teacher');
+      await refresh();
+    });
     if (form === 'newClass') run(async () => {
       const name = $('cn').value, r = V.how === 'count' ? await svc.createClass(name, +$('cc').value, null) : await svc.createClass(name, 0, lines('cl'));
       V.classId = r.class_id; V.cn = ''; V.cards = { name: r.name, code: r.code, students: r.students }; V.screen = 'cards'; await loadClasses();

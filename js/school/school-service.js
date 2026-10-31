@@ -54,6 +54,30 @@
       studentMe: () => rpc('student_me'),
       studentLogout: () => rpc('student_logout'),
       saveProgress: (data, rev) => rpc('student_save_progress', { p_data: data, p_rev: rev }),
+      /* ---------- Admin Panel (migration 0003; every right is checked by the database) ---------- */
+      acceptInvitation: (token, name, lang) => rpc('accept_invitation', { p_token: token, p_display_name: name, p_lang: lang }),
+      accounts: () => rows(from('app_accounts').select('user_id,account_no,display_name,role,status,preferred_lang,requested_role,request_note,decided_at,last_seen_at,created_at').order('account_no')),
+      adminPermissions: () => rows(from('admin_permissions').select('user_id,permission')),
+      permissionList: () => rows(from('permissions').select('key,description').order('key')),
+      invitations: () => rows(from('invitations').select('id,role,permissions,note,created_at,expires_at,used_at,revoked_at').order('created_at', { ascending: false }).limit(200)),
+      auditLog: limit => rows(from('account_audit').select('id,actor,action,target,details,at').order('at', { ascending: false }).limit(limit || 200)),
+      decideAccount: (userId, approve, role, note) => rpc('decide_account', { p_user: userId, p_approve: !!approve, p_role: role || null, p_note: note || null }),
+      setAccountStatus: (userId, status, note) => rpc('set_account_status', { p_user: userId, p_status: status, p_note: note || null }),
+      setAccountRole: (userId, role) => rpc('set_account_role', { p_user: userId, p_role: role }),
+      setAdminPermissions: (userId, perms) => rpc('set_admin_permissions', { p_user: userId, p_permissions: perms }),
+      createInvitation: (role, days, perms, note) => rpc('create_invitation', Object.assign({ p_role: role, p_days: days || 7, p_note: note || null }, perms && perms.length ? { p_permissions: perms } : {})),
+      revokeInvitation: id => rpc('revoke_invitation', { p_invitation: id }),
+      /* system check: is a database function there? PostgREST answers PGRST202 when it is not */
+      async probe(name, args) {
+        let res; try { res = await client.rpc(name, args || {}); } catch (e) { return { ok: false, offline: true }; }
+        if (!res.error) return { ok: true };
+        const m = String(res.error.code || '') + ' ' + String(res.error.message || '');
+        return { ok: !/PGRST202|could not find the function/i.test(m), detail: res.error.message };
+      },
+      async bucketExists(bucket) {
+        let res; try { res = await client.storage.from(bucket).list('', { limit: 1 }); } catch (e) { return { ok: false, offline: true }; }
+        return { ok: !(res.error && /not\s*found/i.test(String(res.error.message || ''))), detail: res.error ? res.error.message : '' };
+      },
       /* ---------- teaching material and homework (migration 0005) ---------- */
       teachingAccess: () => rpc('teaching_access'),
       listCourseContent: () => rpc('list_course_content'),

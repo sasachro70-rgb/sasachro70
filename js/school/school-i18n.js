@@ -5,6 +5,7 @@
   const FGH = G.FGH = G.FGH || {};
   const S = {
     en: { school: {
+      inviteTitle: 'You are invited', inviteInfo: 'Write your name to accept the invitation. Your account gets the invited role at once.', 
       hw: { title: 'Homework', none: 'No homework yet.', create: 'New homework', hTitle: 'Title', instructions: 'Instructions for the students', due: 'Due (optional)', lesson: 'Linked lesson (optional)',
         noLesson: '– no lesson –', maxScore: 'Max points', resubmit: 'Students may hand in again before review', save: 'Create homework', open: 'Open',
         counts: '{p} to review · {r} returned · {a} approved · {s} students', archived: 'archived', archive: 'Archive', restore: 'Restore', back: 'Back to the class',
@@ -36,6 +37,7 @@
       err_email_not_confirmed: 'Confirm your e-mail first.', err_weak_password: 'The password needs at least 8 characters.', err_email_taken: 'That e-mail already has an account.', err_too_many_requests: 'Too many tries. Wait a moment.'
     } },
     sv: { school: {
+      inviteTitle: 'Du är inbjuden', inviteInfo: 'Skriv ditt namn för att ta emot inbjudan. Ditt konto får den inbjudna rollen direkt.', 
       hw: { title: 'Läxor', none: 'Inga läxor än.', create: 'Ny läxa', hTitle: 'Rubrik', instructions: 'Instruktioner till eleverna', due: 'Senast (frivilligt)', lesson: 'Kopplad lektion (frivilligt)',
         noLesson: '– ingen lektion –', maxScore: 'Maxpoäng', resubmit: 'Eleverna får lämna in igen före granskning', save: 'Skapa läxa', open: 'Öppna',
         counts: '{p} att granska · {r} tillbaka för rättning · {a} godkända · {s} elever', archived: 'arkiverad', archive: 'Arkivera', restore: 'Återställ', back: 'Tillbaka till klassen',
@@ -67,6 +69,7 @@
       err_email_not_confirmed: 'Bekräfta din e-post först.', err_weak_password: 'Lösenordet behöver minst 8 tecken.', err_email_taken: 'Den e-postadressen har redan ett konto.', err_too_many_requests: 'För många försök. Vänta en stund.'
     } },
     th: { school: {
+      inviteTitle: 'คุณได้รับคำเชิญ', inviteInfo: 'ใส่ชื่อเพื่อรับคำเชิญ บัญชีจะได้บทบาทตามคำเชิญทันที', 
       hw: { title: 'การบ้าน', none: 'ยังไม่มีการบ้าน', create: 'สร้างการบ้าน', hTitle: 'หัวข้อ', instructions: 'คำชี้แจงสำหรับนักเรียน', due: 'กำหนดส่ง (ถ้ามี)', lesson: 'บทเรียนที่เกี่ยวข้อง (ถ้ามี)',
         noLesson: '– ไม่มีบทเรียน –', maxScore: 'คะแนนเต็ม', resubmit: 'นักเรียนส่งใหม่ได้ก่อนครูตรวจ', save: 'สร้างการบ้าน', open: 'เปิด',
         counts: 'รอตรวจ {p} · ส่งกลับแก้ไข {r} · ผ่าน {a} · นักเรียน {s} คน', archived: 'เก็บแล้ว', archive: 'เก็บ', restore: 'นำกลับมา', back: 'กลับไปที่ห้องเรียน',
