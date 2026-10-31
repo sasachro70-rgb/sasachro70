@@ -24,6 +24,7 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 |---|---|
 | `docs/PARENT_GUIDE.md` | Parents: dashboard, rewards, approving requests, points rules (Thai + English) |
 | `docs/CONTENT_GUIDE.md` | Adding courses, lessons, words and questions |
+| `docs/CURRICULUM.md` | The Thai curriculum: sources, levels L1–L5, units, lesson parts, placement, practice |
 | `docs/THAI_AUDIO.md` | Thai voices compared (sources), the audio priority, controls, teacher audio |
 | `docs/DEPLOY.md` | Publishing on GitHub Pages, connecting Supabase, external services |
 | `docs/TEST_REPORT.md` | What was tested and how |
@@ -43,6 +44,7 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 | `js/family/kids-knowledge.js`, `kids-language.js`, `academy.js`, `srs.js` | Game and lesson engines (no DOM, tested in Node) |
 | `js/family/*-ui.js`, `kit.js`, `i18n.js`, `css/family.css` | Screens, shared helpers, texts in Thai/Swedish/English |
 | `js/family/voice.js`, `voice-ui.js` | Voice & speed per learner and language (only voices the device has), sentence pauses, recorded-audio support, Thai voice card and notice |
+| `content/academy-th-explain.js`, `content/academy-th-more.js`, `js/academy/curriculum.js` | Thai explanations, new lessons and units; curriculum logic (units, lesson parts, short test, placement, drills) |
 | `content/pronunciation-th.js`, `js/academy/pron-ui.js` | Pronunciation module: consonants, vowels, tones, finals, clusters, rhythm, listening practice |
 | `js/family/cloud-voice.js`, `supabase/functions/tts/` | Natural Thai cloud voice: browser side and the Supabase Edge Function (Google Cloud Text-to-Speech, key on the server) |
 | `teacher.html`, `student.html`, `content.html`, `admin.html` | Teacher page (classes, classroom, homework review), student login, Teacher Content Manager, Admin Panel |

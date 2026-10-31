@@ -1,5 +1,25 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase E: Curriculum and structured lessons
+
+* **Audit and plan:** `docs/CURRICULUM.md` – what the sources are (own course, BOOK 42 track, protected BOOK 42, pronunciation
+  module, teacher courses), the level plan L1–L5 and what was added. No certification is claimed.
+* **Structure Course › Level › Unit › Lesson › Exercise** as data (`course.units`); courses without units get one unit per level.
+  The Lessons tab shows units under each level. Levels renamed after the plan: Beginner, Foundation, Elementary, Intermediate, Advanced.
+* **Eight new lessons** in "Lär dig thailändska" so every level covers the plan: spelling with short/long vowels and simple
+  sentences (L2); final consonants, live/dead syllables and sentence building with tense words (L3); clusters and leading
+  consonants, reading comprehension of a letter (L4); a longer cultural text (Songkran) and translation with complex sentences (L5).
+* **Thai explanations** for all 22 lessons of the course (titles, objectives, explanations, exercise instructions); the
+  explanation language switch now changes them.
+* **Nine parts per lesson:** 🎯 objectives and "in this lesson" list at the top; ▶ Practise, 📝 Short test (5 questions, pass
+  mark 70 %) and the completion status at the end.
+* **Placement test** in the setup (3 questions per level → start at the first level not passed; ability, not age).
+* **Practice drills** (Academy → Practice): listening, reading, spelling, sentence building, words both ways, translating
+  sentences both ways – from every lesson up to the learner's level.
+* Thai word marks ("|") are no longer shown in lesson text. New test that every page script parses and exists.
+* Tests: `tests/curriculum.test.js`, `tests/syntax.test.js`; browser test of placement, units, objectives, short test, drills
+  and Thai explanations.
+
 ## 31 Oct 2026 – Phase D: Thai audio and pronunciation
 
 * **Research** of Thai voices (Google, Azure, Amazon Polly, ElevenLabs, NECTEC Vaja, iApp, browser voices, licensed recordings):

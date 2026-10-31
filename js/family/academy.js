@@ -52,7 +52,7 @@
         opts: shuffle([w].concat(others).map(x => ({ v: x.t, text: x.t, sub: x.rom || '' })), rnd), answer: w.t });
     });
     const line = lesson.dialogue.filter(d => d.t.split(' ').length <= 10)[0] || lesson.dialogue[0];
-    if (line) out.push({ type: 'speak', id: lesson.id + ':speak', say: line.t, rom: line.rom || null, sub: tr(line.tr, explain) });
+    if (line) out.push({ type: 'speak', id: lesson.id + ':speak', say: line.t.replace(/\|/g, ''), rom: line.rom || null, sub: tr(line.tr, explain) });
     return out;
   }
 

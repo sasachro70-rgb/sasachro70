@@ -36,6 +36,12 @@
   const prog = p => (fam().learning[p.id] || {})[ckey(p)] || { lessons: {}, tests: [], timeMs: 0, lastAt: 0 };
   const deck = p => fam().srs[p.id] || {};
   const ex = () => setup(me()).explain;
+  const CU = FGH.curriculum || null;
+  /* the browser's Thai word and letter breakers, for sentence building and spelling drills */
+  const drillHelp = {
+    wordsOf: s => VO.wordsOf ? VO.wordsOf(s, 'th') : String(s).split(/[|\s]+/).filter(Boolean),
+    graphemes: s => { try { if (Intl.Segmenter) return Array.from(new Intl.Segmenter('th', { granularity: 'grapheme' }).segment(s), x => x.segment); } catch (e) { /* old browser */ } return Array.from(s); }
+  };
   const T = obj => AC.tr(obj, ex());
   let warned = 0;
   /* o: { slow: true } reads at a slow speed (never faster than the learner's own), { times: 3 } repeats with pauses */
@@ -121,7 +127,8 @@
       (THAI ? '<div class="field"><label>' + esc(t('tlaNav.courses')) + '</label>' + chips('dCourse', thaiCourseIds().map(k => [k, K.L(AC.course(k).name)]), s.course) + '</div>' : '<div class="field"><label>' + esc(t('acTarget')) + '</label>' + chips('dTarget', Object.keys(AC.courses()).filter(k => !AC.course(k).track).map(k => [k, cname(k)]), s.target) + (c && c.desc ? '<p class="muted" style="margin:.3rem 0 0">' + esc(K.L(c.desc)) + '</p>' : '') + '</div>') +
       (THAI ? '<div class="field"><label>Förklaringsspråk / <span lang="th">ภาษาที่ใช้ในการอธิบาย</span></label>' + chips('dExplain', [['sv', 'Svenska – คำอธิบายภาษาสวีเดน'], ['th', 'ภาษาไทย – คำอธิบายภาษาไทย']], s.explain) + '</div>'
         : '<div class="field"><label>' + esc(t('acExplain')) + '</label>' + chips('dExplain', (c ? c.explain : []).map(k => [k, t('lang.' + k)]), s.explain) + '</div>') +
-      '<div class="field"><label>' + esc(t('acLevel')) + '</label>' + chips('dLevel', AC.levelIds(c).map(l => [l, lvShort(c, l) + ' · ' + lvName(c, l)]), s.level) + '</div>' +
+      '<div class="field"><label>' + esc(t('acLevel')) + '</label>' + chips('dLevel', AC.levelIds(c).map(l => [l, lvShort(c, l) + ' · ' + lvName(c, l)]), s.level) +
+        (THAI && CU ? '<p class="muted" style="margin:.4rem 0">' + esc(t('cur.placeInfo')) + '</p><div class="row" style="margin:0"><button class="btn" data-act="place">🧭 ' + esc(t('cur.place')) + '</button></div>' : '') + '</div>' +
       '<div class="field"><label>' + esc(t('acGoal')) + '</label>' + chips('dGoal', ['daily', 'work', 'move', 'family', 'travel'].map(g => [g, t('goal_' + g)]), s.goal) + '</div>' +
       '<div class="field"><label>' + esc(t('acMinutes')) + '</label>' + chips('dMin', [5, 10, 15, 20, 30, 45, 60].map(m => [m, m + ' ' + t('minutes')]), s.minutes) + '</div>' +
       '<p class="muted"><span class="badge-sample">' + esc(t('sample')) + '</span> ' + esc(t('sampleNote')) + '</p>' +
@@ -148,8 +155,16 @@
     return h + lessonsBlock(p);
   }
   /* the course's lessons per level with the topic filter and level tests (used by the dashboard of other courses and the Thai "Lessons" screen) */
+  /* Level → Unit → Lesson (Phase E, js/academy/curriculum.js); the unit heading is left out when a level has a single untitled unit */
+  function unitRows(c, lv, shown, row) {
+    const ids = new Set(shown.map(l => l.id)), all = CU.units(c), us = all.filter(u => u.level === lv);
+    return us.map(u => { const ls = u.lessons.filter(l => ids.has(l.id)); if (!ls.length) return '';
+      return (u.title || us.length > 1 ? '<h4 class="unit-h"><span class="muted">' + esc(t('cur.unit')) + ' ' + (all.indexOf(u) + 1) + '</span> ' + esc(u.title ? T(u.title) : '') + '</h4>' : '') + ls.map(row).join(''); }).join('');
+  }
   function lessonsBlock(p) {
     const c = crs(p), pr = prog(p); let h = '';
+    const row = l => { const r = pr.lessons[l.id]; return '<button class="lessonrow" data-act="openLesson" data-v="' + esc(l.id) + '"><span class="li" aria-hidden="true">' + l.icon + '</span><span class="lt"><b>' + esc(T(l.title)) + '</b><span>' + l.skills.map(sk => esc(t('skills.' + sk))).join(' · ') + '</span></span>' +
+      '<span class="status ' + (r && r.done ? 'approved' : r ? 'pending' : '') + '">' + esc(r && r.done ? t('acCompleted') + ' · ' + r.best + ' %' : r ? t('acInProgress') : t('acNotStarted')) + '</span></button>'; };
     const skills = Array.from(new Set([].concat(...c.lessons.map(l => l.skills))));
     h += '<h2 class="sec">' + esc(t('acCourse')) + ' <span class="badge-sample">' + esc(t('sample')) + '</span></h2><div class="row" style="margin:0 0 8px"><button class="btn small' + (!V.skill ? ' on' : '') + '" data-act="skill" data-v="">' + esc(t('allTopics')) + '</button>' +
       skills.map(sk => '<button class="btn small' + (V.skill === sk ? ' on' : '') + '" data-act="skill" data-v="' + sk + '">' + esc(t('skills.' + sk)) + '</button>').join('') + '</div>';
@@ -158,8 +173,7 @@
       const ls0 = AC.lessonsAt(c, lv), lst = AC.levelState(c, pr, lv);
       h += '<section class="card"><div class="row" style="margin:0"><span class="cefr">' + esc(lvBadge(c, lv)) + '</span><h3 style="margin:0">' + esc(lvName(c, lv)) + '</h3><span class="muted">' + lst.done + '/' + lst.total + '</span>' + (lst.passed ? '<span class="status approved">✓ ' + esc(t('acLevelTest', { l: lvShort(c, lv) })) + '</span>' : '') + '<span class="grow"></span>' +
         (ls0.length ? '<button class="btn small" data-act="test" data-v="' + lv + '">📝 ' + esc(t('acLevelTest', { l: lvShort(c, lv) })) + '</button>' : '') + '</div>' +
-        (ls.length ? ls.map(l => { const r = pr.lessons[l.id]; return '<button class="lessonrow" data-act="openLesson" data-v="' + esc(l.id) + '"><span class="li" aria-hidden="true">' + l.icon + '</span><span class="lt"><b>' + esc(T(l.title)) + '</b><span>' + l.skills.map(sk => esc(t('skills.' + sk))).join(' · ') + '</span></span>' +
-          '<span class="status ' + (r && r.done ? 'approved' : r ? 'pending' : '') + '">' + esc(r && r.done ? t('acCompleted') + ' · ' + r.best + ' %' : r ? t('acInProgress') : t('acNotStarted')) + '</span></button>'; }).join('') : '<p class="muted">' + esc(ls0.length ? '–' : t('none')) + '</p>') + '</section>';
+        (ls.length ? (THAI && CU ? unitRows(c, lv, ls, row) : ls.map(row).join('')) : '<p class="muted">' + esc(ls0.length ? '–' : t('none')) + '</p>') + '</section>';
     });
     return h;
   }
@@ -292,6 +306,12 @@
       (PR ? card('pronOpen', '', '🗣️', t('pron.title'), t('pron.desc')) : '') + pron.map(l => { const r = pr.lessons[l.id]; return card('openLesson', l.id, l.icon, T(l.title), T(l.goal) + (r && r.done ? ' · ✓' : '')); }).join('') + '</div>';
     h += '<h2 class="sec">🔁 ' + esc(t('tlaWordsSec')) + '</h2><div class="games">' + card('review', '', '🔁', t('acReviewNow'), dueN ? t('acReviewToday', { n: dueN }) : t('acNoReview')) +
       card('go', 'words', '⭐', t('acFavorites'), t('tlaWordsDesc')) + card('go', 'voice', '🔊', t('voice.title'), t('tlaVoiceDesc')) + '</div>';
+    if (CU) {
+      const DI = { listen: '🎧', read: '📖', spell: '🔤', build: '🧱', vocabTh: '🇹🇭→🇸🇪', vocabSv: '🇸🇪→🇹🇭', transSvTh: '✍️', transThSv: '🔁' };
+      h += '<h2 class="sec">🎯 ' + esc(t('cur.drills')) + '</h2><p class="muted" style="margin:0 0 8px">' + esc(t('cur.drillsInfo')) + '</p><div class="games">' +
+        CU.DRILLS.map(k => { const n = CU.drillSize(k, c, setup(p).level, drillHelp); const lab = t('cur.d.' + k);
+          return '<button class="card game" data-act="drill" data-v="' + k + '"' + (n ? '' : ' disabled') + '><span class="gicon" aria-hidden="true">' + DI[k] + '</span><span class="gname">' + esc(lab[0]) + '</span><span class="gdesc">' + esc(lab[1]) + '</span></button>'; }).join('') + '</div>';
+    }
     return h;
   }
 
@@ -387,10 +407,16 @@
       (act === 'sayWord' ? '<button class="ghost" data-act="sayWordRep" data-v="' + i + '" aria-label="' + esc(t('voice.repeat')) + '" title="' + esc(t('voice.repeat')) + '">🔁</button>' : '') + '</span>';
     if (c.target === 'th' && VO.prefetch) VO.prefetch((l.dialogue || []).map(d => d.t).concat((l.vocab || []).map(w => w.t)), p.id);
     let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote(l) + VUI.thaiBannerHTML(p.id) : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
+    if (THAI && CU) {
+      const objs = (l.objectives && l.objectives.length ? l.objectives.map(o => T(o)) : [T(l.goal)]).filter(Boolean);
+      const P = CU.parts(l, ex());
+      h += '<section class="card lesson-goals"><h2 style="margin:0 0 .3rem">🎯 ' + esc(t('cur.objectives')) + '</h2><ul>' + objs.map(o => '<li>' + esc(o) + '</li>').join('') + '</ul>' +
+        '<p class="muted parts" style="margin:.3rem 0 0">' + esc(t('cur.inLesson')) + ': ' + Object.keys(P).filter(k => P[k]).map(k => esc(t('cur.parts.' + k))).join(' · ') + '</p></section>';
+    }
     if (l.audioSource && l.audio) h += '<p class="muted" style="font-size:.85rem">🎙 ' + esc(l.audioSource) + '</p>';
     if (l.tones) h += tonesHTML(l);
     h += '<section class="card"><div class="row" style="margin:0 0 8px"><h2>' + esc(l.dialogue[0] && l.dialogue[0].who ? t('acDialogue') : t('skills.reading')) + '</h2><span class="grow"></span><button class="btn small" data-act="playAll">▶ ' + esc(t('acPlayAll')) + '</button><button class="btn small" data-act="toggleTr">' + esc(V.showTr ? t('acHideTr') : t('acShowTr')) + '</button></div><div class="dlg">' +
-      l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + (c.target === 'th' ? VUI.controlsHTML(d.t, 'th') : sayBtns('sayLine', i)) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
+      l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t.replace(/\|/g, '')) + ' ' + (c.target === 'th' ? VUI.controlsHTML(d.t, 'th') : sayBtns('sayLine', i)) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
     /* pictures of an imported lesson (private links made after the access check) */
     const media = (window.FGH_CONTENT && window.FGH_CONTENT.media) || {};
     if (l.images && l.images.some(im => media[im.path])) h += '<section class="card"><div class="lesson-images">' + l.images.filter(im => media[im.path]).map(im => '<figure><img src="' + esc(media[im.path]) + '" alt="' + esc(im.caption || '') + '" loading="lazy">' + (im.caption ? '<figcaption lang="th">' + esc(im.caption) + '</figcaption>' : '') + '</figure>').join('') + '</div></section>';
@@ -407,6 +433,12 @@
     h += '<section class="card grammar"><h2>' + esc(t('acGrammar')) + ': ' + esc(T(l.grammar.title)) + '</h2>' + T(l.grammar.body).split('\n\n').map(par => '<p>' + par.split('\n').map(esc).join('<br>') + '</p>').join('') +
       (l.grammar.table ? '<div class="tablewrap"><table><tbody>' + l.grammar.table.map((r, ri) => '<tr>' + r.map(c2 => (ri === 0 && c.target === 'th') ? '<th>' + esc(c2) + '</th>' : cell(c2)).join('') + '</tr>').join('') + '</tbody></table></div>' : '') + '</section>';
     if (c.romanization) h += '<p class="muted" style="font-size:.85rem">ℹ️ ' + esc(t('acRomNote', { sys: c.romanization })) + '</p>';
+    if (THAI && CU) {
+      const r = prog(p).lessons[l.id];
+      return h + '<section class="card stack lesson-end"><div class="row" style="margin:0"><button class="btn primary big" data-act="startEx">▶ ' + esc(t('cur.practise')) + '</button>' +
+        '<button class="btn big" data-act="quiz">📝 ' + esc(t('cur.quiz')) + '</button></div><p class="muted" style="margin:0">' + esc(t('cur.quizInfo', { p: c.passPct })) + '</p>' +
+        '<p class="lesson-status ' + (r && r.done ? 'done' : '') + '" style="margin:0"><b>' + esc(t('cur.parts.completion')) + ':</b> ' + esc(r && r.done ? t('cur.status.done', { b: r.best }) : r && r.best != null ? t('cur.status.started', { b: r.best, p: c.passPct }) : t('cur.status.none')) + '</p></section>';
+    }
     return h + '<div class="row"><button class="btn primary big" data-act="startEx">▶ ' + esc(t('acStartEx')) + '</button></div>';
   }
   /* the five Thai tones: a schematic pitch graph (Chao tone numbers 1 = low … 5 = high) and one example word per tone */
@@ -472,6 +504,7 @@
     st.answered = true; st.ok = ok; st.picked = picked;
     if (scored !== false) { R.scored++; if (ok) R.right++; }
     const q = Q();
+    if (R.kind === 'place' && q.level) { const b = R.byLevel[q.level] = R.byLevel[q.level] || { right: 0, total: 0 }; b.total++; if (ok) b.right++; }
     if (q.word && !ok) R.wrongWords.push(q.id);
     ok ? K.sfx.right() : K.sfx.wrong();
     if (ok && q.say && q.type !== 'listen') speak(q.say, null, true);
@@ -489,20 +522,24 @@
         SRS.addCards(dk, l.vocab.map(w => AC.itemKey(c, l, w)), Date.now());
         R.wrongWords.forEach(k => { if (dk[k]) dk[k] = SRS.grade(dk[k], 'again', Date.now()); });
       });
+    } else if (R.kind === 'place') {
+      R.place = CU.placeResult(c, R.byLevel || {});
     } else if (R.kind === 'game') {
       A.updateLearning(p.id, f => { const co = F.course(f, p.id, ck); co.timeMs += ms; co.lastAt = Date.now(); });
     } else {
       A.updateLearning(p.id, f => { const co = F.course(f, p.id, ck); co.tests = (co.tests || []).concat([{ level: R.level, pct, passed: pct >= c.passPct, at: Date.now() }]).slice(-50); co.timeMs += ms; co.lastAt = Date.now(); });
     }
     A.finish(p.id, { key: 'ac:' + R.key, area: 'academy', kind: R.kind === 'lesson' ? 'lesson' : R.kind === 'game' ? 'game' : 'test', title: '🎓 ' + R.title, ms, score: R.right, max: R.scored, pct, points: false });
-    R.result = { pct, passed: pct >= c.passPct };
+    R.result = { pct, passed: R.kind === 'place' ? true : pct >= c.passPct };
     V.screen = 'done'; K.sfx.win(); render();
   }
   function doneHTML() {
-    const c = crs(me()), r = R.result;
+    const c = R.placeCourse || crs(me()), r = R.result;
+    const isDrill = R.kind === 'game' && String(R.game || '').startsWith('drill:');
     return top(R.title, 'home') + '<section class="card center stack"><div class="emo pop" aria-hidden="true">' + (r.passed ? '🎉' : '📚') + '</div><h2>' + esc(t('yourScore', { n: R.right, m: R.scored })) + ' · ' + r.pct + ' %</h2>' +
-      '<p>' + esc(R.kind === 'game' ? t('tlaGameDone') : R.kind === 'test' ? (r.passed ? t('acTestPassed', { l: R.level }) : t('acTestFailed')) : (r.passed ? t('lessonDone') : t('acPassMark', { p: c.passPct }))) + '</p>' +
-      '<div class="row" style="justify-content:center">' + (R.kind === 'lesson' ? '<button class="btn" data-act="openLesson" data-v="' + esc(R.lesson.id) + '">↻ ' + esc(t('again')) + '</button>' : R.kind === 'game' ? '<button class="btn" data-act="game" data-v="' + esc(R.game) + '">↻ ' + esc(t('again')) + '</button>' : '') + '<button class="btn primary big" data-act="go" data-v="' + (THAI && R.kind === 'game' ? 'games' : THAI && R.kind === 'lesson' && V.from ? V.from : 'home') + '">' + esc(t('acContinue')) + ' →</button></div></section>';
+      (R.kind === 'place' ? '<p><b>' + esc(t('cur.placeResult', { l: lvShort(c, R.place) + ' · ' + lvName(c, R.place) })) + '</b></p><div class="row" style="justify-content:center"><button class="btn primary" data-act="usePlace" data-v="' + esc(R.place) + '">' + esc(t('cur.placeUse')) + '</button></div>' : '') +
+      '<p>' + esc(R.kind === 'place' ? '' : R.kind === 'game' ? t('tlaGameDone') : R.kind === 'test' ? (r.passed ? t('acTestPassed', { l: R.level }) : t('acTestFailed')) : (r.passed ? t('lessonDone') : t('acPassMark', { p: c.passPct }))) + '</p>' +
+      '<div class="row" style="justify-content:center">' + (R.kind === 'lesson' ? '<button class="btn" data-act="openLesson" data-v="' + esc(R.lesson.id) + '">↻ ' + esc(t('again')) + '</button>' : R.kind === 'game' ? '<button class="btn" data-act="' + (isDrill ? 'drill' : 'game') + '" data-v="' + esc(isDrill ? R.game.slice(6) : R.game) + '">↻ ' + esc(t('again')) + '</button>' : '') + '<button class="btn primary big" data-act="go" data-v="' + (THAI && R.kind === 'game' ? (isDrill ? 'practice' : 'games') : THAI && R.kind === 'lesson' && V.from ? V.from : 'home') + '">' + esc(t('acContinue')) + ' →</button></div></section>';
   }
 
   /* ---------- spaced repetition review ---------- */
@@ -591,6 +628,16 @@
     playAll() { const l = AC.lessonById(crs(me()), V.lesson); speak(l.dialogue.map(d => d.t).join('\n')); },
     fav(v) { const p = me(); A.updateLearning(p.id, f => { const a = f.favorites[p.id] || (f.favorites[p.id] = []); const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else { a.push(v); const dk = f.srs[p.id] || (f.srs[p.id] = {}); SRS.addCards(dk, [v], Date.now()); } }); render(); },
     startEx() { const c = crs(me()), l = AC.lessonById(c, V.lesson); startRun('lesson', AC.exercises(c, l, ex(), Math.random), { lesson: l, title: l.icon + ' ' + T(l.title) }); },
+    quiz() { const c = crs(me()), l = AC.lessonById(c, V.lesson); startRun('lesson', CU.quiz(c, l, ex(), Math.random), { lesson: l, title: '📝 ' + T(l.title) }); },
+    drill(v) { const p = me(), c = crs(p), qs = CU.drill(v, c, setup(p).level, ex(), Math.random, drillHelp); if (qs.length) startRun('game', qs, { game: 'drill:' + v, title: '🎯 ' + t('cur.d.' + v)[0] }); },
+    place() {
+      const p = me(), d = V.draft || {};
+      /* the runner needs a saved setup: save the choices made so far first (the level can be changed afterwards) */
+      if (!setup(p) || (V.draft && THAI && V.draft.course && V.draft.course !== setup(p).course)) ACT.saveSetup();
+      const c = crs(p);
+      startRun('place', CU.placement(c, d.explain || ex() || 'sv', Math.random), { title: '🧭 ' + t('cur.place'), byLevel: {}, placeCourse: c });
+    },
+    usePlace(v) { const p = me(); V.draft = Object.assign({}, setup(p) || {}, V.draft || {}, { level: v }); V.screen = 'setup'; R = null; render(); },
     test(v) { const c = crs(me()); startRun('test', AC.levelTest(c, v, ex(), Math.random, 10), { level: v, title: t('acLevelTest', { l: v }) }); },
     pickAns(v) { answer(AC.check(Q(), v), v); },
     slot(v) { const q = Q(), x = q.tiles.find(x => x.k === +v); if (x) { R.st.slots.push(x); if (R.st.slots.length === q.tiles.length) return ACT.checkSlots(); render(); } },
