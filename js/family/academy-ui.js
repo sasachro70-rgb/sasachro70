@@ -180,7 +180,7 @@
       ACC = a;
       const own = studentPid();
       if (a.ok && own) { V.pid = own; sessionStorage.setItem('fgh.adult', own); if (!setup(me())) V.screen = 'setup'; else if (!TABS.includes(V.screen)) V.screen = 'home'; }
-      if (a.ok && a.kind === 'student') loadHw();
+      if (a.ok && a.kind === 'student') { loadHw(); a.svc.studentClassroom().then(c => { V.cls = c; render(); }).catch(() => {}); }
       render();
     }).catch(() => { ACC = { ok: false, reason: 'error' }; render(); });
   }
@@ -245,7 +245,8 @@
     const next = AC.nextLesson(c, pr, s.level), st = AC.stats(c, pr, dk, fam().log, p.id);
     const dueN = SRS.due(dk, Date.now(), c.target + ':').length;
     const week = F.weekly(fam(), p.id), today = week.length ? week[week.length - 1].minutes : 0;
-    let h = top(t('tlaTitle')) + '<h2 class="welcome">' + esc(t('tlaWelcome', { name: p.name })) + '</h2>' +
+    const lv = V.cls && V.cls.live && V.cls.live.status !== 'ended' ? V.cls.live : null;
+    let h = top(t('tlaTitle')) + (lv ? '<section class="card row cls-live" style="align-items:center"><span class="lv-on-big">' + esc(t('live.liveNow')) + '</span><b class="grow">' + esc(lv.title) + '</b><a class="btn primary" href="live.html">▶ ' + esc(t('cls.join')) + '</a></section>' : '') + '<h2 class="welcome">' + esc(t('tlaWelcome', { name: p.name })) + '</h2>' +
       '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(K.L(c.name)) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote() + VUI.thaiBannerHTML(p.id);
     h += '<div class="dash">';
     h += '<section class="card dcont stack"><p class="muted" style="margin:0">' + esc(pr.current ? t('acContinue') : t('tlaToday')) + '</p>' +
@@ -316,12 +317,46 @@
   }
 
   /* Classroom: the signed-in student's class (Student Mode); live lessons come later */
+  /* Classroom (Phase G): the class dashboard for a signed-in student – live lesson now, teacher, announcements, schedule,
+     homework. Data from student_classroom() (migration 0008); refreshed every 20 seconds while this tab is open. */
+  let clsTimer = null;
+  function loadCls() {
+    clearTimeout(clsTimer);
+    if (!(ACC && ACC.kind === 'student') || V.screen !== 'classroom') return;
+    ACC.svc.studentClassroom().then(c => { V.cls = c; V.clsErr = null; if (V.screen === 'classroom') render(); })
+      .catch(e => { V.clsErr = FGH.teachingAccess ? FGH.teachingAccess.reasonOf(e) : (e.code || 'error'); if (V.screen === 'classroom') render(); })
+      .then(() => { clsTimer = setTimeout(loadCls, 20000); });
+  }
+  const ct = (k, v) => t('cls.' + k, v);
   function classroomHTML() {
     const p = me(), si = studentInfo(p.id) || (ACC && ACC.kind === 'student' ? { className: ACC.className, name: ACC.name, classCode: '' } : null);
     let h = top(t('tlaNav.classroom'));
-    h += si ? '<section class="card stack"><h2>🏫 ' + esc(si.className || '') + '</h2><p class="muted" style="margin:0">' + esc(t('tlaClassIn', { name: si.name || p.name, code: si.classCode || '' })) + '</p></section>'
-      : '<section class="card stack"><h2>🏫 ' + esc(t('tlaNav.classroom')) + '</h2><p style="margin:0">' + esc(t('tlaClassJoin')) + '</p><div class="row"><a class="btn primary" href="student.html">🎒 ' + esc(t('tlaStudentLogin')) + '</a><a class="btn" href="teacher.html">🧑‍🏫 ' + esc(t('tlaTeacherPage')) + '</a></div></section>';
-    return h + laterCard('📡', t('tlaLiveTitle'), t('tlaLiveLater'));
+    if (!(ACC && ACC.kind === 'student')) {
+      return h + '<section class="card stack"><h2>🏫 ' + esc(t('tlaNav.classroom')) + '</h2>' + (ACC && ACC.kind === 'staff'
+        ? '<div class="row"><a class="btn primary" href="teacher.html">🧑‍🏫 ' + esc(t('tlaGate.teacher')) + '</a></div>'
+        : '<p style="margin:0">' + esc(t('tlaClassJoin')) + '</p><div class="row"><a class="btn primary" href="student.html">🎒 ' + esc(t('tlaStudentLogin')) + '</a></div>') + '</section>';
+    }
+    if (!V.cls) return h + '<section class="card"><p class="muted" style="margin:0">' + esc(V.clsErr ? (V.clsErr === 'migration_missing' ? ct('needsUpdate') : t('live.error', { m: V.clsErr })) : ct('loading')) + '</p></section>';
+    const c = V.cls, today = new Date().toDateString();
+    if (c.live && c.live.status !== 'ended') h += '<section class="card stack cls-live"><p style="margin:0"><span class="lv-on-big">' + esc(t('live.liveNow')) + '</span></p><h2 style="margin:0">' + esc(c.live.title) + '</h2>' +
+      '<p class="muted" style="margin:0">🧑‍🏫 ' + esc(c.live.teacher_name) + '</p><div class="row" style="margin:0"><a class="btn primary big" href="live.html">▶ ' + esc(ct('join')) + '</a></div></section>';
+    h += '<div class="cls-grid">';
+    h += '<section class="card stack"><h2 style="margin:0">🏫 ' + esc(c.class_name || (si && si.className) || '') + '</h2><p style="margin:0">🧑‍🏫 ' + esc(ct('teacher')) + ': <b>' + esc(c.teacher_name || '–') + '</b></p>' +
+      '<p class="muted" style="margin:0">' + esc(t('tlaClassIn', { name: c.student_name || p.name, code: (si && si.classCode) || '' })) + '</p></section>';
+    h += '<section class="card stack"><h2 style="margin:0">📣 ' + esc(ct('announcements')) + '</h2>' + (c.announcements.length ? '<ul class="cls-list">' + c.announcements.map(a =>
+      '<li><div><span class="muted" style="font-size:.85rem">' + (a.pinned ? esc(ct('pinned')) + ' · ' : '') + esc(fmtTime(a.created_at)) + ' · ' + esc(a.author_name) + '</span><p class="cls-ann">' + esc(a.body) + '</p></div></li>').join('') + '</ul>'
+      : '<p class="muted" style="margin:0">' + esc(ct('noAnnouncements')) + '</p>') + '</section>';
+    h += '<section class="card stack"><h2 style="margin:0">🗓 ' + esc(ct('schedule')) + '</h2>' + (c.schedule.length ? '<ul class="cls-list">' + c.schedule.map(x => {
+      const d = new Date(x.starts_at), isToday = d.toDateString() === today;
+      let ln = ''; try { const cc = AC.course(x.course_id), l = cc && cc.lessons.find(y => y.id === x.lesson_id); if (l) ln = T(l.title); } catch (e) { ln = ''; }
+      return '<li><div><span class="' + (isToday ? 'today' : '') + '">' + (isToday ? esc(ct('today')) + ' · ' : '') + esc(fmtTime(x.starts_at)) + '</span> · ' + esc(ct('min', { n: x.minutes })) + '<br><b>' + esc(x.title) + '</b>' +
+        (ln ? ' <span class="muted">📖 ' + esc(ln) + '</span>' : '') + (x.note ? '<br><span class="muted">' + esc(x.note) + '</span>' : '') + '</div>' +
+        (ln && x.course_id === setup(p).course ? '<button class="btn small" data-act="openLesson" data-v="' + esc(x.lesson_id) + '">▶</button>' : '') + '</li>';
+    }).join('') + '</ul>' : '<p class="muted" style="margin:0">' + esc(ct('noSchedule')) + '</p>') + '</section>';
+    const hwOpenN = (V.hw || []).filter(x => !x.status || x.status === 'returned').length;
+    h += '<section class="card stack"><h2 style="margin:0">📝 ' + esc(ct('homework')) + '</h2><p style="margin:0">' + esc(V.hw ? (hwOpenN ? t('tlaHw.openN', { n: hwOpenN }) : t('tlaHw.noneOpen')) : '') + '</p><p class="muted" style="margin:0">' + esc(ct('homeworkText')) + '</p>' +
+      '<div class="row" style="margin:0"><button class="btn small" data-act="tab" data-v="homework">' + esc(ct('openHw')) + ' →</button></div></section>';
+    return h + '</div>';
   }
   function homeworkHTML() {
     if (ACC && ACC.kind === 'student') return top(t('tlaNav.homework')) + hwListHTML();
@@ -531,7 +566,7 @@
     },
     skill(v) { V.skill = v || null; render(); },
     /* Thai Academy */
-    tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; if (v === 'homework') loadHw(); render(); window.scrollTo(0, 0); } },
+    tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; if (v === 'homework') loadHw(); if (v === 'classroom') { loadHw(); loadCls(); } render(); window.scrollTo(0, 0); } },
     gateRetry() { if (FGH.teachingAccess) FGH.teachingAccess.reset(); ACC = null; render(); startAccess(); },
     hwOpen(v) { hwOpen(v); },
     hwBack() { V.screen = 'homework'; V.hwThread = null; loadHw(); render(); },

@@ -7,7 +7,7 @@
   const { $, esc } = K;
   const t = (k, v) => K.t('school.' + k, v);
   const V = { screen: 'loading', mode: 'signin', err: null, msg: null, acc: null, classes: [], classId: null, students: [], acts: [], prog: [],
-    cards: null, showArchived: false, how: 'count', confirm: null, editing: null, hw: null, hwErr: null, hwNew: false, hwId: null, hwSubs: null, thread: null };
+    cards: null, showArchived: false, how: 'count', confirm: null, editing: null, cls: null, clsErr: null, hw: null, hwErr: null, hwNew: false, hwId: null, hwSubs: null, thread: null };
   let client = null, auth = null, svc = null, busy = false;
 
   const errText = e => { const c = e && e.code; const s = K.t('school.err_' + c); return s && s !== 'school.err_' + c ? s : t('err_generic', { m: c || (e && e.message) || '?' }); };
@@ -50,6 +50,13 @@
     V.acts = await svc.activity(id, 500);
     V.prog = await svc.progress(V.students.map(s => s.id));
     await loadHw();
+    await loadCls();
+  }
+  /* classroom: announcements, schedule, live lessons (migration 0008) */
+  async function loadCls() {
+    V.clsErr = null;
+    try { V.cls = await svc.teacherClassroom(V.classId); }
+    catch (e) { V.cls = null; V.clsErr = FGH.teachingAccess ? FGH.teachingAccess.reasonOf(e) : (e.code || 'error'); }
   }
   /* homework (migration 0005); without the update the class page still works and says what is missing */
   async function loadHw() {
@@ -128,7 +135,7 @@
       '<span class="muted">' + V.students.filter(s => !s.archived_at).length + ' ' + esc(t('students')) + '</span><span class="grow"></span>' +
       '<button class="btn small" data-act="ask" data-v="' + (c.archived_at ? 'restoreClass' : 'archiveClass') + '">' + esc(c.archived_at ? t('restore') : t('archive')) + '</button></div>' +
       '<form class="row" data-form="renameClass"><input id="rc" type="text" maxlength="60" value="' + esc(c.name) + '" aria-label="' + esc(t('className')) + '"><button class="btn small" type="submit">' + esc(t('rename')) + '</button></form>' +
-      '<p class="muted" style="margin:.4rem 0 0">' + esc(t('loginAt')) + ': <b>' + esc(studentLink()) + '</b></p></section>' + hwSectionHTML();
+      '<p class="muted" style="margin:.4rem 0 0">' + esc(t('loginAt')) + ': <b>' + esc(studentLink()) + '</b></p></section>' + classroomHTML() + hwSectionHTML();
     h += '<div class="card tablewrap"><table><thead><tr><th>' + esc(t('studentNo')) + '</th><th>' + esc(t('studentName')) + '</th><th>' + esc(t('lastActive')) + '</th><th>' + esc(t('lessons')) + '</th><th>' + esc(t('avg')) + '</th><th>' + esc(t('latest')) + '</th><th></th></tr></thead><tbody>' +
       list.map(s => {
         const sm = summary(s.id);
@@ -163,6 +170,32 @@
         '<div class="logincard"><div class="lc-top">🎒 ' + esc(c.name) + '</div><div class="lc-name">' + esc(s.name) + '</div>' +
         '<dl><dt>' + esc(t('code')) + '</dt><dd class="code">' + esc(c.code) + '</dd><dt>' + esc(t('studentNo')) + '</dt><dd>' + s.student_no + '</dd><dt>' + esc(t('pin')) + '</dt><dd class="code">' + esc(s.pin) + '</dd></dl>' +
         '<div class="lc-url">' + esc(studentLink()) + '</div></div>').join('') + '</div>';
+  }
+
+  /* ---------- classroom and live lessons (Phase G) ---------- */
+  const ct = (k, v) => K.t('cls.' + k, v), lt = (k, v) => K.t('live.' + k, v);
+  function findLesson(v) {
+    const [course, lesson] = String(v || '').split('|'), all = (window.FGH_CONTENT && window.FGH_CONTENT.academy && window.FGH_CONTENT.academy.courses) || {};
+    const c = all[course], l = c && c.lessons ? c.lessons.find(x => x.id === lesson) : null;
+    return { course, lesson, l, title: l ? ((l.title && (l.title[K.ui()] || l.title.sv || l.title.th)) || l.id) : '' };
+  }
+  function classroomHTML() {
+    if (!V.cls) return '<section class="card"><h2 style="margin:0">🏫 ' + esc(ct('title')) + '</h2><p class="muted" style="margin:.3rem 0 0">' + esc(V.clsErr === 'migration_missing' ? ct('needsUpdate') : t('err_generic', { m: V.clsErr || '…' })) + '</p></section>';
+    const c = V.cls, live = c.live;
+    let h = '<div class="cls-grid">';
+    h += '<section class="card stack' + (live ? ' cls-live' : '') + '"><h2 style="margin:0">📡 ' + esc(ct('live')) + '</h2>' + (live
+      ? '<p style="margin:0"><span class="lv-on-big">' + esc(lt('liveNow')) + '</span> <b>' + esc(live.title) + '</b></p><div class="row" style="margin:0"><a class="btn primary big" href="live.html?s=' + encodeURIComponent(live.id) + '">▶ ' + esc(ct('liveOpen')) + '</a></div>'
+      : '<form class="stack" data-form="liveStart" style="margin:0"><label class="field">' + esc(ct('chooseLesson')) + '<select id="lvL" required>' + lessonOptions() + '</select></label><div class="row" style="margin:0"><button class="btn primary" type="submit">▶ ' + esc(ct('liveStart')) + '</button></div></form>') +
+      (c.recent.length ? '<details><summary>' + esc(ct('recent')) + '</summary><ul class="plain">' + c.recent.map(r => '<li>' + esc(fmtTs(r.started_at)) + ' · ' + esc(r.title) + ' · ' + esc(ct('took', { n: r.students })) + ' · <a href="live.html?s=' + encodeURIComponent(r.id) + '">' + esc(lt('talk')) + '</a></li>').join('') + '</ul></details>' : '') + '</section>';
+    h += '<section class="card stack"><h2 style="margin:0">📣 ' + esc(ct('announcements')) + '</h2>' +
+      (c.announcements.length ? '<ul class="cls-list">' + c.announcements.map(a => '<li><div><span class="muted" style="font-size:.85rem">' + (a.pinned ? esc(ct('pinned')) + ' · ' : '') + esc(fmtTs(a.created_at)) + '</span><p class="cls-ann">' + esc(a.body) + '</p></div><button class="btn small" data-act="annDel" data-v="' + esc(a.id) + '">' + esc(ct('archive')) + '</button></li>').join('') + '</ul>' : '<p class="muted" style="margin:0">' + esc(ct('noAnnouncements')) + '</p>') +
+      '<form class="stack" data-form="ann" style="margin:0"><label class="field">' + esc(ct('newAnn')) + '<textarea id="anB" rows="2" maxlength="1000" required></textarea></label><div class="row" style="margin:0"><label class="row" style="margin:0"><input id="anP" type="checkbox"> ' + esc(ct('pin')) + '</label><button class="btn small primary" type="submit">' + esc(ct('post')) + '</button></div></form></section>';
+    h += '<section class="card stack"><h2 style="margin:0">🗓 ' + esc(ct('schedule')) + '</h2>' +
+      (c.schedule.length ? '<ul class="cls-list">' + c.schedule.map(x => '<li><div><b>' + esc(fmtTs(x.starts_at)) + '</b> · ' + esc(ct('min', { n: x.minutes })) + '<br>' + esc(x.title) + (x.lesson_id ? ' <span class="muted">📖 ' + esc(findLesson(x.course_id + '|' + x.lesson_id).title || x.lesson_id) + '</span>' : '') + '</div><button class="btn small" data-act="schDel" data-v="' + esc(x.id) + '">' + esc(ct('del')) + '</button></li>').join('') + '</ul>' : '<p class="muted" style="margin:0">' + esc(ct('noSchedule')) + '</p>') +
+      '<details><summary>＋ ' + esc(ct('addLesson')) + '</summary><form class="stack" data-form="sch" style="margin:.4rem 0 0"><label class="field">' + esc(ct('lessonTitle')) + '<input id="scT" type="text" maxlength="120" required></label>' +
+      '<div class="row" style="margin:0"><label class="field">' + esc(ct('date')) + '<input id="scD" type="datetime-local" required></label><label class="field">' + esc(ct('minutes')) + '<input id="scM" type="number" min="5" max="480" value="45" inputmode="numeric"></label></div>' +
+      '<label class="field">' + esc(ct('lesson')) + '<select id="scL"><option value="">' + esc(ct('none')) + '</option>' + lessonOptions() + '</select></label><div class="row" style="margin:0"><button class="btn small primary" type="submit">' + esc(ct('add')) + '</button></div></form></details></section>';
+    return h + '</div>';
   }
 
   /* ---------- homework (Phase H) ---------- */
@@ -233,6 +266,8 @@
     hwThread(v) { V.thread = null; V.screen = 'thread'; run(() => loadThread(v)); },
     hwFile(v) { const w = window.open('', '_blank'); svc.fileLink(v).then(u => { if (w) w.location = u; else location.href = u; }).catch(() => { if (w) w.close(); V.err = t('hw.fileError'); render(); }); },
     toClass() { V.screen = 'class'; V.hwId = null; run(loadHw); },
+    annDel(v) { run(async () => { await svc.archiveAnnouncement(v); await loadCls(); }); },
+    schDel(v) { run(async () => { await svc.scheduleDelete(v); await loadCls(); }); },
     toHw() { V.screen = 'hw'; V.thread = null; run(async () => { await loadHw(); await loadHwSubs(); }); },
     print() { window.print(); },
     cardsDone() { V.cards = null; V.screen = V.classId ? 'class' : 'classes'; run(async () => { await loadClasses(); if (V.classId) await loadClass(V.classId); }); },
@@ -288,6 +323,18 @@
       await svc.reviewSubmission(e.target.dataset.v, status, $('rvS').value, $('rvC').value); await loadThread(sid); V.msg = t('hw.reviewed');
     });
     if (form === 'tcomment') run(async () => { const b = $('tcB').value.trim(); if (!b) return; const sid = V.thread.student.id; await svc.teacherComment(V.hwId, sid, b); await loadThread(sid); });
+    if (form === 'liveStart') run(async () => {
+      const x = findLesson($('lvL').value); if (!x.l) return;
+      const steps = FGH.liveCore ? FGH.liveCore.steps(x.l).length : 1;
+      const r = await svc.liveStart(V.classId, x.course, x.lesson, x.title, steps);
+      location.href = 'live.html?s=' + encodeURIComponent(r.id);
+    });
+    if (form === 'ann') run(async () => { await svc.classAnnounce(V.classId, $('anB').value, $('anP').checked); $('anB').value = ''; await loadCls(); V.msg = t('saved'); });
+    if (form === 'sch') run(async () => {
+      const x = $('scL').value ? findLesson($('scL').value) : {};
+      await svc.scheduleAdd({ classId: V.classId, starts: new Date($('scD').value).toISOString(), minutes: parseInt($('scM').value, 10) || 45, title: $('scT').value, course: x.course, lesson: x.lesson });
+      await loadCls(); V.msg = t('saved');
+    });
     if (form === 'renameClass') run(async () => { await svc.renameClass(V.classId, $('rc').value); await loadClasses(); V.msg = t('saved'); });
     if (form === 'renameStudent') run(async () => { await svc.renameStudent(e.target.dataset.v, $('rs').value); V.editing = null; await loadClass(V.classId); V.msg = t('saved'); });
   });

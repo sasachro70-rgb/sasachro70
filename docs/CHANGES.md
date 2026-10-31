@@ -1,5 +1,24 @@
 # Changes in this version
 
+## 31 Oct 2026 – Phase G: Classroom and live lessons
+
+* **Classroom dashboard** (Academy → Classroom, for signed-in students): the class, the teacher, a red "Live now" bar with
+  *Join* when a lesson is running, announcements from the teacher, the schedule (today highlighted, lesson links), homework.
+  The Academy dashboard shows the same "Live now" bar.
+* **Teacher class page** (`teacher.html` → a class): start a live lesson from any Thai lesson (also BOOK 42 and own courses),
+  post and pin announcements, plan lessons in a schedule, see earlier live lessons and how many took part.
+* **Live lesson** (`live.html`): left – the parts of the lesson and the lesson's exercises; middle – large Thai text with
+  romanization and translation, audio, images, the exercise on screen; right – progress, participation (who is here, answers,
+  posts), questions and comments, the teacher's private notes. Teacher controls: previous/next part, 📢 play Thai for everyone,
+  show an exercise, show the right answer, pause, end, assign homework for the lesson. Students follow the part the teacher shows,
+  hear the Thai the teacher plays, answer (checked by the database; right/wrong shown when the teacher reveals), ask questions
+  (seen by the teacher; by everyone once answered) and write comments. Works on phone, tablet and computer.
+* **Really live, honestly labelled:** changes reach other devices through Supabase Realtime (a signal on the lesson row, which holds
+  nothing secret) and otherwise by asking every 2–3 seconds; the page says which. Answer keys and teacher notes never reach students.
+* **Database:** migration `0008_live_classroom.sql` (+ rollback): announcements, schedule, live sessions, answer keys, messages,
+  presence; every right checked in the database. Admin → System check lists 0008.
+* Tests: `supabase/tests/live.test.js` (G1–G5), `tests/live-core.test.js`, browser test with a teacher and two students.
+
 ## 31 Oct 2026 – Phase I–J: Admin Panel, natural Thai cloud voice, one design, deploy guide
 
 * **Thai voice on every device.** New Supabase Edge Function `supabase/functions/tts` asks Google Cloud Text-to-Speech for a natural

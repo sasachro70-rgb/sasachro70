@@ -43,11 +43,12 @@ Lesson content is **sample content** (marked in the app): it shows the course st
 | `js/family/*-ui.js`, `kit.js`, `i18n.js`, `css/family.css` | Screens, shared helpers, texts in Thai/Swedish/English |
 | `js/family/voice.js`, `voice-ui.js` | Voice & speed per learner and language (only voices the device has), sentence pauses, recorded-audio support, Thai voice card and notice |
 | `js/family/cloud-voice.js`, `supabase/functions/tts/` | Natural Thai cloud voice: browser side and the Supabase Edge Function (Google Cloud Text-to-Speech, key on the server) |
-| `teacher.html`, `student.html`, `content.html`, `admin.html` | Teacher page and homework review, student login, Teacher Content Manager, Admin Panel |
+| `teacher.html`, `student.html`, `content.html`, `admin.html` | Teacher page (classes, classroom, homework review), student login, Teacher Content Manager, Admin Panel |
+| `live.html`, `js/classroom/` | Live lessons: teacher and student views, lesson parts and exercises (`live-core.js`), texts |
 | `js/family/actions.js`, `cloud-sync.js` | Every change goes through actions; with a family account, cloud-sync sends it to the server |
 | `js/family/keykids-bridge.js`, `hub-bridge.js` | Connect KeyKids and the family games to the ledger |
 | `content/` | Lesson and question content, separate from game logic |
-| `supabase/migrations/0001_…` – `0007_…` | Database: rooms (0001); points, rewards, learning, parent PIN (0002); accounts and roles (0003); classes and students (0004); homework and protected content (0005); Content Manager (0006); Thai cloud voice limits (0007). Rollbacks in `supabase/rollback/` |
+| `supabase/migrations/0001_…` – `0007_…` | Database: rooms (0001); points, rewards, learning, parent PIN (0002); accounts and roles (0003); classes and students (0004); homework and protected content (0005); Content Manager (0006); Thai cloud voice limits (0007); classroom and live lessons (0008). Rollbacks in `supabase/rollback/` |
 | `tests/`, `supabase/tests/` | `npm test` (no packages) and `npm run test:security` (PGlite) |
 
 Saved data in the browser: `fgh.v1` (hub), `keykids.v1` (KeyKids), `fgh.family.v1` (family: points, rewards, progress).

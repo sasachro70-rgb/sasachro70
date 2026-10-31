@@ -139,6 +139,34 @@
         if (res.error) throw toError(res.error);
         return res.data && res.data.signedUrl;
       },
+      /* ---------- classroom and live lessons (migration 0008) ---------- */
+      teacherClassroom: classId => rpc('teacher_classroom', { p_class: classId }),
+      classAnnounce: (classId, body, pinned) => rpc('class_announce', { p_class: classId, p_body: body, p_pinned: !!pinned }),
+      archiveAnnouncement: id => rpc('class_announcement_archive', { p_id: id }),
+      scheduleAdd: x => rpc('class_schedule_add', { p_class: x.classId, p_starts: x.starts, p_minutes: x.minutes || 45, p_title: x.title, p_course: x.course || null, p_lesson: x.lesson || null, p_note: x.note || null }),
+      scheduleDelete: id => rpc('class_schedule_delete', { p_id: id }),
+      liveStart: (classId, course, lesson, title, steps) => rpc('live_start', { p_class: classId, p_course: course, p_lesson: lesson, p_title: title, p_steps: steps }),
+      liveControl: (id, action, o) => rpc('live_control', Object.assign({ p_session: id, p_action: action }, o && o.step != null ? { p_step: o.step } : {},
+        o && o.exercise ? { p_exercise: o.exercise } : {}, o && o.answer != null ? { p_answer: String(o.answer) } : {}, o && o.audio ? { p_audio: o.audio } : {})),
+      liveTeacherState: id => rpc('live_teacher_state', { p_session: id }),
+      liveTeacherPost: (id, kind, body) => rpc('live_teacher_post', { p_session: id, p_kind: kind, p_body: body }),
+      liveReply: (msgId, body) => rpc('live_reply', { p_message: msgId, p_body: body }),
+      studentClassroom: () => rpc('student_classroom'),
+      liveStudentState: () => rpc('live_student_state'),
+      liveStudentPost: (kind, body) => rpc('live_student_post', { p_kind: kind, p_body: body }),
+      liveStudentAnswer: (seq, choice) => rpc('live_student_answer', { p_seq: seq, p_choice: String(choice) }),
+      /* Realtime: told at once when the class's live lesson row changes (start, step, pause, new question …). Returns a stop function.
+         Without Realtime (or before it connects) the caller keeps polling. onStatus(true|false) reports whether it is connected. */
+      watchClass(classId, onChange, onStatus) {
+        if (!client.channel || !classId) { if (onStatus) onStatus(false); return () => {}; }
+        let ch;
+        try {
+          ch = client.channel('pasathai-live-' + classId)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'live_sessions', filter: 'class_id=eq.' + classId }, () => onChange())
+            .subscribe(st => { if (onStatus) onStatus(st === 'SUBSCRIBED'); });
+        } catch (e) { if (onStatus) onStatus(false); return () => {}; }
+        return () => { try { client.removeChannel(ch); } catch (e) { /* gone */ } };
+      },
       recordActivity: a => rpc('student_record_activity', { p_key: a.key, p_area: a.area, p_kind: a.kind, p_title: a.title, p_unit: a.unit || null, p_score: a.score | 0, p_max: a.max | 0, p_ms: a.ms | 0 })
     };
   }

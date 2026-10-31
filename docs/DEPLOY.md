@@ -121,13 +121,25 @@ Per device, *Voice settings → Thai voice* chooses **Automatic** (device voice,
 kind of device (iPad/iPhone, Android, Windows, Mac, Chromebook).
 
 
+## Migration 0008 (Classroom and live lessons)
+
+1. SQL Editor → paste `supabase/migrations/0008_live_classroom.sql` → Run (needs 0004 and 0005).
+2. Realtime (recommended): the migration adds the table `live_sessions` to the `supabase_realtime` publication when it exists.
+   Check *Database → Publications → supabase_realtime*: `live_sessions` is listed. With Realtime, a student's screen changes
+   within about a second of the teacher's click. Without it, pages ask every 2–3 seconds – it still works, just a little slower.
+   The live page shows which one is in use ("⚡ Live connection" or "↻ Updates every three seconds").
+3. Teachers: *teacher.html → a class → 📡 Live lesson → choose a lesson → Start*. The live page opens (`live.html?s=…`).
+   Students: *Academy → Classroom* (or the red "Live now" bar on the dashboard) → *Join*.
+4. Undo: `supabase/rollback/0008_rollback.sql` (deletes announcements, schedule and live lessons; homework stays).
+
+
 ## Full setup order (new Supabase project)
 
 1. Authentication → Providers: Email ON, **Anonymous sign-ins ON** (student login and guest rooms). Rate limits for anonymous
    sign-ins raised for school networks.
 2. SQL Editor, in this order, each once: `0001` → `0002` → `0003` (then `select private.set_system_owner('your-email');`) → `0004`
-   → `0005` → `0006` → `0007`.
-3. Storage: `submissions`, `course-media`, `tts-cache` exist and are **private**.
+   → `0005` → `0006` → `0007` → `0008`.
+3. Storage: `submissions`, `course-media`, `tts-cache` exist and are **private**. Realtime: `live_sessions` is in the `supabase_realtime` publication.
 4. The protected BOOK 42 course: run the separate SQL file (not in this repository).
 5. Edge Function `tts` + secret `GOOGLE_TTS_API_KEY` (section above).
 6. `js/online/config.js`: Project URL + publishable key. Authentication → URL Configuration: the GitHub Pages address.
