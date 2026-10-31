@@ -88,7 +88,7 @@ test('Thai Learning Academy (Phase C): own navigation, Thai-only mode, explanati
   const ui = read('js/family/academy-ui.js');
   assert.ok(ui.includes("const THAI = !params.get('course') || params.get('course') === 'th'"));
   assert.ok(ui.includes("const TABS = ['home', 'courses', 'lessons', 'practice', 'games', 'classroom', 'homework', 'progress']"));
-  assert.ok(ui.includes("AC.courseKey('th', AC.course('th').explain[0])"), 'Thai progress key does not depend on the explanation language');
+  assert.ok(ui.includes("THAI ? AC.courseKey(s.course, crs(p).explain[0])"), 'Thai progress key does not depend on the explanation language');
   for (const f of ['dashHTML', 'coursesHTML', 'lessonsHTML', 'practiceHTML', 'gamesHTML', 'classroomHTML', 'homeworkHTML', 'progressHTML']) assert.ok(ui.includes('function ' + f + '('), f);
   const FT = load(['js/family/i18n.js']).window.FGH.FT;
   for (const l of ['en', 'sv', 'th']) {

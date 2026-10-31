@@ -97,7 +97,7 @@
   function courseList() {
     const a = AC(); if (!a) return [];
     const order = ['sv', 'th', 'en', 'es'];
-    return Object.keys(a.courses()).filter(k => a.course(k).lessons && a.course(k).lessons.length).sort((x, y) => order.indexOf(x) - order.indexOf(y)).map(k => a.course(k));
+    return Object.keys(a.courses()).filter(k => a.course(k).lessons && a.course(k).lessons.length && !a.course(k).track).sort((x, y) => order.indexOf(x) - order.indexOf(y)).map(k => a.course(k));
   }
   const cName = (ui, c) => c.name ? (c.name[ui] || c.name.en) : tx(ui, 'lang.' + c.target);
   const lvList = (ui, c) => { const a = AC(); return a.levelIds(c).map(id => { const i = a.levelInfo(c, id); return i ? String(i.n) : id; }).join(' · '); };

@@ -1,5 +1,21 @@
 # Changes in this version
 
+## 31 Oct 2026 – Thai Learning Academy: "Läsa och skriva thailändska" (อ่านเขียนภาษาไทย), after BOOK 42
+
+* New course `content/academy-th-read.js` (key `thr`, target Thai): **10 chapters in 5 steps**, in the order of the teacher's book
+  BOOK 42 by Kru Aom – vowel groups chapter by chapter, the 9 final-consonant groups, vowels that change or hide their form, consonant
+  classes and tones, clusters and leading consonants, live/dead syllables, punctuation (ๆ ฯ ฯลฯ), ฤ ฦ, the silent-letter mark ์ and
+  all 32 vowel sounds. Sentences, words, explanations and exercises are written for the app; the book's stories and pages are not copied
+  (the repository is public). Each chapter: reading lines with audio and RTGS, 8 words, a rule with a table (แจกลูก, มาตรา, tone table
+  – every Thai cell has 🔊), 6–8 exercises (listen and pick the Thai word, build a syllable, live or dead syllable, final-consonant
+  group, consonant class, tone, word order, gap) plus the generated word questions and a speaking task.
+* **Thai explanations** for every title, goal and grammar text of this course (shown when the learner picks ภาษาไทย); Swedish everywhere.
+* Academy **Courses** screen: both Thai courses as cards (reading/writing and conversation), progress per course, pick one; the setup
+  screen also lets you pick. Lessons, Thai Practice, Learning Games and level tests follow the chosen course; word review covers the words
+  of both. Progress key `ac:thr:sv`. The "other language courses" picker and the home page leave this course out (`track: 'thai'`).
+* Loaded by `academy.html`, `parent.html`, `student.html`. Tests: `tests/thai-read.test.js` (structure, every answer is an option, Thai facts:
+  คำเป็น/คำตาย, มาตรา, tones, classes, 9 groups, 32 vowels).
+
 ## 31 Oct 2026 – ThaiElevate, Phase C: Thai Learning Academy navigation and dashboard
 
 No database change; saved data keeps its keys.

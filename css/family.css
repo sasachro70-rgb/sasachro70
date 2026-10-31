@@ -235,3 +235,15 @@ body[data-area="academy"] [lang="th"], body[data-area="academy"] .tw, body[data-
 .later { border-style: dashed; }
 .card.game[disabled] { opacity: .5; cursor: default; }
 @media (max-width: 700px) { .dash { grid-template-columns: 1fr; } .dash .dcont { grid-row: auto; } .barrow { grid-template-columns: auto 1fr auto; } .barrow .bl { grid-column: 2; } .barrow .meter { grid-column: 1 / -1; grid-row: 2; } }
+.courselist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; margin-bottom: 14px; }
+.coursecard { display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; text-align: left; font: inherit; color: inherit; padding: 1rem 1.1rem; border-radius: 18px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; }
+.coursecard .ci { font-size: 1.8rem; line-height: 1; }
+.coursecard b { font-size: 1.15rem; }
+.coursecard .meter { width: 100%; margin: .3rem 0 0; }
+.coursecard.on { border-color: var(--tla-teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tla-teal) 22%, transparent); }
+.courselist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; margin-bottom: 14px; }
+.coursecard { display: flex; flex-direction: column; align-items: flex-start; gap: .35rem; text-align: left; font: inherit; color: inherit; padding: 1rem 1.1rem; border-radius: 18px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; }
+.coursecard .ci { font-size: 1.8rem; line-height: 1; }
+.coursecard b { font-size: 1.15rem; }
+.coursecard .meter { width: 100%; margin: .3rem 0 0; }
+.coursecard.on { border-color: var(--tla-teal); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tla-teal) 22%, transparent); }

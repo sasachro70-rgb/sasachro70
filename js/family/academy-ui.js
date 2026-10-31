@@ -24,10 +24,13 @@
   const setup = p => {
     const s = fam().adult[p.id] || null;
     if (!THAI || !s) return s;
-    return Object.assign({}, s, { target: 'th', explain: s.thExplain === 'th' ? 'th' : 'sv', level: levelFor(s, 'th') });
+    const course = thaiCourseIds().includes(s.thCourse) ? s.thCourse : 'th';
+    return Object.assign({}, s, { target: 'th', course, explain: s.thExplain === 'th' ? 'th' : 'sv', level: levelFor(s, course) });
   };
-  const crs = p => { const s = setup(p); return s && AC.course(s.target); };
-  const ckey = p => { const s = setup(p); return THAI ? AC.courseKey('th', AC.course('th').explain[0]) : AC.courseKey(s.target, s.explain); };
+  /* the Thai Academy's courses: every course whose target language is Thai ("th" conversation, "thr" reading and writing) */
+  function thaiCourseIds() { const all = AC.courses(); return Object.keys(all).filter(k => all[k].target === 'th' && all[k].lessons && all[k].lessons.length); }
+  const crs = p => { const s = setup(p); return s && AC.course(s.course || s.target); };
+  const ckey = p => { const s = setup(p); return THAI ? AC.courseKey(s.course, crs(p).explain[0]) : AC.courseKey(s.target, s.explain); };
   const prog = p => (fam().learning[p.id] || {})[ckey(p)] || { lessons: {}, tests: [], timeMs: 0, lastAt: 0 };
   const deck = p => fam().srs[p.id] || {};
   const ex = () => setup(me()).explain;
@@ -104,12 +107,14 @@
   function setupHTML() {
     const p = me(), s = Object.assign({ target: 'sv', explain: K.ui() === 'th' ? 'th' : 'en', level: 'A1', goal: 'daily', minutes: 15 }, setup(p) || {}, THAI ? { target: 'th', explain: thExplainDefault() } : {}, V.draft || {});
     if (THAI && !V.draft && setup(p)) s.explain = setup(p).explain;
-    const c = AC.course(s.target); if (!THAI && c && !c.explain.includes(s.explain)) s.explain = c.explain[0];
+    if (THAI && !s.course) s.course = 'th';
+    const c = AC.course(THAI ? s.course : s.target); if (!THAI && c && !c.explain.includes(s.explain)) s.explain = c.explain[0];
+    if (THAI && c && !AC.levelIds(c).includes(s.level)) s.level = levelFor(setup(p), s.course);
     if (c && !AC.levelIds(c).includes(s.level)) s.level = levelFor(setup(p), s.target);
     V.draft = s;
     const chips = (act, list, cur, lbl) => '<div class="choices">' + list.map(([v, l]) => '<button class="btn' + (String(cur) === String(v) ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '" aria-pressed="' + (String(cur) === String(v)) + '">' + esc(l) + '</button>').join('') + '</div>';
     return top(t('acSetup'), setup(p) ? 'home' : null) + '<div class="card stack">' +
-      (THAI ? '' : '<div class="field"><label>' + esc(t('acTarget')) + '</label>' + chips('dTarget', Object.keys(AC.courses()).map(k => [k, cname(k)]), s.target) + (c && c.desc ? '<p class="muted" style="margin:.3rem 0 0">' + esc(K.L(c.desc)) + '</p>' : '') + '</div>') +
+      (THAI ? '<div class="field"><label>' + esc(t('tlaNav.courses')) + '</label>' + chips('dCourse', thaiCourseIds().map(k => [k, K.L(AC.course(k).name)]), s.course) + '</div>' : '<div class="field"><label>' + esc(t('acTarget')) + '</label>' + chips('dTarget', Object.keys(AC.courses()).filter(k => !AC.course(k).track).map(k => [k, cname(k)]), s.target) + (c && c.desc ? '<p class="muted" style="margin:.3rem 0 0">' + esc(K.L(c.desc)) + '</p>' : '') + '</div>') +
       (THAI ? '<div class="field"><label>Förklaringsspråk / <span lang="th">ภาษาที่ใช้ในการอธิบาย</span></label>' + chips('dExplain', [['sv', 'Svenska – คำอธิบายภาษาสวีเดน'], ['th', 'ภาษาไทย – คำอธิบายภาษาไทย']], s.explain) + '</div>'
         : '<div class="field"><label>' + esc(t('acExplain')) + '</label>' + chips('dExplain', (c ? c.explain : []).map(k => [k, t('lang.' + k)]), s.explain) + '</div>') +
       '<div class="field"><label>' + esc(t('acLevel')) + '</label>' + chips('dLevel', AC.levelIds(c).map(l => [l, lvShort(c, l) + ' · ' + lvName(c, l)]), s.level) + '</div>' +
@@ -163,7 +168,13 @@
   const studentInfo = pid => { try { const x = JSON.parse(localStorage.getItem('fgh.student') || 'null'); return x && x.pid === pid ? x : null; } catch (e) { return null; } };
   const recent = (pid, n) => (fam().log || []).filter(e => e.pid === pid).sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, n || 5);
   const laterCard = (icon, title, text) => '<section class="card later"><h3>' + icon + ' ' + esc(title) + '</h3><p class="muted">' + esc(text) + '</p></section>';
-  function thNote() { return setup(me()).explain === 'th' ? '<p class="exnote">ℹ️ ' + esc(t('tlaThNote')) + '</p>' : ''; }
+  /* shown only where Thai explanations are still missing (the reading course has them for titles, goals and grammar) */
+  const hasThai = l => !!(l && l.grammar && l.grammar.body && l.grammar.body.th);
+  function thNote(l) {
+    if (setup(me()).explain !== 'th') return '';
+    const missing = l ? !hasThai(l) : !crs(me()).lessons.every(hasThai);
+    return missing ? '<p class="exnote">ℹ️ ' + esc(t('tlaThNote')) + '</p>' : '';
+  }
 
   /* Dashboard */
   function dashHTML() {
@@ -172,7 +183,7 @@
     const dueN = SRS.due(dk, Date.now(), c.target + ':').length;
     const week = F.weekly(fam(), p.id), today = week.length ? week[week.length - 1].minutes : 0;
     let h = top(t('tlaTitle')) + '<h2 class="welcome">' + esc(t('tlaWelcome', { name: p.name })) + '</h2>' +
-      '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(cname('th')) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote();
+      '<p class="muted course-line"><span class="cefr">' + esc(lvBadge(c, s.level)) + '</span> ' + esc(K.L(c.name)) + ' · ' + esc(lvShort(c, s.level)) + ' – ' + esc(lvName(c, s.level)) + ' · ' + esc(t('tlaExplainShort')) + ': ' + (s.explain === 'th' ? 'ภาษาไทย' : 'Svenska') + '</p>' + thNote();
     h += '<div class="dash">';
     h += '<section class="card dcont stack"><p class="muted" style="margin:0">' + esc(pr.current ? t('acContinue') : t('tlaToday')) + '</p>' +
       (next ? '<h2>' + next.icon + ' ' + esc(T(next.title)) + '</h2><p class="muted" style="margin:0">' + esc(lvShort(c, next.level)) + ' · ' + esc(T(next.goal)) + '</p><button class="btn primary big" data-act="openLesson" data-v="' + esc(next.id) + '">▶ ' + esc(t('acContinue')) + '</button>'
@@ -191,7 +202,10 @@
   /* Courses: the Thai course, its levels and the learner's settings */
   function coursesHTML() {
     const p = me(), s = setup(p), c = crs(p), pr = prog(p);
-    let h = top(t('tlaNav.courses')) + '<section class="card stack"><h2>🇹🇭 ' + esc(cname('th')) + '</h2><p class="muted" style="margin:0">' + esc(t('tlaCourseDesc')) + '</p>' +
+    let h = top(t('tlaNav.courses')) + '<div class="courselist">' + thaiCourseIds().map(k => { const cc = AC.course(k), on = k === s.course, pc = pctOf(cc, (fam().learning[p.id] || {})[AC.courseKey(k, cc.explain[0])] || { lessons: {} });
+      return '<button class="coursecard' + (on ? ' on' : '') + '" data-act="setCourse" data-v="' + esc(k) + '" aria-pressed="' + on + '"><span class="ci" aria-hidden="true">' + (k === 'thr' ? '📖' : '💬') + '</span><b>' + esc(K.L(cc.name)) + '</b><span class="muted">' + esc(K.L(cc.desc)) + '</span>' +
+        '<span class="meter"><span style="width:' + pc + '%"></span></span><span class="muted">' + esc(t('tlaLessonsN', { n: cc.lessons.length })) + ' · ' + pc + ' %' + (on ? ' · ✓ ' + esc(t('tlaCurrent')) : '') + '</span></button>'; }).join('') + '</div>' +
+      '<section class="card stack"><h2>' + esc(K.L(c.name)) + '</h2><p class="muted" style="margin:0">' + esc(t('tlaCourseDesc')) + '</p>' +
       '<div class="levels">' + AC.levelIds(c).map(lv => { const st = AC.levelState(c, pr, lv); return '<button class="lvcard' + (lv === s.level ? ' on' : '') + '" data-act="setLevel" data-v="' + lv + '" aria-pressed="' + (lv === s.level) + '"><span class="cefr">' + esc(lvBadge(c, lv)) + '</span><b>' + esc(lvName(c, lv)) + '</b><span class="muted">' + st.done + '/' + st.total + (st.passed ? ' · ✓' : '') + '</span></button>'; }).join('') + '</div>' +
       '<p class="muted" style="margin:0">' + esc(t('tlaLevelHint')) + '</p></section>';
     h += '<section class="card stack"><h3>Förklaringsspråk / <span lang="th">ภาษาที่ใช้ในการอธิบาย</span></h3><div class="choices">' +
@@ -266,7 +280,7 @@
     const sayBtns = (act, i) => '<span class="saybtns"><button class="ghost" data-act="' + act + '" data-v="' + i + '" aria-label="' + esc(t('listen')) + '" title="' + esc(t('listen')) + '">🔊</button>' +
       '<button class="ghost" data-act="' + act + 'Slow" data-v="' + i + '" aria-label="' + esc(t('voice.slow')) + '" title="' + esc(t('voice.slow')) + '">🐢</button>' +
       (act === 'sayWord' ? '<button class="ghost" data-act="sayWordRep" data-v="' + i + '" aria-label="' + esc(t('voice.repeat')) + '" title="' + esc(t('voice.repeat')) + '">🔁</button>' : '') + '</span>';
-    let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote() : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
+    let h = top(l.icon + ' ' + T(l.title), THAI ? 'backFromLesson' : 'home') + (THAI ? thNote(l) : '') + '<p class="muted">' + esc(lvShort(c, l.level)) + ' · ' + esc(T(l.goal)) + ' · ' + l.skills.map(sk => esc(t('skills.' + sk))).join(', ') + '</p>' + VUI.speedHTML(p.id, true);
     if (l.tones) h += tonesHTML(l);
     h += '<section class="card"><div class="row" style="margin:0 0 8px"><h2>' + esc(l.dialogue[0] && l.dialogue[0].who ? t('acDialogue') : t('skills.reading')) + '</h2><span class="grow"></span><button class="btn small" data-act="playAll">▶ ' + esc(t('acPlayAll')) + '</button><button class="btn small" data-act="toggleTr">' + esc(V.showTr ? t('acHideTr') : t('acShowTr')) + '</button></div><div class="dlg">' +
       l.dialogue.map((d, i) => '<div class="line ' + (d.who === 'B' ? 'B' : 'A') + '">' + (d.who ? '<span class="who" aria-hidden="true">' + esc(d.who) + '</span>' : '') + '<div class="bubble"><div class="tl" lang="' + c.target + '">' + esc(d.t) + ' ' + sayBtns('sayLine', i) + '</div>' + romHTML(d.rom) + (V.showTr ? '<div class="tr">' + esc(T(d.tr)) + '</div>' : '') + '</div></div>').join('') + '</div></section>';
@@ -385,7 +399,7 @@
   function wordOf(key) {
     const c = crs(me());
     if (key.startsWith(c.target + ':own:')) { const w = (fam().adult[me().id].own || []).find(x => x.key === key); return w ? { t: w.t, tr: w.tr } : null; }
-    for (const l of c.lessons) for (const w of l.vocab) if (AC.itemKey(c, l, w) === key) return { t: w.t, tr: T(w.tr), note: w.note ? T(w.note) : '' };
+    for (const c2 of (THAI ? thaiCourseIds().map(AC.course) : [c])) for (const l of c2.lessons) for (const w of l.vocab) if (AC.itemKey(c2, l, w) === key) return { t: w.t, tr: T(w.tr), note: w.note ? T(w.note) : '' };
     return null;
   }
   function startReview() {
@@ -426,11 +440,13 @@
     pick(v) { V.pid = v; sessionStorage.setItem('fgh.adult', v); V.screen = 'home'; V.draft = null; render(); },
     go(v) { V.screen = v; if (v === 'setup') V.draft = null; R = null; render(); },
     home() { V.screen = 'home'; R = null; render(); },
+    dCourse(v) { V.draft.course = v; V.draft.level = levelFor(setup(me()), v); render(); },
     dTarget(v) { V.draft.target = v; V.draft.level = levelFor(setup(me()), v); render(); }, dExplain(v) { V.draft.explain = v; render(); }, dLevel(v) { V.draft.level = v; render(); }, dGoal(v) { V.draft.goal = v; render(); }, dMin(v) { V.draft.minutes = +v; render(); },
     saveSetup() {
       const p = me(), d = V.draft;
       if (THAI) {
-        A.updateLearning(p.id, f => { const old = f.adult[p.id]; f.adult[p.id] = Object.assign({ started: Date.now(), own: [], target: 'th', explain: 'sv', level: d.level }, old || {}, { thExplain: d.explain, goal: d.goal, minutes: d.minutes }); const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { th: d.level }); if (s2.target === 'th') s2.level = d.level; });
+        const k = thaiCourseIds().includes(d.course) ? d.course : 'th';
+        A.updateLearning(p.id, f => { const old = f.adult[p.id]; f.adult[p.id] = Object.assign({ started: Date.now(), own: [], target: 'th', explain: 'sv', level: d.level }, old || {}, { thExplain: d.explain, thCourse: k, goal: d.goal, minutes: d.minutes }); const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { [k]: d.level }); if (s2.target === k) s2.level = d.level; });
         A.saveProfile(p.id, { goalMin: d.minutes }); V.draft = null; V.screen = 'home'; render(); return;
       }
       A.updateLearning(p.id, f => { f.adult[p.id] = Object.assign({ started: Date.now(), own: [] }, f.adult[p.id] || {}, { target: d.target, explain: d.explain, level: d.level, goal: d.goal, minutes: d.minutes }); const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { [d.target]: d.level }); });
@@ -441,7 +457,8 @@
     /* Thai Academy */
     tab(v) { if (TABS.includes(v)) { V.screen = v; R = null; render(); window.scrollTo(0, 0); } },
     setExplain(v) { if (v !== 'sv' && v !== 'th') return; const p = me(); A.updateLearning(p.id, f => { f.adult[p.id].thExplain = v; }); try { localStorage.setItem('te.explain', v); } catch (e) { /* ignore */ } render(); },
-    setLevel(v) { const p = me(); A.updateLearning(p.id, f => { const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { th: v }); if (s2.target === 'th') s2.level = v; }); render(); },
+    setLevel(v) { const p = me(), k = setup(p).course; A.updateLearning(p.id, f => { const s2 = f.adult[p.id]; s2.levels = Object.assign({}, s2.levels, { [k]: v }); if (s2.target === k) s2.level = v; }); render(); },
+    setCourse(v) { if (!thaiCourseIds().includes(v)) return; const p = me(); A.updateLearning(p.id, f => { f.adult[p.id].thCourse = v; }); V.skill = null; render(); },
     game(v) { const p = me(), qs = gameQs(p, v); if (qs.length) startRun('game', qs, { game: v, title: GAMES[v] + ' ' + t('tlaGame.' + v) }); },
     backFromLesson() { V.screen = V.from && TABS.includes(V.from) ? V.from : 'lessons'; R = null; render(); },
     openLesson(v) { if (TABS.includes(V.screen)) V.from = V.screen; V.lesson = v; V.screen = 'lesson'; const p = me(); A.updateLearning(p.id, f => F.startLesson(f, p.id, ckey(p), v)); render(); window.scrollTo(0, 0); },
