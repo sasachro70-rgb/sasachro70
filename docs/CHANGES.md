@@ -1,5 +1,16 @@
 # Changes in this version
 
+## 1 Nov 2026 – Admin Panel: students of every class, extra rights for teachers
+
+* **Classes → 👥 Students** (Admin Panel): rename students, new PIN (shown once as a printable login card), add students by
+  number or by a list of names, archive and restore, rename the class.
+* **Users → 🔑 Extra rights for this teacher:** *All classes* (`classes.manage`) and *All course content* (`curriculum.manage`).
+  Migration `0009_teacher_permissions.sql` (+ rollback): teachers can hold only these two rights; Admins can only pass on rights
+  they hold themselves (System Creator: all); every change is in the security log; a role change removes them.
+  `curriculum.manage` now really opens every course in the Content Manager (also for Admins).
+* Test harness: lists of text are passed as PostgreSQL arrays (as PostgREST does). Tests: `supabase/tests/teacher-perms.test.js`
+  (P1–P5) and a browser test.
+
 ## 31 Oct 2026 – Phase E: Curriculum and structured lessons
 
 * **Audit and plan:** `docs/CURRICULUM.md` – what the sources are (own course, BOOK 42 track, protected BOOK 42, pronunciation

@@ -65,6 +65,8 @@
       setAccountStatus: (userId, status, note) => rpc('set_account_status', { p_user: userId, p_status: status, p_note: note || null }),
       setAccountRole: (userId, role) => rpc('set_account_role', { p_user: userId, p_role: role }),
       setAdminPermissions: (userId, perms) => rpc('set_admin_permissions', { p_user: userId, p_permissions: perms }),
+      /* migration 0009: extra rights for a teacher (classes.manage, curriculum.manage); an empty list takes them away */
+      setTeacherPermissions: (userId, perms) => rpc('set_teacher_permissions', { p_user: userId, p_permissions: perms }),
       createInvitation: (role, days, perms, note) => rpc('create_invitation', Object.assign({ p_role: role, p_days: days || 7, p_note: note || null }, perms && perms.length ? { p_permissions: perms } : {})),
       revokeInvitation: id => rpc('revoke_invitation', { p_invitation: id }),
       /* system check: is a database function there? PostgREST answers PGRST202 when it is not */

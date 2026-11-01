@@ -134,12 +134,23 @@ kind of device (iPad/iPhone, Android, Windows, Mac, Chromebook).
 4. Undo: `supabase/rollback/0008_rollback.sql` (deletes announcements, schedule and live lessons; homework stays).
 
 
+## Migration 0009 (extra rights for teachers)
+
+1. SQL Editor → paste `supabase/migrations/0009_teacher_permissions.sql` → Run (needs 0003, 0004, 0006).
+2. Admin Panel → *Users* → a teacher → 🔑 *Extra rights for this teacher*: **All classes** (`classes.manage`: every class, its
+   students, homework and live lessons) and/or **All course content** (`curriculum.manage`: edit every course, including BOOK 42).
+   The System Creator can give both; an Admin needs `teachers.manage` and can only give rights he/she holds. Logged in the security log.
+3. Admin Panel → *Classes* → 👥 *Students*: rename students, give a new PIN (shown once, printable), add students (number or
+   list of names), archive/restore, rename the class. (Needs `classes.manage`; this part works without 0009.)
+4. Undo: `supabase/rollback/0009_rollback.sql`.
+
+
 ## Full setup order (new Supabase project)
 
 1. Authentication → Providers: Email ON, **Anonymous sign-ins ON** (student login and guest rooms). Rate limits for anonymous
    sign-ins raised for school networks.
 2. SQL Editor, in this order, each once: `0001` → `0002` → `0003` (then `select private.set_system_owner('your-email');`) → `0004`
-   → `0005` → `0006` → `0007` → `0008`.
+   → `0005` → `0006` → `0007` → `0008` → `0009`.
 3. Storage: `submissions`, `course-media`, `tts-cache` exist and are **private**. Realtime: `live_sessions` is in the `supabase_realtime` publication.
 4. The protected BOOK 42 course: run the separate SQL file (not in this repository).
 5. Edge Function `tts` + secret `GOOGLE_TTS_API_KEY` (section above).

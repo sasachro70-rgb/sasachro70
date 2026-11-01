@@ -18,9 +18,15 @@
       courses: 'Publicerade kurser', version: 'Version', openContent: 'Öppna kursinnehåll', builtIn: 'Inbyggda kurser (i appen)',
       when: 'Tid', who: 'Vem', what: 'Händelse', target: 'Gäller',
       sysTitle: 'Är databasen uppdaterad?', sysHelp: 'Kontrollerar att varje databasuppdatering (migration) är körd och att lagringsplatserna finns. Kör saknade filer i Supabase → SQL Editor i nummerordning.',
-      runCheck: 'Kontrollera nu', ok: 'OK', missing: 'Saknas', mig: { m1: 'Familjer, rum och spel', m2: 'Poäng, belöningar, lärande', m3: 'Konton, roller och behörigheter', m4: 'Klasser och elevinloggning', m5: 'Läxor och skyddat kursinnehåll', m6: 'Kursinnehåll för lärare', m7: 'Naturlig thailändsk molnröst', m8: 'Klassrum och direktlektioner' },
+      runCheck: 'Kontrollera nu', ok: 'OK', missing: 'Saknas', mig: { m1: 'Familjer, rum och spel', m2: 'Poäng, belöningar, lärande', m3: 'Konton, roller och behörigheter', m4: 'Klasser och elevinloggning', m5: 'Läxor och skyddat kursinnehåll', m6: 'Kursinnehåll för lärare', m7: 'Naturlig thailändsk molnröst', m8: 'Klassrum och direktlektioner', m9: 'Extra behörigheter för lärare' },
       ttsCheck: 'Thailändsk molnröst (Edge Function "tts")',
-      bucket: 'Lagring: {b}', config: 'Supabase-adress och publik nyckel i js/online/config.js', bookContent: 'BOOK 42 i databasen', settings: 'Kontrollera även i Supabase: Authentication → Anonymous sign-ins PÅ (elevinloggning), Rate limits för anonyma inloggningar höjda för skolnätverk, Storage-buckets "submissions" och "course-media" är privata.'
+      bucket: 'Lagring: {b}', config: 'Supabase-adress och publik nyckel i js/online/config.js', bookContent: 'BOOK 42 i databasen', settings: 'Kontrollera även i Supabase: Authentication → Anonymous sign-ins PÅ (elevinloggning), Rate limits för anonyma inloggningar höjda för skolnätverk, Storage-buckets "submissions" och "course-media" är privata.',
+      tPerms: 'Extra behörigheter för läraren', tPermsInfo: 'Gäller bara den här läraren. Ändras rollen försvinner de.', saveTPerms: 'Spara lärarbehörigheter',
+      tp: { classes: ['Alla klasser', 'Se och hantera alla klasser: elever (namn, PIN, lägga till, arkivera), läxor och direktlektioner – även andra lärares.'], curriculum: ['Allt kursinnehåll', 'Redigera alla kurser i kursinnehållet, även skyddade som BOOK 42.'] },
+      extra: 'extra', editStudents: 'Elever', closeStudents: 'Stäng', studentsOf: 'Elever i {c}', no: 'Nr', name: 'Namn', lastActive: 'Senast aktiv', save: 'Spara', newPin: 'Ny PIN', archive: 'Arkivera', restore: 'Återställ',
+      addStudents: 'Lägg till elever', byCount: 'Antal', byNames: 'Namnlista (ett namn per rad)', count: 'Antal elever', names: 'Namn', add: 'Lägg till', showArchived: 'Visa arkiverade',
+      pinTitle: 'Nya inloggningsuppgifter – visas bara nu. Skriv ut eller skriv av dem.', print: 'Skriv ut', done: 'Klar', classCode: 'Klasskod', pin: 'PIN', renameClass: 'Byt namn på klassen', never: 'aldrig',
+      pinAsk: 'Ge {n} en ny PIN? Den gamla slutar fungera.', archiveAsk: 'Arkivera {n}? Eleven kan inte logga in men inget raderas.'
     } },
     en: { adm: {
       title: 'Administration', checking: 'Checking access…', notAdmin: 'Administration is only for the System Creator and Admins.', signIn: 'Sign in on the teacher page',
@@ -37,9 +43,15 @@
       courses: 'Published courses', version: 'Version', openContent: 'Open course content', builtIn: 'Built-in courses (in the app)',
       when: 'Time', who: 'Who', what: 'Event', target: 'Concerns',
       sysTitle: 'Is the database up to date?', sysHelp: 'Checks that every database update (migration) has been run and that the storage buckets exist. Run missing files in Supabase → SQL Editor in number order.',
-      runCheck: 'Check now', ok: 'OK', missing: 'Missing', mig: { m1: 'Families, rooms and games', m2: 'Points, rewards, learning', m3: 'Accounts, roles and permissions', m4: 'Classes and student login', m5: 'Homework and protected content', m6: 'Course content for teachers', m7: 'Natural Thai cloud voice', m8: 'Classroom and live lessons' },
+      runCheck: 'Check now', ok: 'OK', missing: 'Missing', mig: { m1: 'Families, rooms and games', m2: 'Points, rewards, learning', m3: 'Accounts, roles and permissions', m4: 'Classes and student login', m5: 'Homework and protected content', m6: 'Course content for teachers', m7: 'Natural Thai cloud voice', m8: 'Classroom and live lessons', m9: 'Extra rights for teachers' },
       ttsCheck: 'Thai cloud voice (Edge Function "tts")',
-      bucket: 'Storage: {b}', config: 'Supabase address and public key in js/online/config.js', bookContent: 'BOOK 42 in the database', settings: 'Also check in Supabase: Authentication → Anonymous sign-ins ON (student login), anonymous sign-in rate limits raised for school networks, Storage buckets "submissions" and "course-media" are private.'
+      bucket: 'Storage: {b}', config: 'Supabase address and public key in js/online/config.js', bookContent: 'BOOK 42 in the database', settings: 'Also check in Supabase: Authentication → Anonymous sign-ins ON (student login), anonymous sign-in rate limits raised for school networks, Storage buckets "submissions" and "course-media" are private.',
+      tPerms: 'Extra rights for this teacher', tPermsInfo: 'Only for this teacher. They are removed if the role is changed.', saveTPerms: 'Save teacher rights',
+      tp: { classes: ['All classes', 'See and manage every class: students (names, PINs, adding, archiving), homework and live lessons – also other teachers’.'], curriculum: ['All course content', 'Edit every course in the Content Manager, also protected ones such as BOOK 42.'] },
+      extra: 'extra', editStudents: 'Students', closeStudents: 'Close', studentsOf: 'Students in {c}', no: 'No.', name: 'Name', lastActive: 'Last active', save: 'Save', newPin: 'New PIN', archive: 'Archive', restore: 'Restore',
+      addStudents: 'Add students', byCount: 'Number', byNames: 'List of names (one per line)', count: 'Number of students', names: 'Names', add: 'Add', showArchived: 'Show archived',
+      pinTitle: 'New sign-in details – shown only now. Print them or write them down.', print: 'Print', done: 'Done', classCode: 'Class code', pin: 'PIN', renameClass: 'Rename the class', never: 'never',
+      pinAsk: 'Give {n} a new PIN? The old one stops working.', archiveAsk: 'Archive {n}? The student cannot sign in, but nothing is deleted.'
     } },
     th: { adm: {
       title: 'ผู้ดูแลระบบ', checking: 'กำลังตรวจสอบสิทธิ์…', notAdmin: 'ส่วนนี้สำหรับเจ้าของระบบและผู้ดูแลระบบเท่านั้น', signIn: 'เข้าสู่ระบบที่หน้าครู',
@@ -56,9 +68,15 @@
       courses: 'คอร์สที่เผยแพร่', version: 'ฉบับ', openContent: 'เปิดหน้าจัดการเนื้อหา', builtIn: 'คอร์สในแอป',
       when: 'เวลา', who: 'ผู้ทำ', what: 'เหตุการณ์', target: 'เกี่ยวกับ',
       sysTitle: 'ฐานข้อมูลอัปเดตครบหรือยัง', sysHelp: 'ตรวจว่ารัน migration ครบทุกไฟล์และมีที่เก็บไฟล์ครบ ถ้าขาดไฟล์ไหนให้รันใน Supabase → SQL Editor ตามลำดับเลข',
-      runCheck: 'ตรวจเดี๋ยวนี้', ok: 'เรียบร้อย', missing: 'ยังไม่มี', mig: { m1: 'ครอบครัว ห้องเกม และเกม', m2: 'คะแนน รางวัล การเรียน', m3: 'บัญชี บทบาท และสิทธิ์', m4: 'ห้องเรียนและการเข้าสู่ระบบของนักเรียน', m5: 'การบ้านและเนื้อหาที่ป้องกัน', m6: 'จัดการเนื้อหาสำหรับครู', m7: 'เสียงไทยธรรมชาติจากคลาวด์', m8: 'ห้องเรียนและการเรียนสด' },
+      runCheck: 'ตรวจเดี๋ยวนี้', ok: 'เรียบร้อย', missing: 'ยังไม่มี', mig: { m1: 'ครอบครัว ห้องเกม และเกม', m2: 'คะแนน รางวัล การเรียน', m3: 'บัญชี บทบาท และสิทธิ์', m4: 'ห้องเรียนและการเข้าสู่ระบบของนักเรียน', m5: 'การบ้านและเนื้อหาที่ป้องกัน', m6: 'จัดการเนื้อหาสำหรับครู', m7: 'เสียงไทยธรรมชาติจากคลาวด์', m8: 'ห้องเรียนและการเรียนสด', m9: 'สิทธิ์เพิ่มเติมของครู' },
       ttsCheck: 'เสียงไทยจากคลาวด์ (Edge Function "tts")',
-      bucket: 'ที่เก็บไฟล์: {b}', config: 'ที่อยู่ Supabase และคีย์สาธารณะใน js/online/config.js', bookContent: 'หนังสือ BOOK 42 ในฐานข้อมูล', settings: 'ตรวจใน Supabase ด้วย: Authentication → Anonymous sign-ins เปิด (สำหรับนักเรียน), เพิ่ม Rate limit ของ anonymous sign-in สำหรับเครือข่ายโรงเรียน, Storage bucket "submissions" และ "course-media" เป็น private'
+      bucket: 'ที่เก็บไฟล์: {b}', config: 'ที่อยู่ Supabase และคีย์สาธารณะใน js/online/config.js', bookContent: 'หนังสือ BOOK 42 ในฐานข้อมูล', settings: 'ตรวจใน Supabase ด้วย: Authentication → Anonymous sign-ins เปิด (สำหรับนักเรียน), เพิ่ม Rate limit ของ anonymous sign-in สำหรับเครือข่ายโรงเรียน, Storage bucket "submissions" และ "course-media" เป็น private',
+      tPerms: 'สิทธิ์เพิ่มเติมของครู', tPermsInfo: 'ใช้เฉพาะครูคนนี้ ถ้าเปลี่ยนบทบาท สิทธิ์เหล่านี้จะถูกยกเลิก', saveTPerms: 'บันทึกสิทธิ์ของครู',
+      tp: { classes: ['ทุกห้องเรียน', 'ดูและจัดการทุกห้องเรียน: นักเรียน (ชื่อ PIN เพิ่ม เก็บ) การบ้าน และการเรียนสด รวมถึงห้องของครูคนอื่น'], curriculum: ['เนื้อหาทุกคอร์ส', 'แก้ไขทุกคอร์สในหน้าจัดการเนื้อหา รวมถึงคอร์สที่ป้องกันไว้ เช่น BOOK 42'] },
+      extra: 'เพิ่มเติม', editStudents: 'นักเรียน', closeStudents: 'ปิด', studentsOf: 'นักเรียนในห้อง {c}', no: 'เลขที่', name: 'ชื่อ', lastActive: 'ใช้งานล่าสุด', save: 'บันทึก', newPin: 'PIN ใหม่', archive: 'เก็บ', restore: 'นำกลับ',
+      addStudents: 'เพิ่มนักเรียน', byCount: 'ตามจำนวน', byNames: 'รายชื่อ (บรรทัดละหนึ่งชื่อ)', count: 'จำนวนนักเรียน', names: 'รายชื่อ', add: 'เพิ่ม', showArchived: 'แสดงนักเรียนที่เก็บไว้',
+      pinTitle: 'ข้อมูลเข้าสู่ระบบใหม่ – แสดงครั้งเดียว กรุณาพิมพ์หรือจดไว้', print: 'พิมพ์', done: 'เสร็จ', classCode: 'รหัสห้อง', pin: 'PIN', renameClass: 'เปลี่ยนชื่อห้อง', never: 'ยังไม่เคย',
+      pinAsk: 'ตั้ง PIN ใหม่ให้ {n} ใช่ไหม PIN เดิมจะใช้ไม่ได้', archiveAsk: 'เก็บ {n} ใช่ไหม นักเรียนจะเข้าสู่ระบบไม่ได้ แต่ข้อมูลไม่ถูกลบ'
     } }
   };
   FGH.FT = FGH.FT || {};

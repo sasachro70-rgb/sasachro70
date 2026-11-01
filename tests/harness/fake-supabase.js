@@ -46,7 +46,9 @@
         auth,
         async rpc(name, args) {
           const keys = Object.keys(args || {});
-          const params = keys.map(k => (args[k] !== null && typeof args[k] === 'object') ? JSON.stringify(args[k]) : args[k]);
+          /* a list of strings goes to a text[] parameter as a PostgreSQL array literal (as PostgREST does); other objects as JSON */
+          const pgArray = a => '{' + a.map(x => '"' + String(x).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"').join(',') + '}';
+          const params = keys.map(k => Array.isArray(args[k]) && args[k].every(x => typeof x === 'string') ? pgArray(args[k]) : (args[k] !== null && typeof args[k] === 'object') ? JSON.stringify(args[k]) : args[k]);
           try {
             const res = await run(me(), `select * from public.${name}(${keys.map((k, i) => `${k} => $${i + 1}`).join(', ')})`, params);
             const scalar = res.rows.length === 1 && res.fields.length === 1 && res.fields[0].name === name;

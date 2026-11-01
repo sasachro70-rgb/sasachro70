@@ -1,4 +1,5 @@
-/* Admin Panel (admin.html): access requests, users and roles, Admin permissions, invitations, all classes, courses,
+/* Admin Panel (admin.html): access requests, users and roles, Admin permissions, extra rights for teachers (0009), invitations,
+   all classes and their students (rename, new PIN, add, archive), courses,
    the security log and a system check (are migrations 0001–0006 run, do the storage buckets exist, is BOOK 42 loaded).
    Only the System Creator and Admins get in; every action is checked again by the database (migration 0003). */
 (function () {
@@ -8,7 +9,8 @@
   const t = (k, v) => K.t('adm.' + k, v);
   const TABS = [['requests', '📨', 'users.approve'], ['users', '👥', 'users.view'], ['invites', '✉️', null], ['classes', '🏫', 'classes.manage'], ['courses', '📚', null], ['log', '🛡️', 'security.manage'], ['system', '🩺', null]];
   const ROLES = ['teacher', 'parent', 'student', 'user', 'admin'];
-  const V = { screen: 'loading', tab: 'requests', acc: null, err: null, msg: null, data: {}, q: '', fRole: '', fStatus: '', invite: null, confirm: null, sys: null, busy: false };
+  const TPERMS = ['classes.manage', 'curriculum.manage'];   // rights a teacher can be given (migration 0009)
+  const V = { screen: 'loading', tab: 'requests', openClass: null, showArch: false, addHow: 'count', pins: null, acc: null, err: null, msg: null, data: {}, q: '', fRole: '', fStatus: '', invite: null, confirm: null, sys: null, busy: false };
   let client = null, svc = null;
 
   const errText = e => { const c = e && e.code; const s = K.t('school.err_' + c); return s && s !== 'school.err_' + c ? s : String(c || (e && e.message) || '?'); };
@@ -34,17 +36,23 @@
       if ((tab === 'requests' || tab === 'users' || tab === 'log' || tab === 'invites' || tab === 'classes') && can('users.view')) d.accounts = await svc.accounts();
       if (tab === 'users') { d.perms = await svc.adminPermissions(); d.permList = await svc.permissionList(); }
       if (tab === 'invites') d.invites = await svc.invitations();
-      if (tab === 'classes' && can('classes.manage')) { d.classes = await svc.classes(); d.students = {}; for (const c of d.classes) d.students[c.id] = (await svc.students(c.id)).filter(s => !s.archived_at).length; }
+      if (tab === 'classes' && can('classes.manage')) await loadClasses();
       if (tab === 'courses') { d.courses = await svc.listCourseContent().catch(() => []); }
       if (tab === 'log' && can('security.manage')) d.log = await svc.auditLog(300);
       if (tab === 'system' && !V.sys) await systemCheck();
     } catch (e) { V.err = errText(e); }
     render();
   }
+  async function loadClasses() {
+    const d = V.data; d.classes = await svc.classes(); d.students = {}; d.studentList = {};
+    for (const c of d.classes) { const l = await svc.students(c.id); d.studentList[c.id] = l; d.students[c.id] = l.filter(s => !s.archived_at).length; }
+  }
+  const studentOf = id => { for (const k in (V.data.studentList || {})) { const s = V.data.studentList[k].find(x => x.id === id); if (s) return s; } return null; };
   async function systemCheck() {
     const probes = [['m1', 'is_family_member', { p_family: '00000000-0000-0000-0000-000000000000' }], ['m2', 'point_balance', { p_profile: '00000000-0000-0000-0000-000000000000' }],
       ['m3', 'my_account', {}], ['m4', 'can_create_classes', {}], ['m5', 'teaching_access', {}], ['m6', 'can_edit_course', { p_id: 't-check' }],
-      ['m7', 'tts_take_quota', { p_who: 'check', p_chars: 1, p_limit: 0, p_total: 0 }], ['m8', 'live_can_read', { p_class: '00000000-0000-0000-0000-000000000000' }]];
+      ['m7', 'tts_take_quota', { p_who: 'check', p_chars: 1, p_limit: 0, p_total: 0 }], ['m8', 'live_can_read', { p_class: '00000000-0000-0000-0000-000000000000' }],
+      ['m9', 'set_teacher_permissions', { p_user: '00000000-0000-0000-0000-000000000000', p_permissions: [] }]];
     const out = [];
     for (const [k, fn, args] of probes) out.push({ key: k, label: (k.slice(1).padStart(4, '0')) + ' · ' + t('mig.' + k), ok: (await svc.probe(fn, args)).ok });
     for (const b of ['submissions', 'course-media']) out.push({ key: b, label: t('bucket', { b }), ok: (await svc.bucketExists(b)).ok });
@@ -100,9 +108,15 @@
         '<span class="row" style="margin:0">' + roleSel('rr-' + a.user_id, a.role, V.acc.system_owner ? ROLES : ROLES.filter(r => r !== 'admin')) + '<button class="btn small" data-act="setRole" data-v="' + esc(a.user_id) + '">' + esc(t('changeRole')) + '</button>' +
           (a.status === 'approved' ? '<button class="btn small" data-act="ask" data-v="suspended:' + esc(a.user_id) + '">' + esc(t('suspend')) + '</button>' : (a.status === 'suspended' || a.status === 'deactivated') ? '<button class="btn small" data-act="ask" data-v="approved:' + esc(a.user_id) + '">' + esc(t('reactivate')) + '</button>' : '') +
           (a.status !== 'deactivated' && a.status !== 'pending' ? '<button class="btn small" data-act="ask" data-v="deactivated:' + esc(a.user_id) + '">' + esc(t('deactivate')) + '</button>' : '') + '</span>');
-      const perms = adminRow && V.acc.system_owner ? '<details><summary>' + esc(t('perms')) + '</summary><div class="permgrid">' + (V.data.permList || []).filter(p => p.key !== 'admins.manage').map(p => '<label><input type="checkbox" data-perm="' + esc(a.user_id) + '" value="' + esc(p.key) + '"' + (permsOf(a.user_id).includes(p.key) ? ' checked' : '') + '> <b>' + esc(p.key) + '</b> <span class="muted">' + esc(p.description) + '</span></label>').join('') +
+      const perms = adminRow && V.acc.system_owner ? '<details><summary>' + esc(t('perms')) + '</summary><div class="permgrid">' + (V.data.permList || []).filter(p => p.key !== 'admins.manage').map(p => '<label><input type="checkbox" data-perm="' + esc(a.user_id) + '" value="' + esc(p.key) + '"' + (permsOf(a.user_id).includes(p.key) ? ' checked' : '') + '><span><b>' + esc(p.key) + '</b> <span class="muted">' + esc(p.description) + '</span></span></label>').join('') +
         '</div><button class="btn small primary" data-act="savePerms" data-v="' + esc(a.user_id) + '">' + esc(t('savePerms')) + '</button></details>' : '';
-      return '<tr><td><b>#' + a.account_no + '</b></td><td>' + esc(a.display_name) + perms + '</td><td>' + esc(t('role.' + a.role)) + '</td><td><span class="pill">' + esc(t('status.' + a.status)) + '</span></td><td class="muted">' + esc(fmt(a.last_seen_at)) + '</td><td>' + actions + '</td></tr>';
+      /* a teacher's extra rights (migration 0009) */
+      const tOn = permsOf(a.user_id).filter(k => TPERMS.includes(k));
+      const tperms = a.role === 'teacher' && (V.acc.system_owner || can('teachers.manage')) ? '<details class="tperms"><summary>🔑 ' + esc(t('tPerms')) + (tOn.length ? ' (' + tOn.length + ')' : '') + '</summary><p class="muted" style="margin:.3rem 0">' + esc(t('tPermsInfo')) + '</p><div class="permgrid">' +
+        TPERMS.map(k => '<label><input type="checkbox" data-tperm="' + esc(a.user_id) + '" value="' + esc(k) + '"' + (tOn.includes(k) ? ' checked' : '') + (V.acc.system_owner || can(k) ? '' : ' disabled') + '><span><b>' + esc(t('tp.' + k.split('.')[0])[0]) + '</b><br><span class="muted">' + esc(t('tp.' + k.split('.')[0])[1]) + '</span></span></label>').join('') +
+        '</div><button class="btn small primary" data-act="saveTPerms" data-v="' + esc(a.user_id) + '">' + esc(t('saveTPerms')) + '</button></details>' : '';
+      const badges = a.role === 'teacher' ? tOn.map(k => ' <span class="pill tpill">🔑 ' + esc(t('tp.' + k.split('.')[0])[0]) + '</span>').join('') : '';
+      return '<tr><td><b>#' + a.account_no + '</b></td><td>' + esc(a.display_name) + badges + perms + tperms + '</td><td>' + esc(t('role.' + a.role)) + '</td><td><span class="pill">' + esc(t('status.' + a.status)) + '</span></td><td class="muted">' + esc(fmt(a.last_seen_at)) + '</td><td>' + actions + '</td></tr>';
     }).join('') + '</tbody></table></div>';
     return h;
   }
@@ -125,9 +139,38 @@
   function classesHTML() {
     if (!can('classes.manage')) return noRight('classes.manage');
     const list = V.data.classes || [];
-    return '<div class="card tablewrap"><h2>' + esc(t('classes')) + '</h2><table><thead><tr><th>' + esc(t('className')) + '</th><th>' + esc(t('code')) + '</th><th>' + esc(t('teacher')) + '</th><th>' + esc(t('students')) + '</th></tr></thead><tbody>' +
-      (list.length ? list.map(c => '<tr><td>' + esc(c.name) + (c.archived_at ? ' <span class="muted">(' + esc(t('archived')) + ')</span>' : '') + '</td><td class="code">' + esc(c.code) + '</td><td>' + esc(nameOf(c.teacher_id)) + '</td><td>' + ((V.data.students || {})[c.id] || 0) + '</td></tr>').join('') : '<tr><td class="muted" colspan="4">' + esc(t('none')) + '</td></tr>') +
+    let h = pinsHTML();
+    h += '<div class="card tablewrap"><h2>' + esc(t('classes')) + '</h2><table><thead><tr><th>' + esc(t('className')) + '</th><th>' + esc(t('code')) + '</th><th>' + esc(t('teacher')) + '</th><th>' + esc(t('students')) + '</th><th></th></tr></thead><tbody>' +
+      (list.length ? list.map(c => '<tr' + (V.openClass === c.id ? ' class="on"' : '') + '><td>' + esc(c.name) + (c.archived_at ? ' <span class="muted">(' + esc(t('archived')) + ')</span>' : '') + '</td><td class="code">' + esc(c.code) + '</td><td>' + esc(nameOf(c.teacher_id)) + '</td><td>' + ((V.data.students || {})[c.id] || 0) + '</td>' +
+        '<td><button class="btn small' + (V.openClass === c.id ? ' primary' : '') + '" data-act="openStudents" data-v="' + esc(c.id) + '">👥 ' + esc(V.openClass === c.id ? t('closeStudents') : t('editStudents')) + '</button></td></tr>').join('') : '<tr><td class="muted" colspan="5">' + esc(t('none')) + '</td></tr>') +
       '</tbody></table><div class="row"><a class="btn" href="teacher.html">' + esc(t('openTeacher')) + ' →</a></div></div>';
+    return h + studentsHTML();
+  }
+  /* the students of one class: rename, new PIN, archive/restore, add (every call checked by the database: can_teach / classes.manage) */
+  function studentsHTML() {
+    const c = (V.data.classes || []).find(x => x.id === V.openClass); if (!c) return '';
+    const all = (V.data.studentList || {})[c.id] || [], list = all.filter(s => V.showArch || !s.archived_at);
+    let h = '<section class="card stack adm-students"><div class="row" style="margin:0"><h2 style="margin:0">👥 ' + esc(t('studentsOf', { c: c.name })) + '</h2><span class="grow"></span>' +
+      '<form class="row" data-form="renameClass" style="margin:0"><input id="rnC" type="text" maxlength="60" value="' + esc(c.name) + '" aria-label="' + esc(t('renameClass')) + '"><button class="btn small" type="submit">' + esc(t('renameClass')) + '</button></form></div>';
+    h += '<div class="tablewrap"><table><thead><tr><th>' + esc(t('no')) + '</th><th>' + esc(t('name')) + '</th><th>' + esc(t('lastActive')) + '</th><th></th></tr></thead><tbody>' + (list.length ? list.map(st =>
+      '<tr' + (st.archived_at ? ' class="muted"' : '') + '><td><b>' + st.student_no + '</b></td><td><form class="row" data-form="renameSt" data-v="' + esc(st.id) + '" style="margin:0;flex-wrap:nowrap"><input id="sn-' + esc(st.id) + '" type="text" maxlength="40" value="' + esc(st.display_name) + '" aria-label="' + esc(t('name')) + '" style="min-width:8rem">' +
+        '<button class="btn small" type="submit">' + esc(t('save')) + '</button></form>' + (st.archived_at ? ' <span class="muted">(' + esc(t('archived')) + ')</span>' : '') + '</td><td class="muted">' + esc(st.last_active_at ? fmt(st.last_active_at) : t('never')) + '</td>' +
+        '<td class="row" style="margin:0;flex-wrap:nowrap">' + (st.archived_at ? '<button class="btn small" data-act="ask" data-v="restoreSt:' + esc(st.id) + '">' + esc(t('restore')) + '</button>'
+          : '<button class="btn small" data-act="ask" data-v="pin:' + esc(st.id) + '">🔑 ' + esc(t('newPin')) + '</button><button class="btn small" data-act="ask" data-v="archSt:' + esc(st.id) + '">' + esc(t('archive')) + '</button>') + '</td></tr>').join('')
+      : '<tr><td class="muted" colspan="4">' + esc(t('none')) + '</td></tr>') + '</tbody></table></div>';
+    if (all.some(s => s.archived_at)) h += '<label class="row" style="margin:0"><input type="checkbox" data-change="showArch"' + (V.showArch ? ' checked' : '') + '> ' + esc(t('showArchived')) + '</label>';
+    h += '<form class="stack" data-form="addSt" style="margin:0"><h3 style="margin:0">＋ ' + esc(t('addStudents')) + '</h3><div class="row" style="margin:0">' +
+      ['count', 'names'].map(m => '<button type="button" class="btn small' + (V.addHow === m ? ' on' : '') + '" aria-pressed="' + (V.addHow === m) + '" data-act="addHow" data-v="' + m + '">' + esc(m === 'count' ? t('byCount') : t('byNames')) + '</button>').join('') + '</div>' +
+      (V.addHow === 'count' ? '<label class="field">' + esc(t('count')) + '<input id="adC" type="number" min="1" max="100" value="1" inputmode="numeric" required></label>' : '<label class="field">' + esc(t('names')) + '<textarea id="adN" rows="4" required></textarea></label>') +
+      '<div class="row" style="margin:0"><button class="btn primary" type="submit">' + esc(t('add')) + '</button></div></form>';
+    return h + '</section>';
+  }
+  /* new PINs exist only on this screen until it is closed */
+  function pinsHTML() {
+    const P = V.pins; if (!P) return '';
+    return '<section class="card stack" style="border:2px solid var(--tla-teal, #0E8C80)"><p class="warn no-print" style="margin:0">🔐 ' + esc(t('pinTitle')) + '</p><div class="logincards">' + P.list.map(s =>
+      '<div class="logincard"><div class="lc-top">🎒 ' + esc(P.name) + '</div><div class="lc-name">' + esc(s.name || s.display_name || '') + '</div><dl><dt>' + esc(t('classCode')) + '</dt><dd class="code">' + esc(P.code) + '</dd><dt>' + esc(t('no')) + '</dt><dd>' + s.student_no + '</dd><dt>' + esc(t('pin')) + '</dt><dd class="code">' + esc(s.pin) + '</dd></dl></div>').join('') +
+      '</div><div class="row no-print" style="margin:0"><button class="btn primary" data-act="printPins">🖨️ ' + esc(t('print')) + '</button><button class="btn" data-act="pinsDone">' + esc(t('done')) + '</button></div></section>';
   }
   function coursesHTML() {
     const list = V.data.courses || [], built = (window.FGH_CONTENT && window.FGH_CONTENT.academy && window.FGH_CONTENT.academy.courses) || {};
@@ -154,12 +197,26 @@
     approve(v) { run(async () => { await svc.decideAccount(v, true, $('ar-' + v).value); V.msg = t('saved'); V.data.accounts = await svc.accounts(); }); },
     setRole(v) { run(async () => { await svc.setAccountRole(v, $('rr-' + v).value); V.msg = t('saved'); V.data.accounts = await svc.accounts(); }); },
     savePerms(v) { const perms = Array.from(document.querySelectorAll('input[data-perm="' + v + '"]:checked')).map(x => x.value); run(async () => { await svc.setAdminPermissions(v, perms); V.msg = t('saved'); V.data.perms = await svc.adminPermissions(); }); },
+    saveTPerms(v) { const perms = Array.from(document.querySelectorAll('input[data-tperm="' + v + '"]:checked')).map(x => x.value); run(async () => { await svc.setTeacherPermissions(v, perms); V.msg = t('saved'); V.data.perms = await svc.adminPermissions(); }); },
+    openStudents(v) { V.openClass = V.openClass === v ? null : v; V.pins = null; render(); },
+    addHow(v) { V.addHow = v; render(); },
+    printPins() { window.print(); },
+    pinsDone() { V.pins = null; render(); },
     copyInvite() { const i = $('invLink'); i.select(); try { navigator.clipboard.writeText(i.value); } catch (e) { document.execCommand('copy'); } K.toast(t('copied')); },
     recheck() { V.sys = null; render(); run(systemCheck); },
-    ask(v) { V.confirm = { v, text: t('askSure') }; render(); },
+    ask(v) {
+      const [what, id] = v.split(':'), st = studentOf(id), n = st ? st.student_no + ' ' + st.display_name : '';
+      V.confirm = { v, text: what === 'pin' ? t('pinAsk', { n }) : what === 'archSt' ? t('archiveAsk', { n }) : t('askSure') }; render();
+    },
     confirmNo() { V.confirm = null; render(); },
     confirmYes() {
       const [what, id] = V.confirm.v.split(':'); V.confirm = null;
+      if (what === 'pin' || what === 'archSt' || what === 'restoreSt') return run(async () => {
+        const c = (V.data.classes || []).find(x => x.id === V.openClass);
+        if (what === 'pin') { const r = await svc.resetPin(id); V.pins = { name: c ? c.name : '', code: c ? c.code : '', list: [r] }; }
+        else await svc.archiveStudent(id, what === 'archSt');
+        await loadClasses(); V.msg = t('saved');
+      });
       run(async () => {
         if (what === 'reject') await svc.decideAccount(id, false);
         if (what === 'suspended' || what === 'approved' || what === 'deactivated') await svc.setAccountStatus(id, what);
@@ -172,6 +229,15 @@
   K.bindActs(ACT);
   document.addEventListener('submit', e => {
     e.preventDefault();
+    const f = e.target.dataset.form;
+    if (f === 'renameSt') { const id = e.target.dataset.v; return run(async () => { await svc.renameStudent(id, $('sn-' + id).value); await loadClasses(); V.msg = t('saved'); }); }
+    if (f === 'renameClass') return run(async () => { await svc.renameClass(V.openClass, $('rnC').value); await loadClasses(); V.msg = t('saved'); });
+    if (f === 'addSt') return run(async () => {
+      const c = V.data.classes.find(x => x.id === V.openClass);
+      const r = V.addHow === 'count' ? await svc.addStudents(V.openClass, parseInt($('adC').value, 10) || 1, null)
+        : await svc.addStudents(V.openClass, 0, String($('adN').value).split(/\r?\n/).map(x => x.trim()).filter(Boolean));
+      V.pins = { name: c.name, code: c.code, list: r || [] }; await loadClasses(); V.msg = t('saved');
+    });
     if (e.target.dataset.form === 'invite') run(async () => {
       const r = await svc.createInvitation($('ivr').value, parseInt($('ivd').value, 10) || 7, [], $('ivn').value);
       V.invite = location.href.replace(/admin\.html.*$/, 'teacher.html') + '?invite=' + encodeURIComponent(r.token);
@@ -179,7 +245,7 @@
     });
   });
   document.addEventListener('input', e => { if (e.target.dataset.input === 'q') { V.q = e.target.value; const pos = e.target.selectionStart; render(); const i = document.querySelector('[data-input="q"]'); if (i) { i.focus(); i.setSelectionRange(pos, pos); } } });
-  document.addEventListener('change', e => { const c = e.target.dataset.change; if (c === 'fRole') { V.fRole = e.target.value; render(); } if (c === 'fStatus') { V.fStatus = e.target.value; render(); } });
+  document.addEventListener('change', e => { const c = e.target.dataset.change; if (c === 'showArch') { V.showArch = e.target.checked; render(); } if (c === 'fRole') { V.fRole = e.target.value; render(); } if (c === 'fStatus') { V.fStatus = e.target.value; render(); } });
   render();
   boot().catch(e => { V.err = errText(e); V.screen = 'gate'; render(); });
   window.__admin = { state: () => V };

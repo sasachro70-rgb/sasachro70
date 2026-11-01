@@ -277,6 +277,8 @@ textarea { width: 100%; border-radius: 12px; border: 1px solid var(--line); padd
 @media (max-width: 600px) { .block { grid-template-columns: 1fr; } }
 /* Admin Panel (Phase I–J) */
 .permgrid { display: grid; gap: 6px; margin: .5rem 0; }
+.permgrid label { display: flex; gap: .5rem; align-items: flex-start; text-align: left; line-height: 1.4; }
+.permgrid input[type="checkbox"] { flex: none; width: 22px; height: 22px; min-height: 0; margin: .1rem 0 0; }
 .syslist li { padding: .35rem 0; border-bottom: 1px solid var(--line); }
 .pill.okp { background: color-mix(in srgb, #17945A 18%, var(--surface)); color: #0f6b40; }
 .pill.badp { background: color-mix(in srgb, #D9483B 18%, var(--surface)); color: #a3281d; }
@@ -391,3 +393,9 @@ button.lv-opt:hover:not([disabled]) { border-color: var(--tla, #232A6B); }
 .lesson-goals ul { margin: .2rem 0 0; padding-left: 1.2rem; }
 .lesson-goals .parts { font-size: .85rem; }
 .lesson-status.done { color: var(--good); }
+/* admin: teacher rights and class students (0009) */
+.tperms { margin-top: .3rem; }
+.pill.tpill { font-size: .78rem; margin-left: .3rem; background: color-mix(in srgb, var(--tla-teal, #0E8C80) 15%, transparent); }
+.adm-students input[type="text"] { min-height: 40px; }
+tr.on td { background: color-mix(in srgb, var(--tla, #232A6B) 6%, transparent); }
+@media print { .acnav, header.top, .adm-students, .card.tablewrap, .no-print { display: none !important; } }
